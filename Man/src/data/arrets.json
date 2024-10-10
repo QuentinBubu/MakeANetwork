@@ -1,0 +1,27 @@
+{
+    "A": {
+        "nom": "A",
+        "routes": ["route1", "route2"],
+        "file": ["p1"]
+    },
+    "B": {
+        "nom": "B",
+        "routes": ["route1"],
+        "file": ["p2"]
+    },
+    "C": {
+        "nom": "C",
+        "routes": ["route2", "route3", "route4"],
+        "file": ["p3"]
+    },
+    "D": {
+        "nom": "D",
+        "routes": ["route3"],
+        "file": ["p4"]
+    },
+    "E": {
+        "nom": "E",
+        "routes": ["route4"],
+        "file": ["p5"]
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "route1": {
+        "nom": "route1",
+        "arrets": ["A", "B"],
+        "distance": 10
+    },
+    "route2": {
+        "nom": "route2",
+        "arrets": ["A", "C"],
+        "distance": 4
+    },
+    "route3": {
+        "nom": "route3",
+        "arrets": ["C", "D"],
+        "distance": 12
+    },
+    "route4": {
+        "nom": "route4",
+        "arrets": ["C", "E"],
+        "distance": 4
+    }
+}
