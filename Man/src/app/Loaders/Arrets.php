@@ -11,8 +11,15 @@ class Arrets
     public static function load(array $arrets): void
     {
         foreach ($arrets as $name => $data) {
-            $arret = new Arret($name, $data['routes'], $data['file']);
+            $arret = new Arret(nom: $name, genericRoutes: $data['routes'], genericFile: $data['file']);
             self::$arrets[$name] = $arret;
+        }
+    }
+
+    public static function map(): void
+    {
+        foreach (self::$arrets as $arret) {
+            $arret->mapRoutes();
         }
     }
 
