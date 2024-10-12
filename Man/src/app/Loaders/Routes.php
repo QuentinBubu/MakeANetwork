@@ -1,9 +1,10 @@
 <?php
 
-namespace Man\App\Loaders;
+namespace App\Loaders;
 
-use Man\App\Exceptions\RoutesException;
-use Man\App\Entities\Route;
+use App\Entities\Arret;
+use App\Exceptions\RoutesException;
+use App\Entities\Route;
 
 class Routes
 {
@@ -24,5 +25,20 @@ class Routes
         }
 
         return self::$routes[$name];
+    }
+
+    public static function getRouteStr(string $arretA, string $arretB): Route
+    {
+        $arrets = [Arrets::getArret($arretA), Arrets::getArret($arretB)];
+
+        $route = array_filter(self::$routes, function ($route) use ($arrets) {
+            return in_array($arrets[0], $route->getArrets()) && in_array($arrets[1], $route->getArrets());
+        });
+
+        if (count($route) == 0) {
+            throw new RoutesException('Route inconnue');
+        }
+
+        return array_values($route)[0];
     }
 }

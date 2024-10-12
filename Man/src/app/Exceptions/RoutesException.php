@@ -1,6 +1,6 @@
 <?php
 
-namespace Man\App\Exceptions;
+namespace App\Exceptions;
 
 class RoutesException extends \Exception
 {
