@@ -19,7 +19,6 @@ class Routes
 
     public static function getRoute(string $name): Route
     {
-        var_dump(self::$routes);
         if (!isset(self::$routes[$name])) {
             throw new RoutesException('Route inconnue');
         }

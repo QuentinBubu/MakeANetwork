@@ -19,7 +19,10 @@ Arrets::map();
 
 foreach (Routes::$routes as $route) {
     echo $route . PHP_EOL;
-    echo '------' . PHP_EOL;
+}
+
+foreach (Arrets::$arrets as $arret) {
+    echo $arret . PHP_EOL;
 }
 
 echo '------ FIN ------' . PHP_EOL;

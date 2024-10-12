@@ -29,15 +29,18 @@ class Route
 
     public function __tostring(): string
     {
-        return json_encode($this);
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'nom' => $this->nom,
-            'distance' => $this->distance,
-            'arrets' => $this->arrets
-        ];
+        return $this->nom . ' @' . spl_object_id($this)
+            . ' (Distance : ' . $this->distance
+            . ' | Arrets : '
+            . implode(
+                separator: ', ',
+                array: array_map(
+                    callback: function ($arret) {
+                        return 'Arret ' . $arret->nom . ' @' . spl_object_id($arret);
+                    },
+                    array: $this->arrets
+                )
+            )
+            . ')';
     }
 }
