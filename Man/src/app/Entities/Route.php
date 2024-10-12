@@ -1,9 +1,14 @@
 <?php
 
-namespace Man\App\Entities;
+namespace App\Entities;
 
 use App\Exceptions\RouteException;
 
+/**
+ * @Entity
+ *
+ * Une route est un ensemble de deux arrêts et une distance
+ */
 class Route
 {
     public string $nom;
@@ -42,5 +47,10 @@ class Route
                 )
             )
             . ')';
+    }
+
+    public function getArrets(): array
+    {
+        return $this->arrets;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Man\App\Factories;
+namespace App\Factories;
 
 class BusFactory
 {

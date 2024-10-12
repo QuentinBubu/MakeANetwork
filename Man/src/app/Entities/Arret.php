@@ -1,8 +1,8 @@
 <?php
 
-namespace Man\App\Entities;
+namespace App\Entities;
 
-use Man\App\Loaders\Routes;
+use App\Loaders\Routes;
 
 class Arret
 {

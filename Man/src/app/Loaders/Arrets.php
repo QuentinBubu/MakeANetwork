@@ -1,8 +1,8 @@
 <?php
 
-namespace Man\App\Loaders;
+namespace App\Loaders;
 
-use Man\App\Entities\Arret;
+use App\Entities\Arret;
 
 class Arrets
 {

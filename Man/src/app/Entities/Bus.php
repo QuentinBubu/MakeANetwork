@@ -1,19 +1,9 @@
 <?php
 
-namespace Man\App\Entities;
+namespace App\Entities;
 
-class Bus
+use App\Abstracts\AbstractVehicule;
+
+class Bus extends AbstractVehicule
 {
-    public int $capacite;
-    public float $vitesseChargement;
-    public float $vitesseDeplacement;
-    public array $patcours;
-
-    public function __construct(int $capacite, float $vitesseChargement, float $vitesseDeplacement, array $patcours)
-    {
-        $this->capacite = $capacite;
-        $this->vitesseChargement = $vitesseChargement;
-        $this->vitesseDeplacement = $vitesseDeplacement;
-        $this->patcours = $patcours;
-    }
 }

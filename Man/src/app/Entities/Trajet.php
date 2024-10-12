@@ -1,6 +1,6 @@
 <?php
 
-namespace Man\App\Entities;
+namespace App\Entities;
 
 use DateTime;
 
