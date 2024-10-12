@@ -3,6 +3,7 @@
 namespace App\Loaders;
 
 use App\Entities\Arret;
+use App\Exceptions\ArretsException;
 
 class Arrets
 {
@@ -25,6 +26,9 @@ class Arrets
 
     public static function getArret(string $name): Arret
     {
+        if (!isset(self::$arrets[$name])) {
+            throw new ArretsException("Arrêt {$name} inconnu");
+        }
         return self::$arrets[$name];
     }
 }

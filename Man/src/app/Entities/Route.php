@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use App\Exceptions\RouteException;
+use App\Loaders\Trajets;
 
 /**
  * @Entity
@@ -12,6 +13,10 @@ use App\Exceptions\RouteException;
 class Route
 {
     public string $nom;
+
+    /**
+     * @var Arret[]
+     */
     public array $arrets = [];
     public int $distance;
 
@@ -24,10 +29,14 @@ class Route
     public function registerArret(Arret $arret): self
     {
         if (count($this->arrets) == 2) {
-            throw new RouteException('Un arret ne peut pas être ajouté à plus de deux routes');
+            throw new RouteException('Un arrêt ne peut pas être ajouté à plus de deux routes');
         }
 
         $this->arrets[] = $arret;
+        $arret->registerRoute($this);
+        if (count($this->arrets) == 2) {
+            Trajets::addTrajet($this);
+        }
 
         return $this;
     }

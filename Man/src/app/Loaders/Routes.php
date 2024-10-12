@@ -2,7 +2,6 @@
 
 namespace App\Loaders;
 
-use App\Entities\Arret;
 use App\Exceptions\RoutesException;
 use App\Entities\Route;
 
@@ -21,7 +20,7 @@ class Routes
     public static function getRoute(string $name): Route
     {
         if (!isset(self::$routes[$name])) {
-            throw new RoutesException('Route inconnue');
+            throw new RoutesException("Route {$name} inconnue");
         }
 
         return self::$routes[$name];
@@ -36,7 +35,7 @@ class Routes
         });
 
         if (count($route) == 0) {
-            throw new RoutesException('Route inconnue');
+            throw new RoutesException("Route {$arretA} <-> {$arretB} inconnue");
         }
 
         return array_values($route)[0];

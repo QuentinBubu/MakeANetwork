@@ -26,11 +26,29 @@ class Arret
         $this->genericFile = $genericFile;
     }
 
+    public function getNeighbors() {
+        $neighbors = [];
+        foreach ($this->routes as $route) {
+            foreach ($route->getArrets() as $neighbor) {
+                if ($neighbor !== $this) {
+                    $neighbors[$neighbor->nom] = $neighbor;
+                }
+            }
+        }
+        return $neighbors;
+    }
+
     public function mapRoutes()
     {
         $this->routes = array_map(function ($route) {
             return Routes::getRoute($route)->registerArret($this);
         }, $this->genericRoutes);
+    }
+
+    public function registerRoute(Route $route): self
+    {
+        $this->routes[] = $route;
+        return $this;
     }
 
     public function __tostring(): string
