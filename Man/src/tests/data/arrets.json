@@ -6,7 +6,7 @@
     },
     "B": {
         "nom": "B",
-        "routes": ["route1"],
+        "routes": ["route1", "route6", "route8"],
         "file": ["p2"]
     },
     "C": {
@@ -21,7 +21,17 @@
     },
     "E": {
         "nom": "E",
-        "routes": ["route4"],
+        "routes": ["route4", "route5"],
         "file": ["p5"]
+    },
+    "F": {
+        "nom": "F",
+        "routes": ["route5", "route6", "route7"],
+        "file": ["p6"]
+    },
+    "G": {
+        "nom": "G",
+        "routes": ["route8", "route7"],
+        "file": ["p7"]
     }
 }

@@ -18,5 +18,25 @@
         "nom": "route4",
         "arrets": ["C", "E"],
         "distance": 4
+    },
+    "route5": {
+        "nom": "route5",
+        "arrets": ["E", "F"],
+        "distance": 1
+    },
+    "route6": {
+        "nom": "route6",
+        "arrets": ["B", "F"],
+        "distance": 10
+    },
+    "route7": {
+        "nom": "route7",
+        "arrets": ["F", "G"],
+        "distance": 2
+    },
+    "route8": {
+        "nom": "route8",
+        "arrets": ["B", "G"],
+        "distance": 9
     }
 }
