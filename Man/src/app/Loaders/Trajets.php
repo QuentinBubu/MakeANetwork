@@ -2,7 +2,9 @@
 
 namespace App\Loaders;
 
+use App\Entities\Arret;
 use App\Entities\Route;
+use App\Entities\Trajet;
 use App\Loaders\Arrets;
 use App\Exceptions\ArretsException;
 
@@ -23,20 +25,29 @@ class Trajets
         return $a < $b ? "{$a}, {$b}" : "{$b}, {$a}";
     }
 
-    public static function registerTrajet(string $nom, array $routes)
-    {
-        self::$trajets[$nom] = $routes;
-    }
-
     public static function addTrajet(Route $route): void
     {
-        self::$trajets[self::key($route->arrets[0], $route->arrets[1])] = [
-            "routes" => [$route],
-            "distance" => $route->distance,
-        ];
+        $nom = self::key($route->arrets[0], $route->arrets[1]);
+        self::$trajets[$nom] = new Trajet(
+            nom: $nom,
+            route: [$route],
+            depart: Arrets::getArret($route->arrets[1]->nom),
+            arrivee: Arrets::getArret($route->arrets[0]->nom)
+        );
     }
 
-    public static function findTrajet(string $depart, string $arrivee)
+    public static function addLongTrajet(Arret $depart, Arret $arrivee, array $routes): void
+    {
+        $nom = self::key($depart->nom, $arrivee->nom);
+        self::$trajets[$nom] = new Trajet(
+            nom: $nom,
+            route: $routes,
+            depart: $depart,
+            arrivee: $arrivee
+        );
+    }
+
+    public static function findTrajet(string $depart, string $arrivee): Trajet
     {
         $cle = self::key($depart, $arrivee);
 
@@ -45,10 +56,9 @@ class Trajets
         }
 
         $trajets = self::calculTrajet($depart, $arrivee);
-        self::$trajets[$cle] = $trajets;
+        self::addLongTrajet(Arrets::getArret($depart), Arrets::getArret($arrivee), $trajets['routes']);
 
-        return $trajets;
-
+        return self::$trajets[$cle];
     }
 
     public static function calculTrajet(string $arretA, string $arretB): array
@@ -94,11 +104,9 @@ class Trajets
                             $routes[$neighbor->nom] = $route;
                             
                             if (!isset($inQueue[$neighbor->nom])) {
-                                $minHeap->insert($neighbor->nom, -$alt);
                                 $inQueue[$neighbor->nom] = true;
-                            } else {
-                                $minHeap->insert($neighbor->nom, -$alt);
                             }
+                            $minHeap->insert($neighbor->nom, -$alt);
     
                             echo "  Mise à jour : {$neighbor->nom}, Nouvelle distance totale : $alt\n";
                         }
@@ -128,9 +136,8 @@ class Trajets
             "distance" => $distanceTotale
         ];
     }
-        
 
-    public static function getTrajets()
+    public static function getTrajets(): array
     {
         return self::$trajets;
     }

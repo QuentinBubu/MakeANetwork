@@ -17,5 +17,8 @@
     ],
     "require-dev": {
         "phpunit/phpunit": "^11.4"
+    },
+    "require": {
+        "smeghead/php-class-diagram": "^1.4"
     }
 }

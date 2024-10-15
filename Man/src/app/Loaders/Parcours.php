@@ -2,8 +2,7 @@
 
 namespace App\Loaders;
 
-use App\Loaders\Routes;
-use App\Exceptions\RoutesException;
+use App\Entities\Parcours as EntityParcours;
 
 /**
  * @Entity
@@ -18,6 +17,19 @@ class Parcours
 
     public static function load(array $parcours): void
     {
-        self::$parcours = $parcours;
+        foreach ($parcours as $name => $arrets) {
+            $parc = new EntityParcours(nom: $name);
+            for ($i = 0; $i < count($arrets) - 1; $i++) {
+                $arretA = $arrets[$i];
+                $arretB = $arrets[$i + 1];
+                $parc->addTrajet(Trajets::findTrajet($arretA, $arretB));
+            }
+            self::$parcours[$name] = $parc;
+        }
+    }
+
+    public static function getParcours(string $nom): EntityParcours
+    {
+        return self::$parcours[$nom];
     }
 }

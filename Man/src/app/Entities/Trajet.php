@@ -4,17 +4,25 @@ namespace App\Entities;
 
 use DateTime;
 
+/**
+ * @Entity
+ *
+ * Un trajet est un ensemble de routes pour se rendre d'un point A à un point B
+ */
 class Trajet
 {
-    public Route $route;
-    public DateTime $heureDepart;
+    public string $nom;
+    /**
+     * @var Route[]
+     */
+    public array $routes;
     public Arret $depart;
     public Arret $arrivee;
 
-    public function __construct(Route $route, DateTime $heureDepart, Arret $depart, Arret $arrivee)
+    public function __construct(string $nom, array $route, Arret $depart, Arret $arrivee)
     {
-        $this->route = $route;
-        $this->heureDepart = $heureDepart;
+        $this->nom = $nom;
+        $this->routes = $route;
         $this->depart = $depart;
         $this->arrivee = $arrivee;
     }

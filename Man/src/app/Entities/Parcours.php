@@ -2,22 +2,26 @@
 
 namespace App\Entities;
 
-use App\Entities\Route;
-
 /**
  * @Entity
  *
- * Un parcours est décrit par un ensemble de routes
+ * Un parcours est décrit par un ensemble de trajets
  */
 class Parcours
 {
     public string $nom;
-    public array $routes = [];
+    public array $trajets = [];
 
-    public function __construct(string $nom, Route ...$routes)
+    public function __construct(string $nom, Trajet ...$trajets)
     {
         $this->nom = $nom;
-        $this->routes = $routes;
+        $this->trajets = $trajets;
+    }
+
+    public function addTrajet(Trajet $trajet): self
+    {
+        $this->trajets[] = $trajet;
+        return $this;
     }
 
     public function __tostring(): string
@@ -28,7 +32,7 @@ class Parcours
                 callback: function ($route) {
                     return $route->nom;
                 },
-                array: $this->routes
+                array: $this->trajets
             )
         );
     }

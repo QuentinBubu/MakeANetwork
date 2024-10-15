@@ -12,6 +12,11 @@ class BusActions implements BusActionsInterface
         echo "Démarrage du bus\n";
     }
 
+    public function avancer(): void
+    {
+        echo "Avancement du bus\n";
+    }
+
     public function chargerPersonnes(array $personnes): void
     {
         foreach ($personnes as $person) {
