@@ -37,6 +37,8 @@ class Personne
      */
     public string $nom;
 
+    public Position $position;
+
     /**
      * Constructeur
      *
@@ -49,10 +51,11 @@ class Personne
         $this->trajetAller = $trajetAller;
         $this->trajetRetour = $trajetRetour;
         $this->nom = $nom;
+        $this->setArretActuel($trajetAller->depart);
     }
 
-    // public function setArretActuel(Arret $arret): void
-    // {
-        
-    // }
+    public function setArretActuel(Arret $arret): void
+    {
+        $this->position->setArret($arret);
+    }
 }
