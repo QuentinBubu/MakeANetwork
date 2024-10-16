@@ -9,10 +9,41 @@ namespace App\Entities;
  */
 class Personne
 {
+    /**
+     * Trajet aller de la personne
+     *
+     * @var Trajet
+     */
     public Trajet $trajetAller;
+
+    /**
+     * Trajet retour
+     *
+     * @var Trajet
+     */
     public Trajet $trajetRetour;
+
+    /**
+     * Dernier bus pris (pour éviter qu'il remonte dans le même bus)
+     *
+     * @var Bus
+     */
+    public Bus $lastBus;
+
+    /**
+     * Nom de la personne
+     *
+     * @var string
+     */
     public string $nom;
 
+    /**
+     * Constructeur
+     *
+     * @param Trajet $trajetAller
+     * @param Trajet $trajetRetour
+     * @param string $nom
+     */
     public function __construct(Trajet $trajetAller, Trajet $trajetRetour, string $nom)
     {
         $this->trajetAller = $trajetAller;
@@ -20,8 +51,8 @@ class Personne
         $this->nom = $nom;
     }
 
-    public function setArretActuel(Arret $arret): void
-    {
+    // public function setArretActuel(Arret $arret): void
+    // {
         
-    }
+    // }
 }

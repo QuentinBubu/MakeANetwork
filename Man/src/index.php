@@ -3,6 +3,7 @@
 use App\Loaders\Parcours;
 use App\Loaders\Arrets;
 use App\Loaders\Bus;
+use App\Loaders\Personnes;
 use App\Loaders\Routes;
 use App\Loaders\Trajets;
 
@@ -23,7 +24,6 @@ Arrets::map();
 Parcours::load(parcours: $parcoursJson);
 
 // Vérification des routes
-// var_dump(Routes::getRouteStr(arretA: 'E', arretB: 'C')->nom);
 
 Trajets::findTrajet(depart: 'A', arrivee: 'C');
 Trajets::findTrajet(depart: 'B', arrivee: 'C');
@@ -47,10 +47,94 @@ $busList = [
     ],
 ];
 
+$personnesList = [];
+
+loadPersonnes(personnesList: $personnesList);
+
 Bus::load(bus: $busList, config: $busJson);
+
+Personnes::load(personnesList: $personnesList);
 
 foreach (Bus::$buses as $bus) {
     echo $bus . PHP_EOL;
 }
 
 echo '------ FIN ------' . PHP_EOL;
+
+function loadPersonnes(array &$personnesList) {
+    for ($i = 0; $i < 6; $i++) {
+        $personnesList[] = [
+            'nom' => "Albert{$i}",
+            'aller' => [
+                'depart' => 'B',
+                'arrivee' => 'D',
+                'temps' => 0,
+            ],
+            'retour' => [
+                'depart' => 'D',
+                'arrivee' => 'A',
+                'temps' => 500,
+            ]
+        ];
+    }
+    
+    for ($i = 0; $i < 12; $i++) {
+        $personnesList[] = [
+            'nom' => "Bob{$i}",
+            'aller' => [
+                'depart' => 'B',
+                'arrivee' => 'C',
+                'temps' => 0,
+            ],
+            'retour' => [
+                'depart' => 'C',
+                'arrivee' => 'B',
+                'temps' => 500,
+            ]
+        ];
+    
+        $personnesList[] = [
+            'nom' => "Charles{$i}",
+            'aller' => [
+                'depart' => 'B',
+                'arrivee' => 'C',
+                'temps' => 0,
+            ],
+            'retour' => [
+                'depart' => 'C',
+                'arrivee' => 'B',
+                'temps' => 500,
+            ]
+        ];
+    
+        $personnesList[] = [
+            'nom' => "Damien{$i}",
+            'aller' => [
+                'depart' => 'E',
+                'arrivee' => 'A',
+                'temps' => 0,
+            ],
+            'retour' => [
+                'depart' => 'A',
+                'arrivee' => 'E',
+                'temps' => 600,
+            ]
+        ];
+    }
+    
+    for ($i = 0; $i < 45; $i++) {
+        $personnesList[] = [
+            'nom' => "Edouard{$i}",
+            'aller' => [
+                'depart' => 'A',
+                'arrivee' => 'C',
+                'temps' => 0,
+            ],
+            'retour' => [
+                'depart' => 'C',
+                'arrivee' => 'A',
+                'temps' => 300,
+            ]
+        ];
+    }
+}
