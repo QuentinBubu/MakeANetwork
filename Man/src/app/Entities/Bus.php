@@ -2,12 +2,44 @@
 
 namespace App\Entities;
 
+/**
+ * Représente un bus
+ */
 class Bus
 {
+    /**
+     * Capacité max du bus
+     *
+     * @var integer
+     */
     protected int $capacite;
+
+    /**
+     * Vitesse de chargement
+     *
+     * @var float
+     */
     protected float $vitesseChargement;
+
+    /**
+     * Vitesse de déplacement
+     *
+     * @var float
+     */
     protected float $vitesseDeplacement;
+
+    /**
+     * Parcours du bus
+     *
+     * @var Parcours
+     */
     protected Parcours $parcours;
+
+    /**
+     * Personnes dans le bus
+     *
+     * @var Personne[]
+     */
     protected array $personnes = [];
 
     /**
@@ -15,6 +47,14 @@ class Bus
      */
     protected $position = 0;
 
+    /**
+     * Constructeur
+     *
+     * @param integer $capacite
+     * @param float $vitesseChargement
+     * @param float $vitesseDeplacement
+     * @param Parcours $parcours
+     */
     public function __construct(int $capacite, float $vitesseChargement, float $vitesseDeplacement, Parcours $parcours)
     {
         $this->capacite = $capacite;
@@ -23,15 +63,26 @@ class Bus
         $this->parcours = $parcours;
     }
 
+    /**
+     * Décharge les personnes du bus
+     *
+     * @return void
+     */
     public function dechargerPersonnes(): void
     {
         if ($this->position instanceof Arret) {
             foreach ($this->personnes as $personne) {
-                $personne->setArret($this->position);
+                // $personne->setArret($this->position);
             }
         }
     }
 
+    /**
+     * Charge les personnes dans le bus
+     *
+     * @param Personne[] $personnes
+     * @return void
+     */
     public function chargerPersonnes(array $personnes): void
     {
         foreach ($personnes as $personne) {
@@ -74,6 +125,11 @@ class Bus
         return $this->position;
     }
 
+    /**
+     * Retourne le bus sous forme de string
+     *
+     * @return string
+     */
     public function __tostring(): string
     {
         return 'Bus @' . spl_object_id($this)

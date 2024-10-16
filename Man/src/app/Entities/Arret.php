@@ -4,21 +4,46 @@ namespace App\Entities;
 
 use App\Loaders\Routes;
 
+/**
+ * Représente un arrêt de bus
+ */
 class Arret
 {
+    /**
+     * Nom de l'arrêt
+     *
+     * @var string
+     */
     public string $nom;
 
     /**
+     * Routes qui passent par cet arrêt
+     *
      * @var Route[]
      */
     public array $routes;
 
     /**
+     * Liste des routes sous forme de string
+     *
      * @var string[]
      */
     private array $genericRoutes;
+
+    /**
+     * Liste personnes sous forme de string
+     *
+     * @var string[]
+     */
     private array $genericFile;
 
+    /**
+     * Constructeur
+     *
+     * @param string $nom
+     * @param array $genericRoutes
+     * @param array $genericFile
+     */
     public function __construct(string $nom, array $genericRoutes, array $genericFile)
     {
         $this->nom = $nom;
@@ -26,7 +51,13 @@ class Arret
         $this->genericFile = $genericFile;
     }
 
-    public function getNeighbors() {
+    /**
+     * Retourne les voisins de l'arrêt
+     *
+     * @return array
+     */
+    public function getNeighbors(): array
+    {
         $neighbors = [];
         foreach ($this->routes as $route) {
             foreach ($route->getArrets() as $neighbor) {
@@ -38,19 +69,34 @@ class Arret
         return $neighbors;
     }
 
-    public function mapRoutes()
+    /**
+     * Map les routes
+     *
+     * @return array
+     */
+    public function mapRoutes(): void
     {
         $this->routes = array_map(function ($route) {
             return Routes::getRoute($route)->registerArret($this);
         }, $this->genericRoutes);
     }
 
+    /**
+     * Enregistre une route dans sa mémoire
+     *
+     * @return Arret
+     */
     public function registerRoute(Route $route): self
     {
         $this->routes[] = $route;
         return $this;
     }
 
+    /**
+     * Retourne une représentation textuelle de l'arrêt
+     *
+     * @return string
+     */
     public function __tostring(): string
     {
         return $this->nom . ' @' . spl_object_id($this)
