@@ -3,12 +3,15 @@
 namespace App\Entities;
 
 use App\Loaders\Routes;
+use App\Actions\ArretActions;
+use App\Interfaces\TimeInterface;
 
 /**
  * Représente un arrêt de bus
  */
-class Arret
+class Arret implements TimeInterface
 {
+    use ArretActions;
     /**
      * Nom de l'arrêt
      *

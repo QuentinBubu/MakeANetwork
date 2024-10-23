@@ -2,8 +2,6 @@
 
 namespace App\Entities;
 
-use DateTime;
-
 /**
  * @Entity
  *
@@ -18,12 +16,14 @@ class Trajet
     public array $routes;
     public Arret $depart;
     public Arret $arrivee;
+    public int $distance;
 
-    public function __construct(string $nom, array $route, Arret $depart, Arret $arrivee)
+    public function __construct(string $nom, array $route, Arret $depart, Arret $arrivee, int $distance)
     {
         $this->nom = $nom;
         $this->routes = $route;
         $this->depart = $depart;
         $this->arrivee = $arrivee;
+        $this->distance = $distance;
     }
 }

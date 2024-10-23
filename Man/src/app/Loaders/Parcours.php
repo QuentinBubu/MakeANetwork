@@ -18,8 +18,9 @@ class Parcours
     public static function load(array $parcours): void
     {
         foreach ($parcours as $name => $arrets) {
-            $parc = new EntityParcours(nom: $name);
-            for ($i = 0; $i < count($arrets) - 1; $i++) {
+            $arretsMap = array_map(fn ($arret) => Arrets::getArret($arret), $arrets);
+            $parc = new EntityParcours(nom: $name, arretsAFaire: $arretsMap);
+            for ($i = 0; $i < count($arretsMap) - 1; $i++) {
                 $arretA = $arrets[$i];
                 $arretB = $arrets[$i + 1];
                 $parc->addTrajet(Trajets::findTrajet($arretA, $arretB));

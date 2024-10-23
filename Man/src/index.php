@@ -56,8 +56,18 @@ Bus::load(bus: $busList, config: $busJson);
 Personnes::load(personnesList: $personnesList);
 
 foreach (Bus::$buses as $bus) {
-    echo $bus . PHP_EOL;
+    $bus->demarrerParcours();
 }
+
+// foreach (Arrets::getArret("A")->vehiculesEnApproche as $key => $value) {
+//     echo $key . '  ' . implode('/', $value) . PHP_EOL;
+// }
+
+
+foreach (Arrets::getArret("C")->vehiculesEnApproche as $key => $value) {
+    echo $key . '  ' . implode('/', $value) . PHP_EOL;
+}
+
 
 echo '------ FIN ------' . PHP_EOL;
 

@@ -3,11 +3,13 @@
 namespace App\Loaders;
 
 use App\Entities\Arret;
+use App\Entities\Position;
 use App\Entities\Route;
 use App\Entities\Trajet;
 use App\Loaders\Arrets;
 use App\Exceptions\ArretsException;
 
+// /!\ Attention, trajet pour personnes => prendre en compte la vitesse du bus + positions des bus (incomming)
 class Trajets
 {
     /**
@@ -32,33 +34,40 @@ class Trajets
             nom: $nom,
             route: [$route],
             depart: Arrets::getArret($route->arrets[1]->nom),
-            arrivee: Arrets::getArret($route->arrets[0]->nom)
+            arrivee: Arrets::getArret($route->arrets[0]->nom),
+            distance: $route->distance
         );
     }
 
-    public static function addLongTrajet(Arret $depart, Arret $arrivee, array $routes): void
+    public static function addLongTrajet(Arret $depart, Arret $arrivee, array $routes, int $distance): void
     {
         $nom = self::key($depart->nom, $arrivee->nom);
         self::$trajets[$nom] = new Trajet(
             nom: $nom,
             route: $routes,
             depart: $depart,
-            arrivee: $arrivee
+            arrivee: $arrivee,
+            distance: $distance
         );
     }
 
-    public static function findTrajet(string $depart, string $arrivee): Trajet
+    public static function findTrajetWithArret(Arret $depart, Arret $arrivee): Trajet
     {
-        $cle = self::key($depart, $arrivee);
+        $cle = self::key($depart->nom, $arrivee->nom);
 
         if (isset(self::$trajets[$cle])) {
             return self::$trajets[$cle];
         }
 
-        $trajets = self::calculTrajet($depart, $arrivee);
-        self::addLongTrajet(Arrets::getArret($depart), Arrets::getArret($arrivee), $trajets['routes']);
+        $trajets = self::calculTrajet($depart->nom, $arrivee->nom);
+        self::addLongTrajet($depart, $arrivee, $trajets['routes'], $trajets['distance']);
 
         return self::$trajets[$cle];
+    }
+
+    public static function findTrajet(string $depart, string $arrivee): Trajet
+    {
+        return self::findTrajetWithArret(Arrets::getArret($depart), Arrets::getArret($arrivee));
     }
 
     public static function calculTrajet(string $arretA, string $arretB): array

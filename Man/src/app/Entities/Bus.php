@@ -2,11 +2,16 @@
 
 namespace App\Entities;
 
+use App\Actions\BusActions;
+use App\Enums\BusStateEnum;
+use App\Interfaces\TimeInterface;
+
 /**
  * Représente un bus
  */
-class Bus
+class Bus extends Position implements TimeInterface
 {
+    use BusActions;
     /**
      * Capacité max du bus
      *
@@ -42,10 +47,7 @@ class Bus
      */
     protected array $personnes = [];
 
-    /**
-     * @var mixed Arret|Route
-     */
-    protected $position = 0;
+    protected BusStateEnum $state;
 
     /**
      * Constructeur
@@ -61,38 +63,18 @@ class Bus
         $this->vitesseChargement = $vitesseChargement;
         $this->vitesseDeplacement = $vitesseDeplacement;
         $this->parcours = $parcours;
+        $this->state = BusStateEnum::ARRET;
+        $this->arret = $parcours->arretsAFaire[0];
     }
 
     /**
-     * Décharge les personnes du bus
+     * Retourne la place disponible dans le bus
      *
      * @return void
      */
-    public function dechargerPersonnes(): void
+    public function getPlaceDisponible(): int
     {
-        if ($this->position instanceof Arret) {
-            foreach ($this->personnes as $personne) {
-                // $personne->setArret($this->position);
-            }
-        }
-    }
-
-    /**
-     * Charge les personnes dans le bus
-     *
-     * @param Personne[] $personnes
-     * @return void
-     */
-    public function chargerPersonnes(array $personnes): void
-    {
-        foreach ($personnes as $personne) {
-            if (count($this->personnes) < $this->capacite) {
-                $this->personnes[] = $personne;
-                echo "Chargement de la personne {$personne->nom} dans le véhicule\n";
-            } else {
-                echo "Le véhicule est plein\n";
-            }
-        }
+        return $this->capacite - count($this->personnes);
     }
 
     public function getCapacite(): int
@@ -120,9 +102,14 @@ class Bus
         return $this->personnes;
     }
 
-    public function getPosition(): int
+    public function setState(BusStateEnum $state): void
     {
-        return $this->position;
+        $this->state = $state;
+    }
+
+    public function getState(): BusStateEnum
+    {
+        return $this->state;
     }
 
     /**
@@ -137,7 +124,7 @@ class Bus
             . ' | Vitesse de chargement : ' . $this->vitesseChargement
             . ' | Vitesse de déplacement : ' . $this->vitesseDeplacement
             . ' | Parcours : ' . $this->parcours->nom
-            . ' | Position : ' . $this->position
+            . ' | Position : ' . $this->arret . ' tick : ' . $this->tick
             . ' | Personnes : '
             . implode(
                 separator: ', ',
@@ -149,5 +136,11 @@ class Bus
                 )
             )
             . ')';
+    }
+
+    public function incrementTick(): void
+    {
+        throw new \Exception("Not implemented", 1);
+        
     }
 }

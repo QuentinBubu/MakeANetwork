@@ -52,10 +52,22 @@ class Personne
         $this->trajetRetour = $trajetRetour;
         $this->nom = $nom;
         $this->setArretActuel($trajetAller->depart);
+        $this->position = new PersonnePosition();
     }
 
     public function setArretActuel(Arret $arret): void
     {
-        $this->position->setArret($arret);
+        // $this->position->setArret($arret);
+    }
+
+    public function setNextBus(): void
+    {
+        
+    }
+
+    public function getNextBus(): Bus
+    {
+        // $this->lastBus = $this->position->getNextBus();
+        return $this->lastBus;
     }
 }

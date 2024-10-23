@@ -2,6 +2,8 @@
 
 namespace App\Entities;
 
+use App\Loaders\Trajets;
+
 /**
  * @Entity
  *
@@ -24,14 +26,23 @@ class Parcours
     public array $trajets = [];
 
     /**
+     * Liste des arrêts à faire
+     *
+     * @var Arret[]
+     */
+    public array $arretsAFaire = [];
+
+    /**
      * Constructeur
      *
      * @param string $nom
+     * @param Arret[] $arretsAFaire
      * @param Trajet ...$trajets
      */
-    public function __construct(string $nom, Trajet ...$trajets)
+    public function __construct(string $nom, array $arretsAFaire, Trajet ...$trajets)
     {
         $this->nom = $nom;
+        $this->arretsAFaire = $arretsAFaire;
         $this->trajets = $trajets;
     }
 
@@ -45,6 +56,12 @@ class Parcours
     {
         $this->trajets[] = $trajet;
         return $this;
+    }
+
+    public function getNextArret(Arret $arret): ?Arret
+    {
+        $index = array_search($arret, $this->arretsAFaire);
+        return $index == array_key_last($this->arretsAFaire) ? null : $this->arretsAFaire[$index + 1];
     }
 
     /**

@@ -2,13 +2,26 @@
 
 namespace App\Actions;
 
-use App\Interfaces\BusActionsInterface;
-use App\Entities\Trajet;
+use App\Entities\Parcours;
+use App\Entities\Personne;
+use App\Enums\BusStateEnum;
 
-class BusActions implements BusActionsInterface
+trait BusActions
 {
-    public function demarrerTrajet(Trajet $trajet): void{
+    public function demarrerParcours(): void{
         // Enregistrement des ticks sur les arrêts
+        $this->state = BusStateEnum::DEPART;
+        foreach ($this->parcours->arretsAFaire as $arret) {
+            $arret->addBusEnApproche($this, $this->tickTo($this->parcours, $arret));
+            // Attention à calculer tout les n+1 parcours
+            /*
+                Considérons les parcours BED
+                Bus en E
+                Personne en D veut aller en B ou E
+                Il faut que le bus se soit enregistré dans X temps de nouveau à B et E
+                Il doit donc déposer son prochain passage
+            */
+        }
         echo "Démarrage du bus\n";
     }
 
@@ -17,11 +30,15 @@ class BusActions implements BusActionsInterface
         echo "Avancement du bus\n";
     }
 
-    public function chargerPersonnes(array $personnes): void
+    public function chargerPersonne(Personne $personne): bool
     {
-        foreach ($personnes as $person) {
-            echo "Chargement de la personne {$person->nom} dans le bus\n";
+        if ($this->getPlaceDisponible() === 0) {
+            return false;
         }
+        // Attention : montée et descente en même temps : cas plus de personnes descendentes que montentes
+        $this->personnes[] = $personne;
+
+        return true;
     }
 
     public function dechargerPersonnes(): void
