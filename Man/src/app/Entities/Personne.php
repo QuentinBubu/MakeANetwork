@@ -2,6 +2,8 @@
 
 namespace App\Entities;
 
+use App\Loaders\Personnes;
+
 /**
  * @Entity
  *
@@ -69,5 +71,10 @@ class Personne
     {
         // $this->lastBus = $this->position->getNextBus();
         return $this->lastBus;
+    }
+
+    public function finFinal()
+    {
+        Personnes::unregister($this);
     }
 }

@@ -89,7 +89,7 @@ abstract class Position implements TimeInterface
         return $this->arret ?? $this->tick;
     }
 
-    public function tickTo(Parcours $parcours, Arret $arret): int
+    public function tickTo(Parcours $parcours, Arret $arret, int $multiplicateur = 1): int
     {
         $from = $this->arret;
         $dist = 0;
@@ -99,7 +99,7 @@ abstract class Position implements TimeInterface
             $dist += Trajets::findTrajetWithArret($from, $next)->distance;
             $from = $next;
         }
-        return $dist - $this->tick;
+        return ($dist * $multiplicateur) - $this->tick;
     }
 
     abstract public function incrementTick(): void;

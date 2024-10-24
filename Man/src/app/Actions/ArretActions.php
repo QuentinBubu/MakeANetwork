@@ -7,9 +7,15 @@ use App\Timer\Time;
 use App\Entities\File;
 use App\Entities\Personne;
 use App\Enums\BusStateEnum;
+use App\Timer\Timer;
 
 trait ArretActions
 {
+    /**
+     * Tableau des véhicules en approche
+     * [spl_object_id(Bus) => [Bus, Timer]]
+     * @var array
+     */
     public array $vehiculesEnApproche = [];
 
     public array $vehiculesEnAttente = [];
@@ -25,7 +31,7 @@ trait ArretActions
         $this->files[Time::getTick()]->addPersonne($personne);
     }
 
-    public function addBusEnApproche(Bus $bus, int $tick): void
+    public function addBusEnApproche(Bus $bus, Timer $tick): void
     {
         $this->vehiculesEnApproche[spl_object_id($bus)] = [$bus, $tick];
     }
@@ -54,7 +60,7 @@ trait ArretActions
                 $busEnAttenteAddr[] = spl_object_id($bus);
             }
         }
-
+        return;
         foreach ($this->files as $file) {
             // if ()
             if ($file->isEmpty() === 0) {

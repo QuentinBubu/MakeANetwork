@@ -19,6 +19,7 @@
         "phpunit/phpunit": "^11.4"
     },
     "require": {
-        "smeghead/php-class-diagram": "^1.4"
+        "smeghead/php-class-diagram": "^1.4",
+        "vlucas/phpdotenv": "^5.6"
     }
 }

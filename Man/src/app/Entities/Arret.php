@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use App\Timer\Time;
 use App\Loaders\Routes;
 use App\Actions\ArretActions;
 use App\Interfaces\TimeInterface;
@@ -52,6 +53,7 @@ class Arret implements TimeInterface
         $this->nom = $nom;
         $this->genericRoutes = $genericRoutes;
         $this->genericFile = $genericFile;
+        Time::registerClass($this);
     }
 
     /**

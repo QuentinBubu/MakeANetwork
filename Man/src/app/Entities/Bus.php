@@ -2,9 +2,11 @@
 
 namespace App\Entities;
 
+use App\Timer\Timer;
 use App\Actions\BusActions;
 use App\Enums\BusStateEnum;
 use App\Interfaces\TimeInterface;
+use App\Timer\Time;
 
 /**
  * Représente un bus
@@ -24,14 +26,14 @@ class Bus extends Position implements TimeInterface
      *
      * @var float
      */
-    protected float $vitesseChargement;
+    protected int $vitesseChargement;
 
     /**
      * Vitesse de déplacement
      *
-     * @var float
+     * @var int
      */
-    protected float $vitesseDeplacement;
+    protected int $vitesseDeplacement;
 
     /**
      * Parcours du bus
@@ -50,6 +52,13 @@ class Bus extends Position implements TimeInterface
     protected BusStateEnum $state;
 
     /**
+     * Liste de ses timers
+     * [spl_object_id(Arret) => Timer]
+     * @var array
+     */
+    protected array $timers = [];
+
+    /**
      * Constructeur
      *
      * @param integer $capacite
@@ -63,8 +72,14 @@ class Bus extends Position implements TimeInterface
         $this->vitesseChargement = $vitesseChargement;
         $this->vitesseDeplacement = $vitesseDeplacement;
         $this->parcours = $parcours;
-        $this->state = BusStateEnum::ARRET;
         $this->arret = $parcours->arretsAFaire[0];
+        $this->state = BusStateEnum::FLUX_VOYAGEURS;
+        Time::registerClass($this);
+    }
+
+    public function addTimer(Arret $arret, Timer $timer): void
+    {
+        $this->timers[spl_object_id($arret)] = $timer;
     }
 
     /**
@@ -140,7 +155,15 @@ class Bus extends Position implements TimeInterface
 
     public function incrementTick(): void
     {
-        throw new \Exception("Not implemented", 1);
-        
+        switch ($this->state) {
+            case BusStateEnum::DEPLACEMENT:
+                // Se déplacer
+                break;
+            case BusStateEnum::FLUX_VOYAGEURS:
+                // Charger et décharger les personnes
+                break;
+            default:
+                break;
+        }
     }
 }

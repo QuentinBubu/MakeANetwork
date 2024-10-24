@@ -2,17 +2,17 @@
 
 namespace App\Actions;
 
-use App\Entities\Parcours;
+use App\Entities\Arret;
 use App\Entities\Personne;
 use App\Enums\BusStateEnum;
+use App\Timer\Timer;
 
 trait BusActions
 {
     public function demarrerParcours(): void{
         // Enregistrement des ticks sur les arrêts
-        $this->state = BusStateEnum::DEPART;
         foreach ($this->parcours->arretsAFaire as $arret) {
-            $arret->addBusEnApproche($this, $this->tickTo($this->parcours, $arret));
+            $this->calculEtEnregistrementProchainPassage($arret);
             // Attention à calculer tout les n+1 parcours
             /*
                 Considérons les parcours BED
@@ -23,6 +23,13 @@ trait BusActions
             */
         }
         echo "Démarrage du bus\n";
+    }
+
+    public function calculEtEnregistrementProchainPassage(Arret $arret): void
+    {
+        $timer = new Timer($this->tickTo($this->parcours, $arret, $this->vitesseDeplacement));
+        $arret->addBusEnApproche($this, $timer);
+        $this->addTimer($arret, $timer);
     }
 
     public function avancer(): void

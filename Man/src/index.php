@@ -1,13 +1,21 @@
 <?php
 
-use App\Loaders\Parcours;
-use App\Loaders\Arrets;
+use Dotenv\Dotenv;
 use App\Loaders\Bus;
-use App\Loaders\Personnes;
+use App\Loaders\Arrets;
 use App\Loaders\Routes;
 use App\Loaders\Trajets;
+use App\Loaders\Parcours;
+use App\Loaders\Personnes;
+use App\Timer\Time;
+use Dotenv\Repository\RepositoryBuilder;
 
 require_once 'vendor/autoload.php';
+
+$repository = RepositoryBuilder::createWithDefaultAdapters()->make();
+$dotenv = Dotenv::create($repository, './');
+$dotenv->load();
+$dotenv->required(['UNIVERS_START', 'UNIVERS_END']);
 
 echo '----- DEBUT -----' . PHP_EOL;
 
@@ -58,11 +66,6 @@ Personnes::load(personnesList: $personnesList);
 foreach (Bus::$buses as $bus) {
     $bus->demarrerParcours();
 }
-
-// foreach (Arrets::getArret("A")->vehiculesEnApproche as $key => $value) {
-//     echo $key . '  ' . implode('/', $value) . PHP_EOL;
-// }
-
 
 foreach (Arrets::getArret("C")->vehiculesEnApproche as $key => $value) {
     echo $key . '  ' . implode('/', $value) . PHP_EOL;
@@ -146,5 +149,13 @@ function loadPersonnes(array &$personnesList) {
                 'temps' => 300,
             ]
         ];
+    }
+}
+
+while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Bus::$buses) > 0) {
+    Time::incrementTick();
+    Time::run();
+    if (Time::getTick() % 1000 === 0) {
+        // echo 'TICK ' . Time::getTick() . PHP_EOL;
     }
 }

@@ -4,9 +4,13 @@ namespace App\Enums;
 
 enum BusStateEnum
 {
+    /**
+     * FLUX_VOYAGEURS : Le bus est en train de charger ou décharger des voyageurs
+     */
     case FLUX_VOYAGEURS;
-    case ARRET;
-    case DEPART;
-    case EN_ROUTE;
-    case FIN;
+
+    /**
+     * DEPLACEMENT : Le bus roule
+     */
+    case DEPLACEMENT;
 }

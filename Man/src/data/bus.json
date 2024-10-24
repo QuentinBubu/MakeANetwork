@@ -3,12 +3,12 @@
         "type": "double",
         "capacite-max": 10,
         "vitesse-chargement": 1,
-        "vitesse-deplacement": 1
+        "vitesse-deplacement": 30
     },
     "fast": {
         "type": "fast",
         "capacite-max": 2,
         "vitesse-chargement": 1,
-        "vitesse-deplacement": 1
+        "vitesse-deplacement": 10
     }
 }
