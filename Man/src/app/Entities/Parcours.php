@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use App\Loaders\Trajets;
+use App\Timer\Time;
 
 /**
  * @Entity
@@ -132,6 +133,11 @@ class Parcours
     public function getNextArretObj(): Arret
     {
         return $this->arretsAFaire[$this->nextArret];
+    }
+
+    public function getArretWithIndex(int $index): Arret
+    {
+        return $this->arretsAFaire[$index];
     }
 
     /**

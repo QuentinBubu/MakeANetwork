@@ -153,9 +153,9 @@ function loadPersonnes(array &$personnesList) {
 }
 
 while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Bus::$buses) > 0) {
-    Time::incrementTick();
     Time::run();
+    Time::incrementTick();
     // if (Time::getTick() % 1000 === 0) {
-        echo 'TICK ' . Time::getTick() . PHP_EOL;
+        // echo 'TICK ' . Time::getTick() . PHP_EOL;
     // }
 }
