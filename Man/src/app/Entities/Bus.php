@@ -72,8 +72,8 @@ class Bus extends Position implements TimeInterface
         $this->vitesseChargement = $vitesseChargement;
         $this->vitesseDeplacement = $vitesseDeplacement;
         $this->parcours = $parcours;
-        $this->arret = $parcours->arretsAFaire[0];
-        $this->state = BusStateEnum::FLUX_VOYAGEURS;
+        // $this->state = BusStateEnum::FLUX_VOYAGEURS;
+        $this->state = BusStateEnum::DEPLACEMENT;
         Time::registerClass($this);
     }
 
@@ -139,7 +139,7 @@ class Bus extends Position implements TimeInterface
             . ' | Vitesse de chargement : ' . $this->vitesseChargement
             . ' | Vitesse de déplacement : ' . $this->vitesseDeplacement
             . ' | Parcours : ' . $this->parcours->nom
-            . ' | Position : ' . $this->arret . ' tick : ' . $this->tick
+            . ' | Position : ' . $this->parcours->currentArret . ' tick : ' . $this->tick
             . ' | Personnes : '
             . implode(
                 separator: ', ',
@@ -157,7 +157,15 @@ class Bus extends Position implements TimeInterface
     {
         switch ($this->state) {
             case BusStateEnum::DEPLACEMENT:
-                // Se déplacer
+            if (
+                $this->tick % $this->vitesseDeplacement === 0
+                && $this->tickTo($this->parcours, $this->parcours->getNextArretObj(), $this->vitesseDeplacement) <= 0
+                ) {
+                    echo microtime(true) . " & Bus " . spl_object_id($this) . " & arrive à l'arrêt " . $this->parcours->getNextArretObj() . " au tick " . $this->tick;
+                    $this->parcours->arriveArret($this);
+                    echo " prochain arrêt : " . $this->parcours->getNextArretObj() . " parcours : " . $this->parcours . PHP_EOL;
+                }
+                $this->tick += 1;
                 break;
             case BusStateEnum::FLUX_VOYAGEURS:
                 // Charger et décharger les personnes

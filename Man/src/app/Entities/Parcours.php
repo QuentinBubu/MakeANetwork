@@ -33,6 +33,28 @@ class Parcours
     public array $arretsAFaire = [];
 
     /**
+     * Index arrêt de présence
+     *
+     * @var int
+     */
+    public ?int $currentArret = null;
+
+    /**
+     * Index arrêt suivant
+     *
+     * @var int
+     */
+    public ?int $nextArret = null;
+
+    /**
+     * Index arrêt précédent
+     *
+     * @var int
+     */
+    public ?int $previousArret = null;
+
+
+    /**
      * Constructeur
      *
      * @param string $nom
@@ -58,10 +80,58 @@ class Parcours
         return $this;
     }
 
-    public function getNextArret(Arret $arret): ?Arret
+    public function findNextArretObj(?Arret $arret): ?Arret
     {
+        if (is_null($arret)) {
+            return $this->arretsAFaire[0];
+        }
+
         $index = array_search($arret, $this->arretsAFaire);
-        return $index == array_key_last($this->arretsAFaire) ? null : $this->arretsAFaire[$index + 1];
+
+        return $index == array_key_last($this->arretsAFaire) ? $this->arretsAFaire[0] : $this->arretsAFaire[$index + 1];
+    }
+
+    public function findNextArret(?int $arret): ?int
+    {
+        if (is_null($arret)) {
+            return 0;
+        }
+
+        return $arret == array_key_last($this->arretsAFaire) ? 0 : $arret + 1;
+    }
+
+    /**
+     * Changement d'arrêt :
+     *   - L'arrêt précédent devient celui où il est
+     *   - L'arrêt courant devient le prochain
+     *
+     * Le bus fait A B C D, il démarre de A, previous = null, arret = A, next = B, tick = 0
+     * Il arrive à B, previous = A, arret = B, next = C, tick = 0
+     * @param Position $position
+     * @return void
+     */
+    public function arriveArret(Position $position): void
+    {
+        // On fait un décallage
+        $this->previousArret = $this->currentArret;
+        $this->currentArret = $this->findNextArret($this->currentArret);
+        $this->nextArret = $this->findNextArret($this->currentArret);
+        $position->tick = 0;
+    }
+
+    public function getCurrentArretObj(): Arret
+    {
+        return $this->arretsAFaire[$this->currentArret];
+    }
+
+    public function getPreviousArretObj(): Arret
+    {
+        return $this->arretsAFaire[$this->previousArret];
+    }
+
+    public function getNextArretObj(): Arret
+    {
+        return $this->arretsAFaire[$this->nextArret];
     }
 
     /**

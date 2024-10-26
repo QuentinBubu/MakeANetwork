@@ -67,8 +67,8 @@ foreach (Bus::$buses as $bus) {
     $bus->demarrerParcours();
 }
 
-foreach (Arrets::getArret("C")->vehiculesEnApproche as $key => $value) {
-    echo $key . '  ' . implode('/', $value) . PHP_EOL;
+foreach (Bus::$buses as $bus) {
+    echo "Bus : " . spl_object_id($bus) . " affecté au parcours " . $bus->getParcours()->nom . PHP_EOL;
 }
 
 
@@ -155,7 +155,7 @@ function loadPersonnes(array &$personnesList) {
 while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Bus::$buses) > 0) {
     Time::incrementTick();
     Time::run();
-    if (Time::getTick() % 1000 === 0) {
-        // echo 'TICK ' . Time::getTick() . PHP_EOL;
-    }
+    // if (Time::getTick() % 1000 === 0) {
+        echo 'TICK ' . Time::getTick() . PHP_EOL;
+    // }
 }

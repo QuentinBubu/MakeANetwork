@@ -4,14 +4,15 @@ namespace App\Actions;
 
 use App\Entities\Arret;
 use App\Entities\Personne;
-use App\Enums\BusStateEnum;
 use App\Timer\Timer;
 
 trait BusActions
 {
-    public function demarrerParcours(): void{
+    public function demarrerParcours(): void
+    {
+        $this->parcours->arriveArret($this);
         // Enregistrement des ticks sur les arrêts
-        foreach ($this->parcours->arretsAFaire as $arret) {
+        foreach (array_slice($this->parcours->arretsAFaire, 1)  as $arret) {
             $this->calculEtEnregistrementProchainPassage($arret);
             // Attention à calculer tout les n+1 parcours
             /*
