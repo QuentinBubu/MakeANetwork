@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use App\Enums\TrajetEnCoursEnum;
 use App\Loaders\Personnes;
 
 /**
@@ -25,6 +26,8 @@ class Personne
      */
     public Trajet $trajetRetour;
 
+    public TrajetEnCoursEnum $trajetEnCours;
+
     /**
      * Dernier bus pris (pour éviter qu'il remonte dans le même bus)
      *
@@ -41,6 +44,8 @@ class Personne
 
     public Position $position;
 
+    public Bus $busAPrendre;
+
     /**
      * Constructeur
      *
@@ -53,24 +58,25 @@ class Personne
         $this->trajetAller = $trajetAller;
         $this->trajetRetour = $trajetRetour;
         $this->nom = $nom;
-        $this->setArretActuel($trajetAller->depart);
+        $this->trajetEnCours = TrajetEnCoursEnum::ALLER;
         $this->position = new PersonnePosition();
+        $this->setArretActuel($trajetAller->depart);
     }
 
     public function setArretActuel(Arret $arret): void
     {
-        // $this->position->setArret($arret);
-    }
-
-    public function setNextBus(): void
-    {
-        
+        $arret->addPersonne($this);
     }
 
     public function getNextBus(): Bus
     {
         // $this->lastBus = $this->position->getNextBus();
         return $this->lastBus;
+    }
+
+    public function getTrajetEnCours(): Trajet
+    {
+        return $this->trajetEnCours === TrajetEnCoursEnum::ALLER ? $this->trajetAller : $this->trajetRetour;
     }
 
     public function finFinal()

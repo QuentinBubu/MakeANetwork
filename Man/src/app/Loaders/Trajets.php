@@ -2,11 +2,11 @@
 
 namespace App\Loaders;
 
+use SplPriorityQueue;
 use App\Entities\Arret;
-use App\Entities\Position;
 use App\Entities\Route;
-use App\Entities\Trajet;
 use App\Loaders\Arrets;
+use App\Entities\Trajet;
 use App\Exceptions\ArretsException;
 
 // /!\ Attention, trajet pour personnes => prendre en compte la vitesse du bus + positions des bus (incomming)
@@ -146,19 +146,65 @@ class Trajets
         ];
     }
 
-    public static function getTrajets(): array
+    public static function calculTrajetOptimise(Trajet $trajet): array
     {
-        return self::$trajets;
-    }
-
-    public static function toString(): string
-    {
-        $str = "";
-        foreach (self::$trajets as $key => $trajet) {
-            $str .= "Trajet {$key} : " . implode(', ', array_map(function ($route) {
-                return $route->nom;
-            }, $trajet['routes'])) . " ({$trajet['distance']} M)" . PHP_EOL;
+        $depart = $trajet->depart;
+        $destination = $trajet->arrivee;
+        $delais = [];
+        $predecesseurs = [];
+        $delais[$depart->nom] = 0;
+    
+        $filePrioritaire = new SplPriorityQueue();
+        $filePrioritaire->insert($depart->nom, 0);
+    
+        while (!$filePrioritaire->isEmpty()) {
+            $arretActuelNom = $filePrioritaire->extract();
+            $arretActuel = Arrets::getArret($arretActuelNom);
+    
+            if ($arretActuel->nom === $destination->nom) {
+                break;
+            }
+    
+            // Calcul pour les véhicules en approche
+            foreach ($arretActuel->vehiculesEnApproche as [$bus, $timer]) {
+                if ($bus->getPlaceDisponible() === 0) {
+                    continue;
+                }
+    
+                $prochainPassage = $timer->getRemainingTicks();
+                self::calculerDelaisPourBus($bus, $prochainPassage, $arretActuel, $delais, $predecesseurs, $filePrioritaire);
+            }
+    
+            // Calcul pour les véhicules en attente
+            foreach ($arretActuel->vehiculesEnAttente as $bus) {
+                if ($bus->getPlaceDisponible() === 0) {
+                    continue;
+                }
+    
+                self::calculerDelaisPourBus($bus, 0, $arretActuel, $delais, $predecesseurs, $filePrioritaire);
+            }
         }
-        return $str;
+    
+        // Reconstruction du chemin
+        $chemin = [];
+        for ($at = $destination->nom; $at !== null; $at = $predecesseurs[$at] ?? null) {
+            array_unshift($chemin, $at);
+        }
+        return $chemin[0] === $depart->nom ? $chemin : [];
+    }
+    
+    private static function calculerDelaisPourBus($bus, $delaiAttente, $arretActuel, &$delais, &$predecesseurs, &$filePrioritaire)
+    {
+        foreach ($bus->parcours->getProchainArrets($arretActuel) as $arretSuivant) {
+            $distance = Trajets::findTrajetWithArret($arretActuel, $arretSuivant)->distance;
+            $tempsDeplacement = $distance / $bus->vitesseDeplacement;
+            $delaisTotal = $delais[$arretActuel->nom] + $delaiAttente + $tempsDeplacement;
+    
+            if (!isset($delais[$arretSuivant->nom]) || $delaisTotal < $delais[$arretSuivant->nom]) {
+                $delais[$arretSuivant->nom] = $delaisTotal;
+                $predecesseurs[$arretSuivant->nom] = $arretActuel->nom;
+                $filePrioritaire->insert($arretSuivant->nom, -$delaisTotal);
+            }
+        }
     }
 }

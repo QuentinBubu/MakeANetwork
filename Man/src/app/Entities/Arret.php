@@ -3,6 +3,7 @@
 namespace App\Entities;
 
 use App\Timer\Time;
+use SplPriorityQueue;
 use App\Loaders\Routes;
 use App\Actions\ArretActions;
 use App\Interfaces\TimeInterface;
@@ -53,6 +54,7 @@ class Arret implements TimeInterface
         $this->nom = $nom;
         $this->genericRoutes = $genericRoutes;
         $this->genericFile = $genericFile;
+        $this->personnesEnAttente = new SplPriorityQueue();
         Time::registerClass($this);
     }
 

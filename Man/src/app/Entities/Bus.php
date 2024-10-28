@@ -72,9 +72,19 @@ class Bus extends Position implements TimeInterface
         $this->vitesseChargement = $vitesseChargement;
         $this->vitesseDeplacement = $vitesseDeplacement;
         $this->parcours = $parcours;
-        // $this->state = BusStateEnum::FLUX_VOYAGEURS;
-        $this->state = BusStateEnum::DEPLACEMENT;
+        $this->state = BusStateEnum::FLUX_VOYAGEURS;
+        // $this->state = BusStateEnum::DEPLACEMENT;
         Time::registerClass($this);
+    }
+
+    public function getState(): BusStateEnum
+    {
+        return $this->state;
+    }
+
+    public function setState(BusStateEnum $state): void
+    {
+        $this->state = $state;
     }
 
     public function addTimer(Arret $arret, Timer $timer): void
@@ -92,39 +102,14 @@ class Bus extends Position implements TimeInterface
         return $this->capacite - count($this->personnes);
     }
 
-    public function getCapacite(): int
-    {
-        return $this->capacite;
-    }
-
-    public function getVitesseChargement(): float
-    {
-        return $this->vitesseChargement;
-    }
-
-    public function getVitesseDeplacement(): float
-    {
-        return $this->vitesseDeplacement;
-    }
-
+    /**
+     * Retourne le parcours du bus
+     *
+     * @return Parcours
+     */
     public function getParcours(): Parcours
     {
         return $this->parcours;
-    }
-
-    public function getPersonnes(): array
-    {
-        return $this->personnes;
-    }
-
-    public function setState(BusStateEnum $state): void
-    {
-        $this->state = $state;
-    }
-
-    public function getState(): BusStateEnum
-    {
-        return $this->state;
     }
 
     /**
@@ -153,8 +138,14 @@ class Bus extends Position implements TimeInterface
             . ')';
     }
 
+    public function isFull(): bool
+    {
+        return count($this->personnes) >= $this->capacite;
+    }
+
     public function incrementTick(): void
     {
+        $this->tick += 1;
         switch ($this->state) {
             case BusStateEnum::DEPLACEMENT:
                 if (
@@ -163,12 +154,21 @@ class Bus extends Position implements TimeInterface
                     ) {
                         echo microtime(true) . " & Bus " . spl_object_id($this) . " & arrive à l'arrêt " . $this->parcours->getNextArretObj() . " au tick " . $this->tick;
                         $this->parcours->arriveArret($this);
-                        echo " prochain arrêt : " . $this->parcours->getNextArretObj() . " parcours : " . $this->parcours . PHP_EOL;
+                        $this->state = BusStateEnum::FLUX_VOYAGEURS;
+                        echo " prochain arrêt : " . $this->parcours->getNextArretObj() . " parcours : " . $this->parcours;
+                        echo " Transport de " . count($this->personnes) . " personnes" . PHP_EOL;
+                        echo PHP_EOL;
                     }
-                    $this->tick += 1;
                 break;
             case BusStateEnum::FLUX_VOYAGEURS:
                 // Charger et décharger les personnes
+                if ($this->isFull())
+                {
+                    echo microtime(true) . " & Bus " . spl_object_id($this) . " & est plein à l'arrêt " . $this->parcours->currentArret . " ( " . $this->parcours->getCurrentArretObj()->nom . " )" . PHP_EOL;
+                    $this->state = BusStateEnum::DEPLACEMENT;
+                } else {
+                    $this->fluxVoyageurs();
+                }
                 break;
             default:
                 break;

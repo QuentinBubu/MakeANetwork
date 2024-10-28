@@ -61,11 +61,12 @@ loadPersonnes(personnesList: $personnesList);
 
 Bus::load(bus: $busList, config: $busJson);
 
-Personnes::load(personnesList: $personnesList);
 
 foreach (Bus::$buses as $bus) {
     $bus->demarrerParcours();
 }
+
+Personnes::load(personnesList: $personnesList);
 
 foreach (Bus::$buses as $bus) {
     echo "Bus : " . spl_object_id($bus) . " affecté au parcours " . $bus->getParcours()->nom . PHP_EOL;
@@ -155,7 +156,7 @@ function loadPersonnes(array &$personnesList) {
 while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Bus::$buses) > 0) {
     Time::run();
     Time::incrementTick();
-    // if (Time::getTick() % 1000 === 0) {
-        // echo 'TICK ' . Time::getTick() . PHP_EOL;
-    // }
+    if (Time::getTick() % 1000 === 0) {
+        echo 'TICK ' . Time::getTick() . PHP_EOL;
+    }
 }

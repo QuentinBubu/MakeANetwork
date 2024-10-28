@@ -14,7 +14,7 @@ class Timer implements TimeInterface
         Time::registerClass($this);
     }
 
-    public function getTicks(): int
+    public function getRemainingTicks(): int
     {
         return $this->remainingTicks;
     }

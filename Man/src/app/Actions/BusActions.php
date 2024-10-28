@@ -38,6 +38,11 @@ trait BusActions
         echo "Avancement du bus\n";
     }
 
+    public function fluxVoyageurs(): void
+    {
+        $this->parcours->getCurrentArretObj()->fluxVoyageurs($this);
+    }
+
     public function chargerPersonne(Personne $personne): bool
     {
         if ($this->getPlaceDisponible() === 0) {
