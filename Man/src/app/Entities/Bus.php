@@ -19,21 +19,21 @@ class Bus extends Position implements TimeInterface
      *
      * @var integer
      */
-    protected int $capacite;
+    public int $capacite;
 
     /**
      * Vitesse de chargement
      *
      * @var float
      */
-    protected int $vitesseChargement;
+    public int $vitesseChargement;
 
     /**
      * Vitesse de déplacement
      *
      * @var int
      */
-    protected int $vitesseDeplacement;
+    public int $vitesseDeplacement;
 
     /**
      * Parcours du bus
@@ -85,6 +85,9 @@ class Bus extends Position implements TimeInterface
     public function setState(BusStateEnum $state): void
     {
         $this->state = $state;
+        if (count($this->personnes) > 0) {
+            echo microtime(true) . " & Bus " . spl_object_id($this) . " & à l'arrêt " . $this->parcours->currentArret . " ( " . $this->parcours->getCurrentArretObj()->nom . " )" . PHP_EOL;
+        }
     }
 
     public function addTimer(Arret $arret, Timer $timer): void
@@ -152,20 +155,15 @@ class Bus extends Position implements TimeInterface
                     $this->tick % $this->vitesseDeplacement === 0
                     && $this->tickTo($this->parcours, $this->parcours->getNextArretObj(), $this->vitesseDeplacement) <= 0
                     ) {
-                        echo microtime(true) . " & Bus " . spl_object_id($this) . " & arrive à l'arrêt " . $this->parcours->getNextArretObj() . " au tick " . $this->tick;
                         $this->parcours->arriveArret($this);
-                        $this->state = BusStateEnum::FLUX_VOYAGEURS;
-                        echo " prochain arrêt : " . $this->parcours->getNextArretObj() . " parcours : " . $this->parcours;
-                        echo " Transport de " . count($this->personnes) . " personnes" . PHP_EOL;
-                        echo PHP_EOL;
+                        $this->setState(BusStateEnum::FLUX_VOYAGEURS);
                     }
                 break;
             case BusStateEnum::FLUX_VOYAGEURS:
                 // Charger et décharger les personnes
                 if ($this->isFull())
                 {
-                    echo microtime(true) . " & Bus " . spl_object_id($this) . " & est plein à l'arrêt " . $this->parcours->currentArret . " ( " . $this->parcours->getCurrentArretObj()->nom . " )" . PHP_EOL;
-                    $this->state = BusStateEnum::DEPLACEMENT;
+                    $this->setState(BusStateEnum::DEPLACEMENT);
                 } else {
                     $this->fluxVoyageurs();
                 }

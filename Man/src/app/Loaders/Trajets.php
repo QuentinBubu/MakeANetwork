@@ -4,10 +4,12 @@ namespace App\Loaders;
 
 use SplPriorityQueue;
 use App\Entities\Arret;
+use App\Entities\Bus;
 use App\Entities\Route;
 use App\Loaders\Arrets;
 use App\Entities\Trajet;
 use App\Exceptions\ArretsException;
+use App\Timer\Timer;
 
 // /!\ Attention, trajet pour personnes => prendre en compte la vitesse du bus + positions des bus (incomming)
 class Trajets
@@ -75,48 +77,48 @@ class Trajets
         if (!isset(Arrets::$arrets[$arretA]) || !isset(Arrets::$arrets[$arretB])) {
             throw new ArretsException("Arrêt introuvable");
         }
-    
+
         $distances = array_fill_keys(array_keys(Arrets::$arrets), PHP_INT_MAX);
         $precedent = array_fill_keys(array_keys(Arrets::$arrets), null);
         $routes = array_fill_keys(array_keys(Arrets::$arrets), null);
         $minHeap = new \SplPriorityQueue();
         $inQueue = [];
-    
+
         $distances[$arretA] = 0;
         $minHeap->insert($arretA, 0);
         $inQueue[$arretA] = true;
-    
+
         echo "Début du calcul du trajet de $arretA à $arretB\n";
-    
+
         while (!$minHeap->isEmpty()) {
             $currentArretNom = $minHeap->extract();
             unset($inQueue[$currentArretNom]);
             $currentArret = Arrets::getArret($currentArretNom);
-            
+
             echo "Traitement de l'arrêt : $currentArretNom, Distance actuelle : {$distances[$currentArretNom]}\n";
-    
+
             if ($currentArretNom === $arretB) {
                 echo "Destination atteinte\n";
                 break;
             }
-    
+
             foreach ($currentArret->getNeighbors() as $neighbor) {
                 foreach ($neighbor->routes as $route) {
                     if (in_array($currentArret, $route->getArrets())) {
                         $alt = $distances[$currentArretNom] + $route->distance;
-    
+
                         echo "  Voisin : {$neighbor->nom}, Route : {$route->nom}, Distance : {$route->distance}, Distance totale potentielle : $alt\n";
-    
+
                         if ($alt < $distances[$neighbor->nom]) {
                             $distances[$neighbor->nom] = $alt;
                             $precedent[$neighbor->nom] = $currentArretNom;
                             $routes[$neighbor->nom] = $route;
-                            
+
                             if (!isset($inQueue[$neighbor->nom])) {
                                 $inQueue[$neighbor->nom] = true;
                             }
                             $minHeap->insert($neighbor->nom, -$alt);
-    
+
                             echo "  Mise à jour : {$neighbor->nom}, Nouvelle distance totale : $alt\n";
                         }
                         break;  // On a trouvé la bonne route, pas besoin de vérifier les autres
@@ -124,7 +126,7 @@ class Trajets
                 }
             }
         }
-    
+
         $routeList = [];
         $distanceTotale = 0;
         echo "Reconstruction du chemin :\n";
@@ -136,75 +138,72 @@ class Trajets
                 echo "    Route ajoutée : {$routes[$at]->nom}, Distance : {$routes[$at]->distance}\n";
             }
         }
-    
-        echo "Chemin final : " . implode(" -> ", array_map(function($route) { return $route->nom; }, $routeList)) . "\n";
+
+        echo "Chemin final : " . implode(" -> ", array_map(function ($route) {
+            return $route->nom;
+        }, $routeList)) . "\n";
         echo "Distance totale : $distanceTotale\n";
-    
+
         return [
             "routes" => $routeList,
             "distance" => $distanceTotale
         ];
     }
+    public static function calculTrajetOptimise(Trajet $trajet, ?Bus $busExclu = null): array
+    {
+        $busOpti = null;
+        $arretsCorrespondance = [];
 
-    public static function calculTrajetOptimise(Trajet $trajet): array
-    {
-        $depart = $trajet->depart;
-        $destination = $trajet->arrivee;
-        $delais = [];
-        $predecesseurs = [];
-        $delais[$depart->nom] = 0;
-    
-        $filePrioritaire = new SplPriorityQueue();
-        $filePrioritaire->insert($depart->nom, 0);
-    
-        while (!$filePrioritaire->isEmpty()) {
-            $arretActuelNom = $filePrioritaire->extract();
-            $arretActuel = Arrets::getArret($arretActuelNom);
-    
-            if ($arretActuel->nom === $destination->nom) {
-                break;
+        foreach ($trajet->getEtapes() as $etape) {
+            $arret = $etape;
+            $busOptions = $arret->getBusesDisponibles();
+
+            // Exclure le bus précédent si défini
+            if ($busExclu !== null) {
+                $busOptions = array_filter($busOptions, fn($bus) => $bus !== $busExclu);
             }
-    
-            // Calcul pour les véhicules en approche
-            foreach ($arretActuel->vehiculesEnApproche as [$bus, $timer]) {
-                if ($bus->getPlaceDisponible() === 0) {
-                    continue;
-                }
-    
-                $prochainPassage = $timer->getRemainingTicks();
-                self::calculerDelaisPourBus($bus, $prochainPassage, $arretActuel, $delais, $predecesseurs, $filePrioritaire);
-            }
-    
-            // Calcul pour les véhicules en attente
-            foreach ($arretActuel->vehiculesEnAttente as $bus) {
-                if ($bus->getPlaceDisponible() === 0) {
-                    continue;
-                }
-    
-                self::calculerDelaisPourBus($bus, 0, $arretActuel, $delais, $predecesseurs, $filePrioritaire);
+
+            // Calcul du meilleur bus pour cette étape
+            $busOpti = self::selectionnerBusOptimal($busOptions, $trajet->arrivee);
+
+            // Si un bus est choisi et que ce n'est pas le final
+            if ($busOpti) {
+                $arretsCorrespondance[] = $arret;
+            } else {
+                // Cas sans correspondance possible
+                return [];
             }
         }
-    
-        // Reconstruction du chemin
-        $chemin = [];
-        for ($at = $destination->nom; $at !== null; $at = $predecesseurs[$at] ?? null) {
-            array_unshift($chemin, $at);
-        }
-        return $chemin[0] === $depart->nom ? $chemin : [];
+
+        return ['busOpti' => $busOpti, 'arretsCorrespondance' => $arretsCorrespondance];
     }
-    
-    private static function calculerDelaisPourBus($bus, $delaiAttente, $arretActuel, &$delais, &$predecesseurs, &$filePrioritaire)
+
+    public static function selectionnerBusOptimal(array $busOptions, Arret $destination): ?Bus
     {
-        foreach ($bus->parcours->getProchainArrets($arretActuel) as $arretSuivant) {
-            $distance = Trajets::findTrajetWithArret($arretActuel, $arretSuivant)->distance;
-            $tempsDeplacement = $distance / $bus->vitesseDeplacement;
-            $delaisTotal = $delais[$arretActuel->nom] + $delaiAttente + $tempsDeplacement;
-    
-            if (!isset($delais[$arretSuivant->nom]) || $delaisTotal < $delais[$arretSuivant->nom]) {
-                $delais[$arretSuivant->nom] = $delaisTotal;
-                $predecesseurs[$arretSuivant->nom] = $arretActuel->nom;
-                $filePrioritaire->insert($arretSuivant->nom, -$delaisTotal);
+        $busOpti = null;
+        $tempsMin = PHP_INT_MAX;
+
+        foreach ($busOptions as $bus) {
+            // Évaluer si le bus peut atteindre la destination
+            $trajetPossible = $bus->getItineraire();
+            $tempsTotal = 0;
+
+            foreach ($trajetPossible as $arret) {
+                // Calcul du temps pour atteindre chaque arrêt
+                $tempsTotal += $arret->getTempsVersProchainArret();
+
+                // Vérifier si l'arrêt est le point de destination
+                if ($arret === $destination) {
+                    // Si c'est plus rapide, mettre à jour le bus optimal
+                    if ($tempsTotal < $tempsMin) {
+                        $tempsMin = $tempsTotal;
+                        $busOpti = $bus;
+                    }
+                    break;
+                }
             }
         }
+
+        return $busOpti;
     }
 }

@@ -12,7 +12,7 @@ trait BusActions
     {
         $this->parcours->arriveArret($this);
         // Enregistrement des ticks sur les arrêts
-        foreach (array_slice($this->parcours->arretsAFaire, 1)  as $arret) {
+        foreach (array_slice($this->parcours->arretsAFaire, 0)  as $arret) {
             $this->calculEtEnregistrementProchainPassage($arret);
             // Attention à calculer tout les n+1 parcours
             /*

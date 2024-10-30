@@ -33,7 +33,7 @@ class Personne
      *
      * @var Bus
      */
-    public Bus $lastBus;
+    public ?Bus $lastBus;
 
     /**
      * Nom de la personne
@@ -60,6 +60,7 @@ class Personne
         $this->nom = $nom;
         $this->trajetEnCours = TrajetEnCoursEnum::ALLER;
         $this->position = new PersonnePosition();
+        $this->lastBus = null;
         $this->setArretActuel($trajetAller->depart);
     }
 

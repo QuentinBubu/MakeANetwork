@@ -2,12 +2,12 @@
 
 namespace App\Actions;
 
+use App\Timer\Timer;
 use App\Entities\Bus;
+use SplPriorityQueue;
+use App\Loaders\Trajets;
 use App\Entities\Personne;
 use App\Enums\BusStateEnum;
-use App\Loaders\Trajets;
-use App\Timer\Timer;
-use SplPriorityQueue;
 
 trait ArretActions
 {
@@ -34,11 +34,12 @@ trait ArretActions
 
     public function addPersonne(Personne $personne): void
     {
-        $personne->busAPrendre = Trajets::calculTrajetOptimise($personne->getTrajetEnCours()); // Détermine le meilleur bus
-        // Logique d'ajout à la file d'attente reste inchangée
-        $priorite = -$personne->getTrajetEnCours()->arrivee;
+        $personne->busAPrendre = Trajets::calculTrajetOptimise($personne->getTrajetEnCours(), $personne->lastBus);
+    
+        // Calcul du tick d'arrivée pour la priorité, si applicable
+        $priorite = -$personne->getTrajetEnCours()->tickArrivee;
         $this->personnesEnAttente->insert($personne, [$priorite, $personne->nom]);
-
+    
         // Mise à jour de l'intérêt pour la ligne préférée
         $lignePreferee = spl_object_id($personne->busAPrendre);
         if (!isset($this->interetsBus[$lignePreferee])) {
@@ -51,18 +52,18 @@ trait ArretActions
     {
         $fileTemporaire = new SplPriorityQueue();
         $personnesParBus = [];
-    
+
         // Regrouper les personnes par bus de préférence
         foreach (clone $this->personnesEnAttente as $personne) {
             $busId = spl_object_id($personne->busAPrendre);
             $personnesParBus[$busId][] = $personne;
         }
-    
+
         foreach ($this->vehiculesEnAttente as $bus) {
             $busId = spl_object_id($bus);
-    
+
             if (!isset($personnesParBus[$busId])) continue; // Si aucun passager n'attend ce bus, passer
-    
+
             foreach ($personnesParBus[$busId] as $personne) {
                 if ($bus->hasSpace()) {
                     $bus->chargerPersonne($personne);
@@ -70,10 +71,10 @@ trait ArretActions
                     $fileTemporaire->insert($personne, [$personne->priorite, $personne->nom]);
                 }
             }
-    
+
             $this->verifierEtatBus($busId);
         }
-    
+
         $this->personnesEnAttente = $fileTemporaire;
     }
 
@@ -113,7 +114,7 @@ trait ArretActions
     {
         // Assigner les personnes aux bus disponibles en attente
         $this->assignerPersonnesAuxBus();
-    
+
         // Mise à jour des bus en déplacement
         foreach ($this->vehiculesEnAttente as $bus) {
             // Vérifier s'il y a des personnes assignées au bus
