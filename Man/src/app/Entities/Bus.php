@@ -49,6 +49,13 @@ class Bus extends Position implements TimeInterface, StateInterface
      */
     protected array $personnes = [];
 
+    /**
+     * Personnes vennant de descendre du bus
+     *
+     * @var Personne[]
+     */
+    public array $personnesDescendu = [];
+
     protected BusStateEnum $state = BusStateEnum::FLUX_VOYAGEURS;
 
     /**
@@ -83,6 +90,7 @@ class Bus extends Position implements TimeInterface, StateInterface
 
     public function setState(BusStateEnum $state): void
     {
+        $this->personnesDescendu = [];
         $this->state = $state;
         if (count($this->personnes) > 0) {
             echo microtime(true) . " & Bus " . spl_object_id($this) . " & à l'arrêt " . $this->parcours->currentArret . " ( " . $this->parcours->getCurrentArretObj()->nom . " )" . PHP_EOL;
@@ -140,10 +148,33 @@ class Bus extends Position implements TimeInterface, StateInterface
             . ')';
     }
 
+    public function addPersonne(Personne $personne): void
+    {
+        echo "Ajout de la personne {$personne->nom} dans le bus " . spl_object_id($this) . PHP_EOL;
+        $this->personnes[] = $personne;
+    }
+
     public function isFull(): bool
     {
         return count($this->personnes) >= $this->capacite;
     }
+
+    // Attention, tous les passagers descendent en même temps là alors que c'est 1 par tick
+    private function verifierSignauxDescente() {
+        foreach ($this->personnes as $key => $passager) {
+            if ($passager->veutDescendre($this->parcours->getCurrentArretObj())) {
+                // Le passager souhaite descendre à cet arrêt
+                unset($this->personnes[$key]);
+                $this->personnesDescendu[] = $passager;
+                echo "Le passager {$passager->nom} descend du bus " . spl_object_id($this) . " à l'arrêt " . $this->parcours->getCurrentArretObj()->nom . PHP_EOL;
+                $passager->descendArret($this->parcours->getCurrentArretObj());
+                $this->parcours->getCurrentArretObj()->addPersonne($passager);
+            }
+        }
+        // Réindexer le tableau pour éviter des clés manquantes
+        $this->personnes = array_values($this->personnes);
+    }
+
 
     public function incrementTick(): void
     {
@@ -155,6 +186,10 @@ class Bus extends Position implements TimeInterface, StateInterface
         ) {
             $this->parcours->arriveArret($this);
             $this->setState(BusStateEnum::FLUX_VOYAGEURS);
+        }
+
+        if ($this->state === BusStateEnum::FLUX_VOYAGEURS) {
+            $this->verifierSignauxDescente();
         }
     }
 

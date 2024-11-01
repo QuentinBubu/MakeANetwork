@@ -5,24 +5,28 @@ interface App.Interfaces.TimeInterface
 +incrementTick():
 
 }
+interface App.Interfaces.StateInterface
+{
++export():
++restore():
+
+}
 interface Stringable
 {
 
 }
 class App.Entities.Arret
 {
-+nom:string
-+routes:Route[]
-+filesDattenteRoutes:[spl_object_id(Route) => SplPriorityQueue]
--genericRoutes:string[]
--genericFile:string[]
 +vehiculesEnApproche:array
 +vehiculesEnAttente:
++nom:string
++routes:Route[]
++fileAttente:SplPriorityQueue
+-genericRoutes:string[]
 +getNeighbors():array
 +mapRoutes():array
 +registerRoute():Arret
 +addPersonne():
-+getFileDattente():
 +addBusEnApproche():
 +removeBusEnApproche():
 +getBusEnApproche():
@@ -30,6 +34,8 @@ class App.Entities.Arret
 +departBus():
 +removeBusEnAttente():
 +incrementTick():
++export():
++restore():
 
 }
 abstract class App.Entities.Position
@@ -49,7 +55,6 @@ class App.Entities.Bus
 #state:
 #timers:array
 +tick:
--registerRoutes():
 +getState():
 +setState():
 +addTimer():
@@ -57,9 +62,11 @@ class App.Entities.Bus
 +getParcours():Parcours
 +isFull():
 +incrementTick():
-+tickTo():
 +demarrerParcours():
 +calculEtEnregistrementProchainPassage():
++export():
++restore():
++tickTo():
 
 }
 class App.Entities.Parcours
@@ -80,6 +87,8 @@ class App.Entities.Parcours
 +getArretWithIndex():
 +findNextRoute():
 +getRoutes():
++export():
++restore():
 
 }
 class App.Entities.Personne
@@ -89,20 +98,12 @@ class App.Entities.Personne
 +trajetEnCours:
 +lastBus:Bus
 +nom:string
-+position:
-+busAPrendre:
 +arretsVisites:
-+routeEnCours:
 +setArretActuel():
 +getTrajetEnCours():
 +finFinal():
-
-}
-class App.Entities.PersonnePosition
-{
-+tick:
-+incrementTick():
-+tickTo():
++export():
++restore():
 
 }
 class App.Entities.Route
@@ -115,6 +116,8 @@ class App.Entities.Route
 +calculDistanceAvecBus():
 +getNextArret():
 +getArrets():
++export():
++restore():
 
 }
 class App.Entities.Trajet
@@ -126,6 +129,8 @@ class App.Entities.Trajet
 +distance:
 +tickArrivee:
 +getRouteFromArret():
++export():
++restore():
 
 }
 interface UnitEnum
@@ -224,22 +229,20 @@ class App.Factories.BusFactory
 +make():
 
 }
-class App.Factories.RoutesFactory
-{
-
-}
 class App.Loaders.Arrets
 {
 +arrets:
 +load():
 +map():
 +getArret():
++export():
 
 }
 class App.Loaders.Bus
 {
 +buses:
 +load():
++export():
 
 }
 class App.Loaders.Parcours
@@ -247,19 +250,7 @@ class App.Loaders.Parcours
 +parcours:
 +load():
 +getParcours():
-
-}
-class App.Loaders.PathFinder
-{
--cache:
-+findBestPath():
--calculateTime():
--calculateWaitingTime():
--getOptionsFromStop():
--reconstructPath():
--getNodeKey():
--parseNodeKey():
--getDistance():
++export():
 
 }
 class App.Loaders.Personnes
@@ -267,6 +258,7 @@ class App.Loaders.Personnes
 +personnes:
 +load():
 +unregister():
++export():
 
 }
 class App.Loaders.Routes
@@ -275,6 +267,7 @@ class App.Loaders.Routes
 +load():
 +getRoute():
 +getRouteStr():
++export():
 
 }
 class App.Loaders.Trajets
@@ -286,6 +279,14 @@ class App.Loaders.Trajets
 +findTrajetWithArret():
 +findTrajet():
 +calculTrajet():
++export():
+
+}
+class App.State.State
+{
++states:
++registerFunction():
++exportData():
 
 }
 class App.Timer.Time
@@ -297,6 +298,7 @@ class App.Timer.Time
 +resetTick():
 +registerClass():
 +run():
++export():
 
 }
 class App.Timer.Timer
@@ -309,22 +311,26 @@ class App.Timer.Timer
 }
 
 
+
 class App.Entities.Arret implements App.Interfaces.TimeInterface
+class App.Entities.Arret implements App.Interfaces.StateInterface
 class App.Entities.Arret implements Stringable
 
 
 class App.Entities.Bus extends App.Entities.Position
 class App.Entities.Bus implements App.Interfaces.TimeInterface
+class App.Entities.Bus implements App.Interfaces.StateInterface
 class App.Entities.Bus implements Stringable
 
+class App.Entities.Parcours implements App.Interfaces.StateInterface
 class App.Entities.Parcours implements Stringable
 
+class App.Entities.Personne implements App.Interfaces.StateInterface
 
-class App.Entities.PersonnePosition extends App.Entities.Position
-class App.Entities.PersonnePosition implements App.Interfaces.TimeInterface
-
+class App.Entities.Route implements App.Interfaces.StateInterface
 class App.Entities.Route implements Stringable
 
+class App.Entities.Trajet implements App.Interfaces.StateInterface
 
 
 class App.Enums.BusStateEnum implements UnitEnum
@@ -344,7 +350,6 @@ class App.Exceptions.RouteException implements Stringable
 class App.Exceptions.RoutesException extends Exception
 class App.Exceptions.RoutesException implements Throwable
 class App.Exceptions.RoutesException implements Stringable
-
 
 
 

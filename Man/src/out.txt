@@ -62,39 +62,29 @@ Reconstruction du chemin :
   Arrêt : B
 Chemin final : route1
 Distance totale : 10
-Début du calcul du trajet de A à C
-Traitement de l'arrêt : A, Distance actuelle : 0
-  Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 10
-  Mise à jour : B, Nouvelle distance totale : 10
-  Voisin : C, Route : route2, Distance : 4, Distance totale potentielle : 4
+Début du calcul du trajet de E à C
+Traitement de l'arrêt : E, Distance actuelle : 0
+  Voisin : C, Route : route4, Distance : 4, Distance totale potentielle : 4
   Mise à jour : C, Nouvelle distance totale : 4
 Traitement de l'arrêt : C, Distance actuelle : 4
 Destination atteinte
 Reconstruction du chemin :
   Arrêt : C
-    Route ajoutée : route2, Distance : 4
-  Arrêt : A
-Chemin final : route2
+    Route ajoutée : route4, Distance : 4
+  Arrêt : E
+Chemin final : route4
 Distance totale : 4
-Début du calcul du trajet de C à E
+Début du calcul du trajet de C à A
 Traitement de l'arrêt : C, Distance actuelle : 0
   Voisin : A, Route : route2, Distance : 4, Distance totale potentielle : 4
   Mise à jour : A, Nouvelle distance totale : 4
-  Voisin : D, Route : route3, Distance : 12, Distance totale potentielle : 12
-  Mise à jour : D, Nouvelle distance totale : 12
-  Voisin : E, Route : route4, Distance : 4, Distance totale potentielle : 4
-  Mise à jour : E, Nouvelle distance totale : 4
 Traitement de l'arrêt : A, Distance actuelle : 4
-  Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 14
-  Mise à jour : B, Nouvelle distance totale : 14
-  Voisin : C, Route : route2, Distance : 4, Distance totale potentielle : 8
-Traitement de l'arrêt : E, Distance actuelle : 4
 Destination atteinte
 Reconstruction du chemin :
-  Arrêt : E
-    Route ajoutée : route4, Distance : 4
+  Arrêt : A
+    Route ajoutée : route2, Distance : 4
   Arrêt : C
-Chemin final : route4
+Chemin final : route2
 Distance totale : 4
 Construction du parcours p2
 Construction des trajets pour le parcours p2
@@ -118,26 +108,10 @@ Traitement de l'arrêt : B, Distance actuelle : 0
   Mise à jour : A, Nouvelle distance totale : 10
 Traitement de l'arrêt : A, Distance actuelle : 10
   Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 20
-  Voisin : C, Route : route2, Distance : 4, Distance totale potentielle : 14
-  Mise à jour : C, Nouvelle distance totale : 14
-Traitement de l'arrêt : C, Distance actuelle : 14
-  Voisin : A, Route : route2, Distance : 4, Distance totale potentielle : 18
-  Voisin : D, Route : route3, Distance : 12, Distance totale potentielle : 26
-  Mise à jour : D, Nouvelle distance totale : 26
-  Voisin : E, Route : route4, Distance : 4, Distance totale potentielle : 18
-  Mise à jour : E, Nouvelle distance totale : 18
-Traitement de l'arrêt : E, Distance actuelle : 18
-Destination atteinte
 Reconstruction du chemin :
   Arrêt : E
-    Route ajoutée : route4, Distance : 4
-  Arrêt : C
-    Route ajoutée : route2, Distance : 4
-  Arrêt : A
-    Route ajoutée : route1, Distance : 10
-  Arrêt : B
-Chemin final : route1 -> route2 -> route4
-Distance totale : 18
+Chemin final : 
+Distance totale : 0
 Début du calcul du trajet de E à D
 Traitement de l'arrêt : E, Distance actuelle : 0
   Voisin : C, Route : route4, Distance : 4, Distance totale potentielle : 4
@@ -145,23 +119,15 @@ Traitement de l'arrêt : E, Distance actuelle : 0
 Traitement de l'arrêt : C, Distance actuelle : 4
   Voisin : A, Route : route2, Distance : 4, Distance totale potentielle : 8
   Mise à jour : A, Nouvelle distance totale : 8
-  Voisin : D, Route : route3, Distance : 12, Distance totale potentielle : 16
-  Mise à jour : D, Nouvelle distance totale : 16
-  Voisin : E, Route : route4, Distance : 4, Distance totale potentielle : 8
 Traitement de l'arrêt : A, Distance actuelle : 8
   Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 18
   Mise à jour : B, Nouvelle distance totale : 18
-  Voisin : C, Route : route2, Distance : 4, Distance totale potentielle : 12
-Traitement de l'arrêt : D, Distance actuelle : 16
-Destination atteinte
+Traitement de l'arrêt : B, Distance actuelle : 18
+  Voisin : A, Route : route1, Distance : 10, Distance totale potentielle : 28
 Reconstruction du chemin :
   Arrêt : D
-    Route ajoutée : route3, Distance : 12
-  Arrêt : C
-    Route ajoutée : route4, Distance : 4
-  Arrêt : E
-Chemin final : route4 -> route3
-Distance totale : 16
+Chemin final : 
+Distance totale : 0
 Construction du parcours p4
 Construction des trajets pour le parcours p4
 Début du calcul du trajet de B à C
@@ -170,23 +136,15 @@ Traitement de l'arrêt : B, Distance actuelle : 0
   Mise à jour : A, Nouvelle distance totale : 10
 Traitement de l'arrêt : A, Distance actuelle : 10
   Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 20
-  Voisin : C, Route : route2, Distance : 4, Distance totale potentielle : 14
-  Mise à jour : C, Nouvelle distance totale : 14
-Traitement de l'arrêt : C, Distance actuelle : 14
-Destination atteinte
 Reconstruction du chemin :
   Arrêt : C
-    Route ajoutée : route2, Distance : 4
-  Arrêt : A
-    Route ajoutée : route1, Distance : 10
-  Arrêt : B
-Chemin final : route1 -> route2
-Distance totale : 14
+Chemin final : 
+Distance totale : 0
 Chargement des bus
 Construction du bus double
 Enregistrement du bus 43 sur le parcours p1
 Construction du bus double
-Enregistrement du bus 44 sur le parcours p2
+Enregistrement du bus 40 sur le parcours p2
 Construction du bus double
 Enregistrement du bus 45 sur le parcours p3
 Construction du bus fast
@@ -201,10 +159,10 @@ Calcul du prochain passage du bus 43 à l'arrêt C
 Calcul du prochain passage du bus 43 à l'arrêt A
 Démarrage du bus
 Le bus faisaint le parcours p2 en provenance de l'arrêt C est arrivé à l'arrêt D
-Arrivée du bus 44 à l'arrêt D
-Calcul du prochain passage du bus 44 à l'arrêt C
-Calcul du prochain passage du bus 44 à l'arrêt E
-Calcul du prochain passage du bus 44 à l'arrêt C
+Arrivée du bus 40 à l'arrêt D
+Calcul du prochain passage du bus 40 à l'arrêt C
+Calcul du prochain passage du bus 40 à l'arrêt E
+Calcul du prochain passage du bus 40 à l'arrêt C
 Démarrage du bus
 Le bus faisaint le parcours p3 en provenance de l'arrêt D est arrivé à l'arrêt B
 Arrivée du bus 45 à l'arrêt B
@@ -223,28 +181,10 @@ Traitement de l'arrêt : B, Distance actuelle : 0
   Mise à jour : A, Nouvelle distance totale : 10
 Traitement de l'arrêt : A, Distance actuelle : 10
   Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 20
-  Voisin : C, Route : route2, Distance : 4, Distance totale potentielle : 14
-  Mise à jour : C, Nouvelle distance totale : 14
-Traitement de l'arrêt : C, Distance actuelle : 14
-  Voisin : A, Route : route2, Distance : 4, Distance totale potentielle : 18
-  Voisin : D, Route : route3, Distance : 12, Distance totale potentielle : 26
-  Mise à jour : D, Nouvelle distance totale : 26
-  Voisin : E, Route : route4, Distance : 4, Distance totale potentielle : 18
-  Mise à jour : E, Nouvelle distance totale : 18
-Traitement de l'arrêt : E, Distance actuelle : 18
-  Voisin : C, Route : route4, Distance : 4, Distance totale potentielle : 22
-Traitement de l'arrêt : D, Distance actuelle : 26
-Destination atteinte
 Reconstruction du chemin :
   Arrêt : D
-    Route ajoutée : route3, Distance : 12
-  Arrêt : C
-    Route ajoutée : route2, Distance : 4
-  Arrêt : A
-    Route ajoutée : route1, Distance : 10
-  Arrêt : B
-Chemin final : route1 -> route2 -> route3
-Distance totale : 26
+Chemin final : 
+Distance totale : 0
 Début du calcul du trajet de D à A
 Traitement de l'arrêt : D, Distance actuelle : 0
   Voisin : C, Route : route3, Distance : 12, Distance totale potentielle : 12
@@ -252,9 +192,6 @@ Traitement de l'arrêt : D, Distance actuelle : 0
 Traitement de l'arrêt : C, Distance actuelle : 12
   Voisin : A, Route : route2, Distance : 4, Distance totale potentielle : 16
   Mise à jour : A, Nouvelle distance totale : 16
-  Voisin : D, Route : route3, Distance : 12, Distance totale potentielle : 24
-  Voisin : E, Route : route4, Distance : 4, Distance totale potentielle : 16
-  Mise à jour : E, Nouvelle distance totale : 16
 Traitement de l'arrêt : A, Distance actuelle : 16
 Destination atteinte
 Reconstruction du chemin :
@@ -283,6 +220,23 @@ Chargement de la personne Albert5
 La personne Albert5 est à l'arrêt B
 Arrivée de la personne Albert5 à l'arrêt B au tick 0
 Chargement de la personne Bob0
+Début du calcul du trajet de C à B
+Traitement de l'arrêt : C, Distance actuelle : 0
+  Voisin : A, Route : route2, Distance : 4, Distance totale potentielle : 4
+  Mise à jour : A, Nouvelle distance totale : 4
+Traitement de l'arrêt : A, Distance actuelle : 4
+  Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 14
+  Mise à jour : B, Nouvelle distance totale : 14
+Traitement de l'arrêt : B, Distance actuelle : 14
+Destination atteinte
+Reconstruction du chemin :
+  Arrêt : B
+    Route ajoutée : route1, Distance : 10
+  Arrêt : A
+    Route ajoutée : route2, Distance : 4
+  Arrêt : C
+Chemin final : route2 -> route1
+Distance totale : 14
 La personne Bob0 est à l'arrêt B
 Arrivée de la personne Bob0 à l'arrêt B au tick 0
 Chargement de la personne Charles0
@@ -296,9 +250,6 @@ Traitement de l'arrêt : E, Distance actuelle : 0
 Traitement de l'arrêt : C, Distance actuelle : 4
   Voisin : A, Route : route2, Distance : 4, Distance totale potentielle : 8
   Mise à jour : A, Nouvelle distance totale : 8
-  Voisin : D, Route : route3, Distance : 12, Distance totale potentielle : 16
-  Mise à jour : D, Nouvelle distance totale : 16
-  Voisin : E, Route : route4, Distance : 4, Distance totale potentielle : 8
 Traitement de l'arrêt : A, Distance actuelle : 8
 Destination atteinte
 Reconstruction du chemin :
@@ -309,6 +260,16 @@ Reconstruction du chemin :
   Arrêt : E
 Chemin final : route4 -> route2
 Distance totale : 8
+Début du calcul du trajet de A à E
+Traitement de l'arrêt : A, Distance actuelle : 0
+  Voisin : B, Route : route1, Distance : 10, Distance totale potentielle : 10
+  Mise à jour : B, Nouvelle distance totale : 10
+Traitement de l'arrêt : B, Distance actuelle : 10
+  Voisin : A, Route : route1, Distance : 10, Distance totale potentielle : 20
+Reconstruction du chemin :
+  Arrêt : E
+Chemin final : 
+Distance totale : 0
 La personne Damien0 est à l'arrêt E
 Arrivée de la personne Damien0 à l'arrêt E au tick 0
 Chargement de la personne Bob1
@@ -411,249 +372,170 @@ Chargement de la personne Damien11
 La personne Damien11 est à l'arrêt E
 Arrivée de la personne Damien11 à l'arrêt E au tick 0
 Chargement de la personne Edouard0
-La personne Edouard0 est à l'arrêt A
-Arrivée de la personne Edouard0 à l'arrêt A au tick 0
+La personne Edouard0 est à l'arrêt C
+Arrivée de la personne Edouard0 à l'arrêt C au tick 0
 Chargement de la personne Edouard1
-La personne Edouard1 est à l'arrêt A
-Arrivée de la personne Edouard1 à l'arrêt A au tick 0
+La personne Edouard1 est à l'arrêt C
+Arrivée de la personne Edouard1 à l'arrêt C au tick 0
 Chargement de la personne Edouard2
-La personne Edouard2 est à l'arrêt A
-Arrivée de la personne Edouard2 à l'arrêt A au tick 0
+La personne Edouard2 est à l'arrêt C
+Arrivée de la personne Edouard2 à l'arrêt C au tick 0
 Chargement de la personne Edouard3
-La personne Edouard3 est à l'arrêt A
-Arrivée de la personne Edouard3 à l'arrêt A au tick 0
+La personne Edouard3 est à l'arrêt C
+Arrivée de la personne Edouard3 à l'arrêt C au tick 0
 Chargement de la personne Edouard4
-La personne Edouard4 est à l'arrêt A
-Arrivée de la personne Edouard4 à l'arrêt A au tick 0
+La personne Edouard4 est à l'arrêt C
+Arrivée de la personne Edouard4 à l'arrêt C au tick 0
 Chargement de la personne Edouard5
-La personne Edouard5 est à l'arrêt A
-Arrivée de la personne Edouard5 à l'arrêt A au tick 0
+La personne Edouard5 est à l'arrêt C
+Arrivée de la personne Edouard5 à l'arrêt C au tick 0
 Chargement de la personne Edouard6
-La personne Edouard6 est à l'arrêt A
-Arrivée de la personne Edouard6 à l'arrêt A au tick 0
+La personne Edouard6 est à l'arrêt C
+Arrivée de la personne Edouard6 à l'arrêt C au tick 0
 Chargement de la personne Edouard7
-La personne Edouard7 est à l'arrêt A
-Arrivée de la personne Edouard7 à l'arrêt A au tick 0
+La personne Edouard7 est à l'arrêt C
+Arrivée de la personne Edouard7 à l'arrêt C au tick 0
 Chargement de la personne Edouard8
-La personne Edouard8 est à l'arrêt A
-Arrivée de la personne Edouard8 à l'arrêt A au tick 0
+La personne Edouard8 est à l'arrêt C
+Arrivée de la personne Edouard8 à l'arrêt C au tick 0
 Chargement de la personne Edouard9
-La personne Edouard9 est à l'arrêt A
-Arrivée de la personne Edouard9 à l'arrêt A au tick 0
+La personne Edouard9 est à l'arrêt C
+Arrivée de la personne Edouard9 à l'arrêt C au tick 0
 Chargement de la personne Edouard10
-La personne Edouard10 est à l'arrêt A
-Arrivée de la personne Edouard10 à l'arrêt A au tick 0
+La personne Edouard10 est à l'arrêt C
+Arrivée de la personne Edouard10 à l'arrêt C au tick 0
 Chargement de la personne Edouard11
-La personne Edouard11 est à l'arrêt A
-Arrivée de la personne Edouard11 à l'arrêt A au tick 0
+La personne Edouard11 est à l'arrêt C
+Arrivée de la personne Edouard11 à l'arrêt C au tick 0
 Chargement de la personne Edouard12
-La personne Edouard12 est à l'arrêt A
-Arrivée de la personne Edouard12 à l'arrêt A au tick 0
+La personne Edouard12 est à l'arrêt C
+Arrivée de la personne Edouard12 à l'arrêt C au tick 0
 Chargement de la personne Edouard13
-La personne Edouard13 est à l'arrêt A
-Arrivée de la personne Edouard13 à l'arrêt A au tick 0
+La personne Edouard13 est à l'arrêt C
+Arrivée de la personne Edouard13 à l'arrêt C au tick 0
 Chargement de la personne Edouard14
-La personne Edouard14 est à l'arrêt A
-Arrivée de la personne Edouard14 à l'arrêt A au tick 0
+La personne Edouard14 est à l'arrêt C
+Arrivée de la personne Edouard14 à l'arrêt C au tick 0
 Chargement de la personne Edouard15
-La personne Edouard15 est à l'arrêt A
-Arrivée de la personne Edouard15 à l'arrêt A au tick 0
+La personne Edouard15 est à l'arrêt C
+Arrivée de la personne Edouard15 à l'arrêt C au tick 0
 Chargement de la personne Edouard16
-La personne Edouard16 est à l'arrêt A
-Arrivée de la personne Edouard16 à l'arrêt A au tick 0
+La personne Edouard16 est à l'arrêt C
+Arrivée de la personne Edouard16 à l'arrêt C au tick 0
 Chargement de la personne Edouard17
-La personne Edouard17 est à l'arrêt A
-Arrivée de la personne Edouard17 à l'arrêt A au tick 0
+La personne Edouard17 est à l'arrêt C
+Arrivée de la personne Edouard17 à l'arrêt C au tick 0
 Chargement de la personne Edouard18
-La personne Edouard18 est à l'arrêt A
-Arrivée de la personne Edouard18 à l'arrêt A au tick 0
+La personne Edouard18 est à l'arrêt C
+Arrivée de la personne Edouard18 à l'arrêt C au tick 0
 Chargement de la personne Edouard19
-La personne Edouard19 est à l'arrêt A
-Arrivée de la personne Edouard19 à l'arrêt A au tick 0
+La personne Edouard19 est à l'arrêt C
+Arrivée de la personne Edouard19 à l'arrêt C au tick 0
 Chargement de la personne Edouard20
-La personne Edouard20 est à l'arrêt A
-Arrivée de la personne Edouard20 à l'arrêt A au tick 0
+La personne Edouard20 est à l'arrêt C
+Arrivée de la personne Edouard20 à l'arrêt C au tick 0
 Chargement de la personne Edouard21
-La personne Edouard21 est à l'arrêt A
-Arrivée de la personne Edouard21 à l'arrêt A au tick 0
+La personne Edouard21 est à l'arrêt C
+Arrivée de la personne Edouard21 à l'arrêt C au tick 0
 Chargement de la personne Edouard22
-La personne Edouard22 est à l'arrêt A
-Arrivée de la personne Edouard22 à l'arrêt A au tick 0
+La personne Edouard22 est à l'arrêt C
+Arrivée de la personne Edouard22 à l'arrêt C au tick 0
 Chargement de la personne Edouard23
-La personne Edouard23 est à l'arrêt A
-Arrivée de la personne Edouard23 à l'arrêt A au tick 0
+La personne Edouard23 est à l'arrêt C
+Arrivée de la personne Edouard23 à l'arrêt C au tick 0
 Chargement de la personne Edouard24
-La personne Edouard24 est à l'arrêt A
-Arrivée de la personne Edouard24 à l'arrêt A au tick 0
+La personne Edouard24 est à l'arrêt C
+Arrivée de la personne Edouard24 à l'arrêt C au tick 0
 Chargement de la personne Edouard25
-La personne Edouard25 est à l'arrêt A
-Arrivée de la personne Edouard25 à l'arrêt A au tick 0
+La personne Edouard25 est à l'arrêt C
+Arrivée de la personne Edouard25 à l'arrêt C au tick 0
 Chargement de la personne Edouard26
-La personne Edouard26 est à l'arrêt A
-Arrivée de la personne Edouard26 à l'arrêt A au tick 0
+La personne Edouard26 est à l'arrêt C
+Arrivée de la personne Edouard26 à l'arrêt C au tick 0
 Chargement de la personne Edouard27
-La personne Edouard27 est à l'arrêt A
-Arrivée de la personne Edouard27 à l'arrêt A au tick 0
+La personne Edouard27 est à l'arrêt C
+Arrivée de la personne Edouard27 à l'arrêt C au tick 0
 Chargement de la personne Edouard28
-La personne Edouard28 est à l'arrêt A
-Arrivée de la personne Edouard28 à l'arrêt A au tick 0
+La personne Edouard28 est à l'arrêt C
+Arrivée de la personne Edouard28 à l'arrêt C au tick 0
 Chargement de la personne Edouard29
-La personne Edouard29 est à l'arrêt A
-Arrivée de la personne Edouard29 à l'arrêt A au tick 0
+La personne Edouard29 est à l'arrêt C
+Arrivée de la personne Edouard29 à l'arrêt C au tick 0
 Chargement de la personne Edouard30
-La personne Edouard30 est à l'arrêt A
-Arrivée de la personne Edouard30 à l'arrêt A au tick 0
+La personne Edouard30 est à l'arrêt C
+Arrivée de la personne Edouard30 à l'arrêt C au tick 0
 Chargement de la personne Edouard31
-La personne Edouard31 est à l'arrêt A
-Arrivée de la personne Edouard31 à l'arrêt A au tick 0
+La personne Edouard31 est à l'arrêt C
+Arrivée de la personne Edouard31 à l'arrêt C au tick 0
 Chargement de la personne Edouard32
-La personne Edouard32 est à l'arrêt A
-Arrivée de la personne Edouard32 à l'arrêt A au tick 0
+La personne Edouard32 est à l'arrêt C
+Arrivée de la personne Edouard32 à l'arrêt C au tick 0
 Chargement de la personne Edouard33
-La personne Edouard33 est à l'arrêt A
-Arrivée de la personne Edouard33 à l'arrêt A au tick 0
+La personne Edouard33 est à l'arrêt C
+Arrivée de la personne Edouard33 à l'arrêt C au tick 0
 Chargement de la personne Edouard34
-La personne Edouard34 est à l'arrêt A
-Arrivée de la personne Edouard34 à l'arrêt A au tick 0
+La personne Edouard34 est à l'arrêt C
+Arrivée de la personne Edouard34 à l'arrêt C au tick 0
 Chargement de la personne Edouard35
-La personne Edouard35 est à l'arrêt A
-Arrivée de la personne Edouard35 à l'arrêt A au tick 0
+La personne Edouard35 est à l'arrêt C
+Arrivée de la personne Edouard35 à l'arrêt C au tick 0
 Chargement de la personne Edouard36
-La personne Edouard36 est à l'arrêt A
-Arrivée de la personne Edouard36 à l'arrêt A au tick 0
+La personne Edouard36 est à l'arrêt C
+Arrivée de la personne Edouard36 à l'arrêt C au tick 0
 Chargement de la personne Edouard37
-La personne Edouard37 est à l'arrêt A
-Arrivée de la personne Edouard37 à l'arrêt A au tick 0
+La personne Edouard37 est à l'arrêt C
+Arrivée de la personne Edouard37 à l'arrêt C au tick 0
 Chargement de la personne Edouard38
-La personne Edouard38 est à l'arrêt A
-Arrivée de la personne Edouard38 à l'arrêt A au tick 0
+La personne Edouard38 est à l'arrêt C
+Arrivée de la personne Edouard38 à l'arrêt C au tick 0
 Chargement de la personne Edouard39
-La personne Edouard39 est à l'arrêt A
-Arrivée de la personne Edouard39 à l'arrêt A au tick 0
+La personne Edouard39 est à l'arrêt C
+Arrivée de la personne Edouard39 à l'arrêt C au tick 0
 Chargement de la personne Edouard40
-La personne Edouard40 est à l'arrêt A
-Arrivée de la personne Edouard40 à l'arrêt A au tick 0
+La personne Edouard40 est à l'arrêt C
+Arrivée de la personne Edouard40 à l'arrêt C au tick 0
 Chargement de la personne Edouard41
-La personne Edouard41 est à l'arrêt A
-Arrivée de la personne Edouard41 à l'arrêt A au tick 0
+La personne Edouard41 est à l'arrêt C
+Arrivée de la personne Edouard41 à l'arrêt C au tick 0
 Chargement de la personne Edouard42
-La personne Edouard42 est à l'arrêt A
-Arrivée de la personne Edouard42 à l'arrêt A au tick 0
+La personne Edouard42 est à l'arrêt C
+Arrivée de la personne Edouard42 à l'arrêt C au tick 0
 Chargement de la personne Edouard43
-La personne Edouard43 est à l'arrêt A
-Arrivée de la personne Edouard43 à l'arrêt A au tick 0
+La personne Edouard43 est à l'arrêt C
+Arrivée de la personne Edouard43 à l'arrêt C au tick 0
 Chargement de la personne Edouard44
-La personne Edouard44 est à l'arrêt A
-Arrivée de la personne Edouard44 à l'arrêt A au tick 0
+La personne Edouard44 est à l'arrêt C
+Arrivée de la personne Edouard44 à l'arrêt C au tick 0
 Bus : 43 affecté au parcours p1
-Bus : 44 affecté au parcours p2
+Bus : 40 affecté au parcours p2
 Bus : 45 affecté au parcours p3
 Bus : 46 affecté au parcours p4
 ------ FIN ------
-[{"arrets":{"32":{"nom":"A","routes":["route1","route1","route2","route2"],"fileAttente":{"44":"Edouard9","43":"Edouard8","42":"Edouard7","41":"Edouard6","40":"Edouard5","39":"Edouard44","38":"Edouard43","37":"Edouard42","36":"Edouard41","35":"Edouard40","34":"Edouard4","33":"Edouard39","32":"Edouard38","31":"Edouard37","30":"Edouard36","29":"Edouard35","28":"Edouard34","27":"Edouard33","26":"Edouard32","25":"Edouard31","24":"Edouard30","23":"Edouard3","22":"Edouard29","21":"Edouard28","20":"Edouard27","19":"Edouard26","18":"Edouard25","17":"Edouard24","16":"Edouard23","15":"Edouard22","14":"Edouard21","13":"Edouard20","12":"Edouard2","11":"Edouard19","10":"Edouard18","9":"Edouard17","8":"Edouard16","7":"Edouard15","6":"Edouard14","5":"Edouard13","4":"Edouard12","3":"Edouard11","2":"Edouard10","1":"Edouard1","0":"Edouard0"},"vehiculesEnApproche":{"43":[43,300]},"vehiculesEnAttente":[46]},"28":{"nom":"B","routes":["route1","route1"],"fileAttente":{"29":"Charles9","28":"Charles8","27":"Charles7","26":"Charles6","25":"Charles5","24":"Charles4","23":"Charles3","22":"Charles2","21":"Charles11","20":"Charles10","19":"Charles1","18":"Charles0","17":"Bob9","16":"Bob8","15":"Bob7","14":"Bob6","13":"Bob5","12":"Bob4","11":"Bob3","10":"Bob2","9":"Bob11","8":"Bob10","7":"Bob1","6":"Bob0","5":"Albert5","4":"Albert4","3":"Albert3","2":"Albert2","1":"Albert1","0":"Albert0"},"vehiculesEnApproche":[],"vehiculesEnAttente":[43,45]},"29":{"nom":"C","routes":["route2","route2","route3","route3","route4","route4"],"fileAttente":[],"vehiculesEnApproche":{"43":[43,420],"44":[44,360],"46":[46,40]},"vehiculesEnAttente":[]},"15":{"nom":"D","routes":["route3","route3"],"fileAttente":[],"vehiculesEnApproche":{"45":[45,1020]},"vehiculesEnAttente":[44]},"16":{"nom":"E","routes":["route4","route4"],"fileAttente":{"11":"Damien9","10":"Damien8","9":"Damien7","8":"Damien6","7":"Damien5","6":"Damien4","5":"Damien3","4":"Damien2","3":"Damien11","2":"Damien10","1":"Damien1","0":"Damien0"},"vehiculesEnApproche":{"43":[43,540],"44":[44,480],"45":[45,540]},"vehiculesEnAttente":[]}}},{"bus":{"43":{"capacite":10,"vitesseChargement":1,"vitesseDeplacement":30,"parcours":"p1","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"32":300,"29":420,"16":540},"tick":0},"44":{"capacite":10,"vitesseChargement":1,"vitesseDeplacement":30,"parcours":"p2","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"29":360,"16":480},"tick":0},"45":{"capacite":10,"vitesseChargement":1,"vitesseDeplacement":30,"parcours":"p3","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"16":540,"15":1020},"tick":0},"46":{"capacite":2,"vitesseChargement":1,"vitesseDeplacement":10,"parcours":"p4","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"29":40},"tick":0}}},{"time":{"tick":0}}]
-Calcul du prochain passage du bus 44 à l'arrêt D
+[{"arrets":{"32":{"nom":"A","routes":["route1","route1","route2","route2"],"fileAttente":[],"vehiculesEnApproche":{"43":43},"vehiculesEnAttente":[46]},"28":{"nom":"B","routes":["route1","route1"],"fileAttente":{"29":"Charles9","28":"Charles8","27":"Charles7","26":"Charles6","25":"Charles5","24":"Charles4","23":"Charles3","22":"Charles2","21":"Charles11","20":"Charles10","19":"Charles1","18":"Charles0","17":"Bob9","16":"Bob8","15":"Bob7","14":"Bob6","13":"Bob5","12":"Bob4","11":"Bob3","10":"Bob2","9":"Bob11","8":"Bob10","7":"Bob1","6":"Bob0","5":"Albert5","4":"Albert4","3":"Albert3","2":"Albert2","1":"Albert1","0":"Albert0"},"vehiculesEnApproche":[],"vehiculesEnAttente":[43,45]},"29":{"nom":"C","routes":["route2","route2","route3","route3","route4","route4"],"fileAttente":{"44":"Edouard9","43":"Edouard8","42":"Edouard7","41":"Edouard6","40":"Edouard5","39":"Edouard44","38":"Edouard43","37":"Edouard42","36":"Edouard41","35":"Edouard40","34":"Edouard4","33":"Edouard39","32":"Edouard38","31":"Edouard37","30":"Edouard36","29":"Edouard35","28":"Edouard34","27":"Edouard33","26":"Edouard32","25":"Edouard31","24":"Edouard30","23":"Edouard3","22":"Edouard29","21":"Edouard28","20":"Edouard27","19":"Edouard26","18":"Edouard25","17":"Edouard24","16":"Edouard23","15":"Edouard22","14":"Edouard21","13":"Edouard20","12":"Edouard2","11":"Edouard19","10":"Edouard18","9":"Edouard17","8":"Edouard16","7":"Edouard15","6":"Edouard14","5":"Edouard13","4":"Edouard12","3":"Edouard11","2":"Edouard10","1":"Edouard1","0":"Edouard0"},"vehiculesEnApproche":{"43":43,"40":40,"46":46},"vehiculesEnAttente":[]},"15":{"nom":"D","routes":["route3","route3"],"fileAttente":[],"vehiculesEnApproche":{"45":45},"vehiculesEnAttente":[40]},"16":{"nom":"E","routes":["route4","route4"],"fileAttente":{"11":"Damien9","10":"Damien8","9":"Damien7","8":"Damien6","7":"Damien5","6":"Damien4","5":"Damien3","4":"Damien2","3":"Damien11","2":"Damien10","1":"Damien1","0":"Damien0"},"vehiculesEnApproche":{"43":43,"40":40,"45":45},"vehiculesEnAttente":[]}}},{"bus":{"43":{"capacite":10,"vitesseChargement":1,"vitesseDeplacement":30,"parcours":"p1","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"32":300,"29":420,"16":540},"tick":0},"40":{"capacite":10,"vitesseChargement":1,"vitesseDeplacement":30,"parcours":"p2","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"29":360,"16":480},"tick":0},"45":{"capacite":10,"vitesseChargement":1,"vitesseDeplacement":30,"parcours":"p3","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"16":0,"15":0},"tick":0},"46":{"capacite":2,"vitesseChargement":1,"vitesseDeplacement":10,"parcours":"p4","personnes":[],"state":"FLUX_VOYAGEURS","timers":{"29":40},"tick":0}}},{"time":{"tick":0}}]
+Calcul du prochain passage du bus 46 à l'arrêt A
+Calcul du prochain passage du bus 40 à l'arrêt D
+Le bus faisaint le parcours p4 en provenance de l'arrêt A est arrivé à l'arrêt C
+Arrivée du bus 46 à l'arrêt C
+Edouard9 : Étape 0 : Prendre le bus 46 de C à A
+Ajout de la personne Edouard9 dans le bus 46
+Edouard7 : Étape 0 : Prendre le bus 46 de C à A
+Ajout de la personne Edouard7 dans le bus 46
+1730497649.6036 & Bus 46 & à l'arrêt 1 ( C )
+Calcul du prochain passage du bus 46 à l'arrêt C
+1730497649.6043 & Bus 46 & à l'arrêt 1 ( C )
+Le bus faisaint le parcours p4 en provenance de l'arrêt C est arrivé à l'arrêt A
+Arrivée du bus 46 à l'arrêt A
+1730497649.6058 & Bus 46 & à l'arrêt 0 ( A )
+1730497649.606 & Bus 46 & à l'arrêt 0 ( A )
+Le passager Edouard9 descend du bus 46 à l'arrêt A
+La personne Edouard9 est à l'arrêt A
+Arrivée de la personne Edouard9 à l'arrêt A au tick 79
+La personne Edouard9 est arrivée à bout de son trajet aller
+Arrivée de la personne Edouard9 à l'arrêt A au tick 79
+Le passager Edouard7 descend du bus 46 à l'arrêt A
+La personne Edouard7 est à l'arrêt A
+Arrivée de la personne Edouard7 à l'arrêt A au tick 79
+La personne Edouard7 est arrivée à bout de son trajet aller
+Arrivée de la personne Edouard7 à l'arrêt A au tick 79
 Le bus faisaint le parcours p2 en provenance de l'arrêt D est arrivé à l'arrêt C
-Arrivée du bus 44 à l'arrêt C
-Calcul du prochain passage du bus 44 à l'arrêt C
-Le bus faisaint le parcours p2 en provenance de l'arrêt C est arrivé à l'arrêt E
-Arrivée du bus 44 à l'arrêt E
-TICK 1000
-TICK 2000
-TICK 3000
-TICK 4000
-TICK 5000
-TICK 6000
-TICK 7000
-TICK 8000
-TICK 9000
-TICK 10000
-TICK 11000
-TICK 12000
-TICK 13000
-TICK 14000
-TICK 15000
-TICK 16000
-TICK 17000
-TICK 18000
-TICK 19000
-TICK 20000
-TICK 21000
-TICK 22000
-TICK 23000
-TICK 24000
-TICK 25000
-TICK 26000
-TICK 27000
-TICK 28000
-TICK 29000
-TICK 30000
-TICK 31000
-TICK 32000
-TICK 33000
-TICK 34000
-TICK 35000
-TICK 36000
-TICK 37000
-TICK 38000
-TICK 39000
-TICK 40000
-TICK 41000
-TICK 42000
-TICK 43000
-TICK 44000
-TICK 45000
-TICK 46000
-TICK 47000
-TICK 48000
-TICK 49000
-TICK 50000
-TICK 51000
-TICK 52000
-TICK 53000
-TICK 54000
-TICK 55000
-TICK 56000
-TICK 57000
-TICK 58000
-TICK 59000
-TICK 60000
-TICK 61000
-TICK 62000
-TICK 63000
-TICK 64000
-TICK 65000
-TICK 66000
-TICK 67000
-TICK 68000
-TICK 69000
-TICK 70000
-TICK 71000
-TICK 72000
-TICK 73000
-TICK 74000
-TICK 75000
-TICK 76000
-TICK 77000
-TICK 78000
-TICK 79000
-TICK 80000
-TICK 81000
-TICK 82000
-TICK 83000
-TICK 84000
-TICK 85000
-TICK 86000
-TICK 87000
-TICK 88000
-TICK 89000
-TICK 90000
-TICK 91000
-TICK 92000
-TICK 93000
-TICK 94000
-TICK 95000
-TICK 96000
-TICK 97000
-TICK 98000
-TICK 99000
-TICK 100000
+Arrivée du bus 40 à l'arrêt C

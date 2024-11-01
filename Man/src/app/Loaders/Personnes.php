@@ -17,6 +17,9 @@ class Personnes
                 trajetRetour: Trajets::findTrajet(depart: $personne['retour']['depart'], arrivee: $personne['retour']['arrivee']),
                 nom: $personne['nom']
             );
+            if (str_starts_with($personne['nom'], 'Edouard')) {
+                echo "Edouard est enregistré" . PHP_EOL;
+            }
             self::$personnes[spl_object_id($passager)] = $passager;
         }
     }

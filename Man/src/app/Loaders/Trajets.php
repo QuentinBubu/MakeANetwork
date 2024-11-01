@@ -23,12 +23,12 @@ class Trajets
 
     final public static function key(string $a, string $b): string
     {
-        return $a < $b ? "{$a}, {$b}" : "{$b}, {$a}";
+        return $a . ", " . $b;
     }
 
     public static function addTrajet(Route $route): void
     {
-        $nom = self::key($route->arrets[0], $route->arrets[1]);
+        $nom = self::key($route->arrets[0]->nom, $route->arrets[1]->nom);
         self::$trajets[$nom] = new Trajet(
             nom: $nom,
             route: [$route],
@@ -100,27 +100,28 @@ class Trajets
             }
 
             foreach ($currentArret->getNeighbors() as $neighbor) {
-                foreach ($neighbor->routes as $route) {
-                    if (in_array($currentArret, $route->getArrets())) {
-                        $alt = $distances[$currentArretNom] + $route->distance;
+                $route = $neighbor->route;
+                $neighbor = $neighbor->arret;
+                if (in_array($currentArret, $route->getArrets())) {
+                    $alt = $distances[$currentArretNom] + $route->distance;
 
-                        echo "  Voisin : {$neighbor->nom}, Route : {$route->nom}, Distance : {$route->distance}, Distance totale potentielle : $alt\n";
+                    echo "  Voisin : {$neighbor->nom}, Route : {$route->nom}, Distance : {$route->distance}, Distance totale potentielle : $alt\n";
 
-                        if ($alt < $distances[$neighbor->nom]) {
-                            $distances[$neighbor->nom] = $alt;
-                            $precedent[$neighbor->nom] = $currentArretNom;
-                            $routes[$neighbor->nom] = $route;
+                    if ($alt < $distances[$neighbor->nom]) {
+                        $distances[$neighbor->nom] = $alt;
+                        $precedent[$neighbor->nom] = $currentArretNom;
+                        $routes[$neighbor->nom] = $route;
 
-                            if (!isset($inQueue[$neighbor->nom])) {
-                                $inQueue[$neighbor->nom] = true;
-                            }
-                            $minHeap->insert($neighbor->nom, -$alt);
-
-                            echo "  Mise à jour : {$neighbor->nom}, Nouvelle distance totale : $alt\n";
+                        if (!isset($inQueue[$neighbor->nom])) {
+                            $inQueue[$neighbor->nom] = true;
                         }
-                        break;  // On a trouvé la bonne route, pas besoin de vérifier les autres
+                        $minHeap->insert($neighbor->nom, -$alt);
+
+                        echo "  Mise à jour : {$neighbor->nom}, Nouvelle distance totale : $alt\n";
                     }
+                    break;  // On a trouvé la bonne route, pas besoin de vérifier les autres
                 }
+                //}
             }
         }
 

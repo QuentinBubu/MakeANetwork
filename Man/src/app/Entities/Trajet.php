@@ -36,13 +36,13 @@ class Trajet implements StateInterface
         foreach ($this->routes as $route) {
             $arrets = $route->arrets;
             $indexDepart = array_search($depart, $arrets, true);
-    
+
             // Si l'arrêt de départ existe dans la route
             if ($indexDepart !== false) {
                 // Calcul de l'indice du prochain arrêt dans un parcours circulaire
                 $indexProchainArret = ($indexDepart + 1) % count($arrets);
                 $prochainArret = $arrets[$indexProchainArret];
-    
+
                 // Vérifie que le prochain arrêt n'a pas déjà été visité
                 if (!in_array($prochainArret, $arretsVisites, true)) {
                     return $route;
@@ -51,6 +51,22 @@ class Trajet implements StateInterface
         }
         throw new \Exception("Aucune route trouvée pour l'arrêt $depart");
     }
+
+    public function getProchainArret(Arret $arretActuel): ?Arret
+    {
+        foreach ($this->routes as $route) {
+            $arrets = $route->arrets;
+            $indexArretActuel = array_search($arretActuel, $arrets, true);
+
+            if ($indexArretActuel !== false) {
+                // Calcul de l'indice du prochain arrêt de façon circulaire
+                $indexProchainArret = ($indexArretActuel + 1) % count($arrets);
+                return $arrets[$indexProchainArret];
+            }
+        }
+        return null;
+    }
+
 
     public function export(): array
     {

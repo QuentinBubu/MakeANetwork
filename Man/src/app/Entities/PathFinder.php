@@ -1,80 +1,78 @@
 <?php
 
-use App\Entities\Bus;
-use SplPriorityQueue;
+namespace App\Entities;
+
 use App\Entities\Arret;
-use App\Entities\Route;
-use App\Loaders\Arrets;
+use App\Entities\Bus;
 use App\Entities\Personne;
+use App\Loaders\Arrets;
 
-class PathFinder {
-    
-    public static function findBestPath(Arret $arretFrom, Arret $arretTo, Personne $personne) {
+class PathFinder
+{
+    public function findBestPath(Personne $personne, Arret $arretFrom, Arret $arretTo): array
+    {
         $distances = [];
-        $previous = [];
-        $queue = new SplPriorityQueue();
+        $previousArrets = [];
+        $busTaken = [];
+        $queue = new \SplPriorityQueue();
 
-        // Initialisation des distances et de la file d'attente
+        // Initialiser les distances avec l'infini sauf pour l'arrêt de départ
         foreach (Arrets::$arrets as $arret) {
-            $distances[$arret->nom] = INF;
-            $previous[$arret->nom] = null;
-            $queue->insert($arret, INF);
+            $distances[$arret->nom] = PHP_INT_MAX;
+            $previousArrets[$arret->nom] = null;
         }
-
-        // Distance du point de départ
         $distances[$arretFrom->nom] = 0;
         $queue->insert($arretFrom, 0);
 
-        // Dijkstra pour trouver le chemin le plus court
+        // Algorithme de Dijkstra
         while (!$queue->isEmpty()) {
-            $arretCourant = $queue->extract();
+            $currentArret = $queue->extract();
 
-            if ($arretCourant->nom === $arretTo->nom) break;
+            // Arrêt de la recherche si on atteint l'arrêt de destination
+            if ($currentArret->nom === $arretTo->nom) break;
 
-            // Parcourir les routes connectées à l'arrêt courant
-            foreach ($arretCourant->getRoutes() as $route) {
-                foreach ($route->getBus() as $bus) {
-                    // Obtenir le temps de passage du bus à cet arrêt
-                    $tempsPassage = $arretCourant->getTempsPassage($bus);
-                    $tempsTrajet = self::calculateTimeWithBus($route, $bus);
-
-                    // Calcul du nouveau temps pour atteindre l'arrêt de destination de la route
-                    $nouvelleDistance = $distances[$arretCourant->nom] + $tempsPassage + $tempsTrajet;
-
-                    // Mettre à jour la distance minimale si la nouvelle distance est plus courte
-                    if ($nouvelleDistance < $distances[$route->arrivee->nom]) {
-                        $distances[$route->arrivee->nom] = $nouvelleDistance;
-                        $previous[$route->arrivee->nom] = [$arretCourant, $bus];
-                        $queue->insert($route->arrivee, -$nouvelleDistance);
+            foreach ($currentArret->getNeighbors() as $neighborData) {
+                $route = $neighborData->route;
+                $neighborArret = $neighborData->arret;
+            
+                foreach ($neighborArret->vehiculesEnApproche as $busData) {
+                    /** @var Bus $bus */
+                    $bus = $busData[0];
+                    $arrivalTime = $busData[1];
+            
+                    // Calcul du temps total en fonction de la vitesse du bus
+                    $routeDistance = $route->distance;
+                    $travelTime = $routeDistance / $bus->vitesseDeplacement;
+            
+                    $newTime = $distances[$currentArret->nom] + $arrivalTime->getRemainingTicks() + $travelTime;
+            
+                    if ($newTime < $distances[$neighborArret->nom]) {
+                        $distances[$neighborArret->nom] = $newTime;
+                        $previousArrets[$neighborArret->nom] = $currentArret->nom;
+                        $busTaken[$neighborArret->nom] = $bus;
+                        $queue->insert($neighborArret, -$newTime); // -$newTime pour la priorité croissante
                     }
                 }
             }
         }
 
-        // Reconstruire le chemin optimal
-        return self::reconstructPath($previous, $arretTo);
-    }
+        // Reconstruire le chemin et le formatage de la réponse
+        $path = [];
+        $arret = $arretTo->nom;
 
-    private static function calculateTimeWithBus(Route $route, Bus $bus) {
-        // Calcule du temps en utilisant vitesse * distance pour éviter les chiffres à virgule
-        return $route->distance / $bus->vitesseDeplacement;
-    }
-
-    private static function reconstructPath($previous, Arret $arretTo) {
-        $chemin = [];
-        $etape = 0;
-
-        while (isset($previous[$arretTo->nom])) {
-            list($arret, $bus) = $previous[$arretTo->nom];
-            $chemin["et{$etape}"] = [
-                'busAPrendre' => $bus,
-                'arretMontee' => $arret,
-                'arretDescente' => $arretTo
+        while ($previousArrets[$arret] !== null) {
+            $path[] = [
+                'busAPrendre' => $busTaken[$arret],
+                'arretMontee' => $previousArrets[$arret],
+                'arretDescente' => $arret
             ];
-            $arretTo = $arret;
-            $etape++;
+    
+            // Définir le signal de descente pour cet arrêt
+            $personne->setSignalDescente($arretTo);
+    
+            $arret = $previousArrets[$arret];
         }
 
-        return array_reverse($chemin);
+        return array_reverse($path); // Retourne le chemin du départ vers l’arrivée
     }
 }

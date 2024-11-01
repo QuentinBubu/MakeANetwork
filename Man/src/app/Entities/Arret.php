@@ -12,14 +12,13 @@ use App\Entities\Personne;
 use App\Enums\BusStateEnum;
 use App\Interfaces\StateInterface;
 use App\Interfaces\TimeInterface;
-use App\State\State;
 
 /**
  * Représente un arrêt de bus
  */
 class Arret implements TimeInterface, StateInterface
 {
-        /**
+    /**
      * Tableau des véhicules en approche
      * [spl_object_id(Bus) => [Bus, Timer]]
      * @var array
@@ -60,7 +59,6 @@ class Arret implements TimeInterface, StateInterface
      *
      * @param string $nom
      * @param array $genericRoutes
-     * @param array $genericFile
      */
     public function __construct(string $nom, array $genericRoutes)
     {
@@ -81,7 +79,7 @@ class Arret implements TimeInterface, StateInterface
         foreach ($this->routes as $route) {
             foreach ($route->getArrets() as $neighbor) {
                 if ($neighbor !== $this) {
-                    $neighbors[$neighbor->nom] = $neighbor;
+                    $neighbors[$route->nom] = (object) ['route' => $route, 'arret' => $neighbor];
                 }
             }
         }
@@ -90,8 +88,6 @@ class Arret implements TimeInterface, StateInterface
 
     /**
      * Map les routes
-     *
-     * @return array
      */
     public function mapRoutes(): void
     {
@@ -103,8 +99,6 @@ class Arret implements TimeInterface, StateInterface
 
     /**
      * Enregistre une route dans sa mémoire
-     *
-     * @return Arret
      */
     public function registerRoute(Route $route): self
     {
@@ -113,28 +107,21 @@ class Arret implements TimeInterface, StateInterface
         return $this;
     }
 
-    /**
-     * Retourne une représentation textuelle de l'arrêt
-     *
-     * @return string
-     */
-    public function __tostring(): string
-    {
-        return $this->nom . ' @' . spl_object_id($this)
-            . ' (Routes : ' . implode(', ', array_map(
-                function ($route) {
-                    return $route->nom . ' @' . spl_object_id($route);
-                },
-                $this->routes
-            ))
-            . ')';
-    }
-
     public function addPersonne(Personne $personne): void
     {
         echo "Arrivée de la personne {$personne->nom} à l'arrêt {$this->nom} au tick " . Time::getTick() . PHP_EOL;
-        $priorite = [-Time::getTick(), $personne->nom]; // Priorité : tick en premier (en négatif pour ordre croissant), puis nom alphabétique
+        $priorite = [-Time::getTick(), $personne->nom];
         $this->fileAttente->insert($personne, $priorite);
+    }
+
+    public function removePersonne(Personne $personne): void
+    {
+        foreach ($this->fileAttente as $personneFile) {
+            if ($personneFile === $personne) {
+                $this->fileAttente->extract();
+                break;
+            }
+        }
     }
 
     public function addBusEnApproche(Bus $bus, Timer $tick): void
@@ -147,9 +134,12 @@ class Arret implements TimeInterface, StateInterface
         unset($this->vehiculesEnApproche[spl_object_id($bus)]);
     }
 
-    public function getBusEnApproche(): array
+    public function removeBusEnAttente(Bus $bus): void
     {
-        return $this->vehiculesEnApproche;
+        $key = array_search($bus, $this->vehiculesEnAttente);
+        if ($key !== false) {
+            unset($this->vehiculesEnAttente[$key]);
+        }
     }
 
     public function arriveeBus(Bus $bus): void
@@ -158,6 +148,44 @@ class Arret implements TimeInterface, StateInterface
         $this->vehiculesEnAttente[] = $bus;
         $this->removeBusEnApproche($bus);
         $bus->setState(BusStateEnum::FLUX_VOYAGEURS);
+
+        /** @var Personne $personne */
+        foreach ($this->fileAttente as $personne) {
+            if ($bus->isFull()) {
+                break;
+            }
+
+            if (in_array($personne, $bus->personnesDescendu)) {
+                continue;
+            }
+
+            // Récupère le trajet en cours de la personne
+            $trajetEnCours = $personne->getTrajetEnCours();
+
+            // Détermine le prochain arrêt du trajet
+            $prochainArret = $trajetEnCours->getProchainArret($this);
+
+            // Si un prochain arrêt est déterminé
+            if ($prochainArret) {
+                // Calcule le trajet optimisé de l'arrêt actuel vers le prochain arrêt
+                $trajetOptimise = $personne->calculTrajet($this, $prochainArret);
+
+                // Vérifie que le trajet optimisé est valide avant de l’enregistrer
+                if (!empty($trajetOptimise)) {
+                    // Enregistre le trajet optimisé dans l'attribut correspondant de la personne
+                    $personne->trajetOptimise = $trajetOptimise;
+
+                    if ($trajetOptimise[0]['busAPrendre'] !== $bus) {
+                        continue;
+                    }
+
+                    /** @var Bus $bus */
+                    $trajetOptimise[0]['busAPrendre']->addPersonne($personne);
+
+                    $this->removePersonne($personne);
+                }
+            }
+        }
     }
 
     public function departBus(Bus $bus): void
@@ -167,19 +195,9 @@ class Arret implements TimeInterface, StateInterface
         $this->removeBusEnAttente($bus);
     }
 
-    public function removeBusEnAttente(Bus $bus): void
-    {
-        $key = array_search($bus, $this->vehiculesEnAttente);
-        if ($key !== false) {
-            unset($this->vehiculesEnAttente[$key]);
-        }
-    }
-
     public function incrementTick(): void
     {
-        // Mise à jour des bus en déplacement
         foreach ($this->vehiculesEnAttente as $bus) {
-            // Vérifier s'il y a des personnes assignées au bus
             if ($bus->isFull() || $this->fileAttente->isEmpty()) {
                 $this->departBus($bus);
             }
@@ -200,23 +218,13 @@ class Arret implements TimeInterface, StateInterface
                 fn($personne) => $personne->nom,
                 iterator_to_array(clone $this->fileAttente)
             ),
-            'vehiculesEnApproche' => array_map(
-                function ($vehicule) {
-                    return [spl_object_id($vehicule[0]), $vehicule[1]->getRemainingTicks()];
-                },
-                $this->vehiculesEnApproche
-            ),
-            'vehiculesEnAttente' => array_map(
-                function ($vehicule) {
-                    return spl_object_id($vehicule);
-                },
-                $this->vehiculesEnAttente
-            ),
+            'vehiculesEnApproche' => array_map(fn($item) => spl_object_id($item[0]), $this->vehiculesEnApproche),
+            'vehiculesEnAttente' => array_map(fn($bus) => spl_object_id($bus), $this->vehiculesEnAttente),
         ];
     }
 
     public function restore(array $state): void
     {
-        throw new \Exception('Not implemented');
+        throw new \Exception("Not implemented");
     }
 }
