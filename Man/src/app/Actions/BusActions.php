@@ -3,7 +3,6 @@
 namespace App\Actions;
 
 use App\Entities\Arret;
-use App\Entities\Personne;
 use App\Timer\Timer;
 
 trait BusActions
@@ -31,36 +30,5 @@ trait BusActions
         $timer = new Timer($this->tickTo($this->parcours, $arret, $this->vitesseDeplacement));
         $arret->addBusEnApproche($this, $timer);
         $this->addTimer($arret, $timer);
-    }
-
-    public function avancer(): void
-    {
-        echo "Avancement du bus\n";
-    }
-
-    public function fluxVoyageurs(): void
-    {
-        $this->parcours->getCurrentArretObj()->fluxVoyageurs($this);
-    }
-
-    public function chargerPersonne(Personne $personne): bool
-    {
-        if ($this->getPlaceDisponible() === 0) {
-            return false;
-        }
-        // Attention : montée et descente en même temps : cas plus de personnes descendentes que montentes
-        $this->personnes[] = $personne;
-
-        return true;
-    }
-
-    public function dechargerPersonnes(): void
-    {
-        echo "Déchargement des personnes du bus\n";
-    }
-
-    public function __toString(): string
-    {
-        return 'Actions du bus';
     }
 }

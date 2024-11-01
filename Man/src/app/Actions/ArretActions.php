@@ -5,7 +5,7 @@ namespace App\Actions;
 use App\Timer\Timer;
 use App\Entities\Bus;
 use SplPriorityQueue;
-use App\Loaders\Trajets;
+use App\Entities\Route;
 use App\Entities\Personne;
 use App\Enums\BusStateEnum;
 
@@ -20,72 +20,18 @@ trait ArretActions
 
     public array $vehiculesEnAttente = [];
 
-    /**
-     * Lignes de bus
-     * @var array [spl_object_id(Bus) => nbPersonnes]
-     */
-    public array $interetsBus = [];
-
-    /**
-     * File d'attente des personnes
-     * @var SplPriorityQueue
-     */
-    public SplPriorityQueue $personnesEnAttente;
-
-    public function addPersonne(Personne $personne): void
+    public function addPersonne(Personne $personne, Route $route, int $tickArrivee): void
     {
-        $personne->busAPrendre = Trajets::calculTrajetOptimise($personne->getTrajetEnCours(), $personne->lastBus);
-    
-        // Calcul du tick d'arrivée pour la priorité, si applicable
-        $priorite = -$personne->getTrajetEnCours()->tickArrivee;
-        $this->personnesEnAttente->insert($personne, [$priorite, $personne->nom]);
-    
-        // Mise à jour de l'intérêt pour la ligne préférée
-        $lignePreferee = spl_object_id($personne->busAPrendre);
-        if (!isset($this->interetsBus[$lignePreferee])) {
-            $this->interetsBus[$lignePreferee] = 0;
-        }
-        $this->interetsBus[$lignePreferee]++;
+        $priorite = [-$tickArrivee, $personne->nom]; // Priorité : tick en premier (en négatif pour ordre croissant), puis nom alphabétique
+        $this->filesDattenteRoutes[spl_object_id($route)]->insert($personne, $priorite);
     }
 
-    public function assignerPersonnesAuxBus()
+    /**
+     * Récupère la file d'attente d'une route spécifique
+     */
+    public function getFileDattente(Route $route): SplPriorityQueue
     {
-        $fileTemporaire = new SplPriorityQueue();
-        $personnesParBus = [];
-
-        // Regrouper les personnes par bus de préférence
-        foreach (clone $this->personnesEnAttente as $personne) {
-            $busId = spl_object_id($personne->busAPrendre);
-            $personnesParBus[$busId][] = $personne;
-        }
-
-        foreach ($this->vehiculesEnAttente as $bus) {
-            $busId = spl_object_id($bus);
-
-            if (!isset($personnesParBus[$busId])) continue; // Si aucun passager n'attend ce bus, passer
-
-            foreach ($personnesParBus[$busId] as $personne) {
-                if ($bus->hasSpace()) {
-                    $bus->chargerPersonne($personne);
-                } else {
-                    $fileTemporaire->insert($personne, [$personne->priorite, $personne->nom]);
-                }
-            }
-
-            $this->verifierEtatBus($busId);
-        }
-
-        $this->personnesEnAttente = $fileTemporaire;
-    }
-
-    private function verifierEtatBus($numeroBus)
-    {
-        if ($this->interetsBus[$numeroBus] <= 0) {
-            $bus = $this->lignesDeBus[$numeroBus] ?? null;
-            if ($bus) {
-                $bus->setState(BusStateEnum::DEPLACEMENT);
-            }
-        }
+        return $this->filesDattenteRoutes[spl_object_id($route)];
     }
 
 
@@ -104,24 +50,31 @@ trait ArretActions
         return $this->vehiculesEnApproche[spl_object_id($bus)];
     }
 
-    public function fluxVoyageurs(Bus $bus): void
+    public function arriveeBus(Bus $bus): void
     {
         $this->vehiculesEnAttente[] = $bus;
         $this->removeBusEnApproche($bus);
+        $bus->setState(BusStateEnum::FLUX_VOYAGEURS);
+    }
+
+    public function departBus(Bus $bus): void
+    {
+        $bus->setState(BusStateEnum::DEPLACEMENT);
+        $this->removeBusEnAttente($bus);
+    }
+
+    public function removeBusEnAttente(Bus $bus): void
+    {
+        unset($this->vehiculesEnAttente[spl_object_id($bus)]);
     }
 
     public function incrementTick(): void
     {
-        // Assigner les personnes aux bus disponibles en attente
-        $this->assignerPersonnesAuxBus();
-
         // Mise à jour des bus en déplacement
         foreach ($this->vehiculesEnAttente as $bus) {
             // Vérifier s'il y a des personnes assignées au bus
-            $busId = spl_object_id($bus);
-            if (!isset($this->interetsBus[$busId]) || $this->interetsBus[$busId] <= 0) {
-                // Si le bus ne transporte plus de passagers
-                $bus->setState(BusStateEnum::DEPLACEMENT);
+            if ($bus->isFull() || $this->filesDattenteRoutes[spl_object_id($bus->getParcours()->findNextRoute())]->isEmpty()) {
+                $this->departBus($bus);
             }
         }
     }

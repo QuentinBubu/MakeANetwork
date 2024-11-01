@@ -2,8 +2,10 @@
 
 namespace App\Entities;
 
-use App\Enums\TrajetEnCoursEnum;
 use App\Loaders\Personnes;
+use App\Loaders\PathFinder;
+use App\Enums\TrajetEnCoursEnum;
+use App\Timer\Time;
 
 /**
  * @Entity
@@ -46,6 +48,10 @@ class Personne
 
     public Bus $busAPrendre;
 
+    public array $arretsVisites = [];
+
+    public Route $routeEnCours;
+
     /**
      * Constructeur
      *
@@ -66,13 +72,9 @@ class Personne
 
     public function setArretActuel(Arret $arret): void
     {
-        $arret->addPersonne($this);
-    }
-
-    public function getNextBus(): Bus
-    {
-        // $this->lastBus = $this->position->getNextBus();
-        return $this->lastBus;
+        $this->arretsVisites[] = $arret;
+        $this->routeEnCours = $this->getTrajetEnCours()->getRouteFromArret($arret, $this->arretsVisites);
+        $arret->addPersonne($this, $this->routeEnCours, Time::getTick());
     }
 
     public function getTrajetEnCours(): Trajet

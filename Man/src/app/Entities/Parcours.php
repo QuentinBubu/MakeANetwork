@@ -2,8 +2,7 @@
 
 namespace App\Entities;
 
-use App\Loaders\Trajets;
-use App\Timer\Time;
+use App\Loaders\Routes;
 
 /**
  * @Entity
@@ -111,13 +110,14 @@ class Parcours
      * @param Position $position
      * @return void
      */
-    public function arriveArret(Position $position): void
+    public function arriveArret(Bus $bus): void
     {
         // On fait un décallage
         $this->previousArret = $this->currentArret;
         $this->currentArret = $this->findNextArret($this->currentArret);
         $this->nextArret = $this->findNextArret($this->currentArret);
-        $position->tick = 0;
+        $bus->tick = 0;
+        $this->getCurrentArretObj()->arriveeBus($bus);
     }
 
     public function getCurrentArretObj(): Arret
@@ -138,6 +138,11 @@ class Parcours
     public function getArretWithIndex(int $index): Arret
     {
         return $this->arretsAFaire[$index];
+    }
+
+    public function findNextRoute(): Route
+    {
+        return Routes::getRouteStr($this->getCurrentArretObj()->nom, $this->getPreviousArretObj()->nom);
     }
 
     /**

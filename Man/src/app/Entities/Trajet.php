@@ -29,17 +29,24 @@ class Trajet
         $this->tickArrivee = $distance;
     }
 
-    public function getEtapes(): array
+    public function getRouteFromArret(Arret $depart, array $arretsVisites): Route
     {
-        $etapes = [];
         foreach ($this->routes as $route) {
-            foreach ($route->getArrets() as $arret) {
-                // Ajouter les arrêts aux étapes si ce n'est pas déjà le cas
-                if (!in_array($arret, $etapes)) {
-                    $etapes[] = $arret;
+            $arrets = $route->arrets;
+            $indexDepart = array_search($depart, $arrets, true);
+    
+            // Si l'arrêt de départ existe dans la route
+            if ($indexDepart !== false) {
+                // Calcul de l'indice du prochain arrêt dans un parcours circulaire
+                $indexProchainArret = ($indexDepart + 1) % count($arrets);
+                $prochainArret = $arrets[$indexProchainArret];
+    
+                // Vérifie que le prochain arrêt n'a pas déjà été visité
+                if (!in_array($prochainArret, $arretsVisites, true)) {
+                    return $route;
                 }
             }
         }
-        return $etapes;
+        throw new \Exception("Aucune route trouvée pour l'arrêt $depart");
     }
 }

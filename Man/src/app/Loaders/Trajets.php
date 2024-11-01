@@ -2,14 +2,15 @@
 
 namespace App\Loaders;
 
+use App\Timer\Timer;
 use SplPriorityQueue;
 use App\Entities\Arret;
 use App\Entities\Bus;
 use App\Entities\Route;
 use App\Loaders\Arrets;
 use App\Entities\Trajet;
+use App\Entities\Personne;
 use App\Exceptions\ArretsException;
-use App\Timer\Timer;
 
 // /!\ Attention, trajet pour personnes => prendre en compte la vitesse du bus + positions des bus (incomming)
 class Trajets
@@ -148,62 +149,5 @@ class Trajets
             "routes" => $routeList,
             "distance" => $distanceTotale
         ];
-    }
-    public static function calculTrajetOptimise(Trajet $trajet, ?Bus $busExclu = null): array
-    {
-        $busOpti = null;
-        $arretsCorrespondance = [];
-
-        foreach ($trajet->getEtapes() as $etape) {
-            $arret = $etape;
-            $busOptions = $arret->getBusesDisponibles();
-
-            // Exclure le bus précédent si défini
-            if ($busExclu !== null) {
-                $busOptions = array_filter($busOptions, fn($bus) => $bus !== $busExclu);
-            }
-
-            // Calcul du meilleur bus pour cette étape
-            $busOpti = self::selectionnerBusOptimal($busOptions, $trajet->arrivee);
-
-            // Si un bus est choisi et que ce n'est pas le final
-            if ($busOpti) {
-                $arretsCorrespondance[] = $arret;
-            } else {
-                // Cas sans correspondance possible
-                return [];
-            }
-        }
-
-        return ['busOpti' => $busOpti, 'arretsCorrespondance' => $arretsCorrespondance];
-    }
-
-    public static function selectionnerBusOptimal(array $busOptions, Arret $destination): ?Bus
-    {
-        $busOpti = null;
-        $tempsMin = PHP_INT_MAX;
-
-        foreach ($busOptions as $bus) {
-            // Évaluer si le bus peut atteindre la destination
-            $trajetPossible = $bus->getItineraire();
-            $tempsTotal = 0;
-
-            foreach ($trajetPossible as $arret) {
-                // Calcul du temps pour atteindre chaque arrêt
-                $tempsTotal += $arret->getTempsVersProchainArret();
-
-                // Vérifier si l'arrêt est le point de destination
-                if ($arret === $destination) {
-                    // Si c'est plus rapide, mettre à jour le bus optimal
-                    if ($tempsTotal < $tempsMin) {
-                        $tempsMin = $tempsTotal;
-                        $busOpti = $bus;
-                    }
-                    break;
-                }
-            }
-        }
-
-        return $busOpti;
     }
 }

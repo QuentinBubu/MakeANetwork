@@ -35,6 +35,7 @@ class Routes
         });
 
         if (count($route) == 0) {
+            // Ajout d'un booléen pour savoir si l'arrêt est le terminus et donc trajet retour en express
             throw new RoutesException("Route {$arretA} <-> {$arretB} inconnue");
         }
 

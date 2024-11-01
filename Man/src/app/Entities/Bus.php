@@ -49,7 +49,7 @@ class Bus extends Position implements TimeInterface
      */
     protected array $personnes = [];
 
-    protected BusStateEnum $state;
+    protected BusStateEnum $state = BusStateEnum::FLUX_VOYAGEURS;
 
     /**
      * Liste de ses timers
@@ -72,8 +72,7 @@ class Bus extends Position implements TimeInterface
         $this->vitesseChargement = $vitesseChargement;
         $this->vitesseDeplacement = $vitesseDeplacement;
         $this->parcours = $parcours;
-        $this->state = BusStateEnum::FLUX_VOYAGEURS;
-        // $this->state = BusStateEnum::DEPLACEMENT;
+        $this->parcours->arriveArret($this);
         Time::registerClass($this);
     }
 
@@ -149,27 +148,13 @@ class Bus extends Position implements TimeInterface
     public function incrementTick(): void
     {
         $this->tick += 1;
-        switch ($this->state) {
-            case BusStateEnum::DEPLACEMENT:
-                if (
-                    $this->tick % $this->vitesseDeplacement === 0
-                    && $this->tickTo($this->parcours, $this->parcours->getNextArretObj(), $this->vitesseDeplacement) <= 0
-                    ) {
-                        $this->parcours->arriveArret($this);
-                        $this->setState(BusStateEnum::FLUX_VOYAGEURS);
-                    }
-                break;
-            case BusStateEnum::FLUX_VOYAGEURS:
-                // Charger et décharger les personnes
-                if ($this->isFull())
-                {
-                    $this->setState(BusStateEnum::DEPLACEMENT);
-                } else {
-                    $this->fluxVoyageurs();
-                }
-                break;
-            default:
-                break;
+        if (
+            $this->state === BusStateEnum::DEPLACEMENT
+            && $this->tick % $this->vitesseDeplacement === 0
+            && $this->tickTo($this->parcours, $this->parcours->getNextArretObj(), $this->vitesseDeplacement) <= 0
+        ) {
+            $this->parcours->arriveArret($this);
+            $this->setState(BusStateEnum::FLUX_VOYAGEURS);
         }
     }
 }

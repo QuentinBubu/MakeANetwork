@@ -29,6 +29,12 @@ class Arret implements TimeInterface
     public array $routes;
 
     /**
+     * Personnes en attente à l'arrêt
+     * @var [spl_object_id(Route) => SplPriorityQueue]
+     */
+    public array $filesDattenteRoutes;
+
+    /**
      * Liste des routes sous forme de string
      *
      * @var string[]
@@ -54,7 +60,6 @@ class Arret implements TimeInterface
         $this->nom = $nom;
         $this->genericRoutes = $genericRoutes;
         $this->genericFile = $genericFile;
-        $this->personnesEnAttente = new SplPriorityQueue();
         Time::registerClass($this);
     }
 
@@ -83,9 +88,9 @@ class Arret implements TimeInterface
      */
     public function mapRoutes(): void
     {
-        $this->routes = array_map(function ($route) {
-            return Routes::getRoute($route)->registerArret($this);
-        }, $this->genericRoutes);
+        foreach ($this->genericRoutes as $route) {
+            $this->registerRoute(Routes::getRoute($route)->registerArret($this));
+        }
     }
 
     /**
@@ -96,6 +101,7 @@ class Arret implements TimeInterface
     public function registerRoute(Route $route): self
     {
         $this->routes[] = $route;
+        $this->filesDattenteRoutes[spl_object_id($route)] = new SplPriorityQueue();
         return $this;
     }
 
