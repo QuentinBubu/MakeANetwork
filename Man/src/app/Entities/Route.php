@@ -2,15 +2,16 @@
 
 namespace App\Entities;
 
-use App\Exceptions\RouteException;
 use App\Loaders\Trajets;
+use App\Exceptions\RouteException;
+use App\Interfaces\StateInterface;
 
 /**
  * @Entity
  *
  * Une route est un ensemble de deux arrêts et une distance
  */
-class Route
+class Route implements StateInterface
 {
     public string $nom;
 
@@ -18,6 +19,13 @@ class Route
      * @var Arret[]
      */
     public array $arrets = [];
+
+    /**
+     * Liste des bus qui passent par cette route
+     * @var Bus[]
+     */
+    public array $bus = [];
+
     public int $distance;
 
     public function __construct(string $nom, int $distance)
@@ -28,6 +36,7 @@ class Route
 
     public function registerArret(Arret $arret): self
     {
+        echo "Ajout de l'arrêt {$arret->nom} à la route {$this->nom}\n";
         if (count($this->arrets) == 2) {
             throw new RouteException('Un arrêt ne peut pas être ajouté à plus de deux routes');
         }
@@ -35,10 +44,28 @@ class Route
         $this->arrets[] = $arret;
         $arret->registerRoute($this);
         if (count($this->arrets) == 2) {
+            echo "Ajout de la route {$this->nom} à la liste des trajets\n";
             Trajets::addTrajet($this);
         }
 
         return $this;
+    }
+
+    public function calculDistanceAvecBus(Bus $bus): int
+    {
+        return $this->distance * $bus->vitesseDeplacement;
+    }
+
+    public function getNextArret(Arret $arret): Arret
+    {
+        return array_values(
+            array_filter(
+                $this->arrets,
+                function ($a) use ($arret) {
+                    return $a !== $arret;
+                }
+            )
+        )[0];
     }
 
     public function __tostring(): string
@@ -61,5 +88,30 @@ class Route
     public function getArrets(): array
     {
         return $this->arrets;
+    }
+
+    public function export(): array
+    {
+        return [
+            'nom' => $this->nom,
+            'distance' => $this->distance,
+            'arrets' => array_map(
+                function ($arret) {
+                    return $arret->nom;
+                },
+                $this->arrets
+            ),
+            'bus' => array_map(
+                function ($bus) {
+                    return spl_object_id($bus);
+                },
+                $this->bus
+            ),
+        ];
+    }
+
+    public function restore(array $state): void
+    {
+        throw new \Exception('Not implemented');
     }
 }

@@ -1,27 +1,22 @@
 {
     "A": {
         "nom": "A",
-        "routes": ["route1", "route2"],
-        "file": ["p1"]
+        "routes": ["route1", "route2"]
     },
     "B": {
         "nom": "B",
-        "routes": ["route1"],
-        "file": ["p2"]
+        "routes": ["route1"]
     },
     "C": {
         "nom": "C",
-        "routes": ["route2", "route3", "route4"],
-        "file": ["p3"]
+        "routes": ["route2", "route3", "route4"]
     },
     "D": {
         "nom": "D",
-        "routes": ["route3"],
-        "file": ["p4"]
+        "routes": ["route3"]
     },
     "E": {
         "nom": "E",
-        "routes": ["route4"],
-        "file": ["p5"]
+        "routes": ["route4"]
     }
 }

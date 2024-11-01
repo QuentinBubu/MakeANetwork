@@ -7,6 +7,7 @@ use App\Loaders\Routes;
 use App\Loaders\Trajets;
 use App\Loaders\Parcours;
 use App\Loaders\Personnes;
+use App\State\State;
 use App\Timer\Time;
 use Dotenv\Repository\RepositoryBuilder;
 
@@ -24,11 +25,16 @@ $routesJson = json_decode(json: file_get_contents(filename: 'data/routes.json'),
 $parcoursJson = json_decode(json: file_get_contents(filename: 'data/parcours.json'), associative: true);
 $busJson = json_decode(json: file_get_contents(filename: 'data/bus.json'), associative: true);
 
+echo 'Chargement des arrets' . PHP_EOL;
 Arrets::load(arrets: $arretsJson);
+
+echo 'Chargement des routes' . PHP_EOL;
 Routes::load(routes: $routesJson);
 
+echo 'Mapping des routes' . PHP_EOL;
 Arrets::map();
 
+echo 'Chargement des parcours' . PHP_EOL;
 Parcours::load(parcours: $parcoursJson);
 
 // Vérification des routes
@@ -55,17 +61,18 @@ $busList = [
     ],
 ];
 
-$personnesList = [];
-
-loadPersonnes(personnesList: $personnesList);
-
+echo 'Chargement des bus' . PHP_EOL;
 Bus::load(bus: $busList, config: $busJson);
 
-
+echo 'Démarrage des bus / parcours' . PHP_EOL;
+/** @var App\Entities\Bus $bus */
 foreach (Bus::$buses as $bus) {
     $bus->demarrerParcours();
 }
 
+echo 'Chargement des personnes' . PHP_EOL;
+$personnesList = [];
+loadPersonnes(personnesList: $personnesList);
 Personnes::load(personnesList: $personnesList);
 
 foreach (Bus::$buses as $bus) {
@@ -153,8 +160,20 @@ function loadPersonnes(array &$personnesList) {
     }
 }
 
-while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Bus::$buses) > 0) {
+// Enregistrement des données
+State::registerFunction(Arrets::class, 'export', 'arrets');
+State::registerFunction(Bus::class, 'export', 'bus');
+// State::registerFunction(Parcours::class, 'export', 'parcours');
+// State::registerFunction(Personnes::class, 'export', 'personnes');
+// State::registerFunction(Routes::class, 'export', 'routes');
+// State::registerFunction(Trajets::class, 'export', 'trajets');
+State::registerFunction(Time::class, 'export', 'time');
+
+echo State::exportData() . PHP_EOL;
+
+while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Personnes::$personnes) > 0) {
     Time::run();
+    // echo State::exportData() . PHP_EOL;
     Time::incrementTick();
     if (Time::getTick() % 1000 === 0) {
         echo 'TICK ' . Time::getTick() . PHP_EOL;

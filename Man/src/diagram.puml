@@ -1,0 +1,363 @@
+@startuml
+
+interface App.Interfaces.TimeInterface
+{
++incrementTick():
+
+}
+interface Stringable
+{
+
+}
+class App.Entities.Arret
+{
++nom:string
++routes:Route[]
++filesDattenteRoutes:[spl_object_id(Route) => SplPriorityQueue]
+-genericRoutes:string[]
+-genericFile:string[]
++vehiculesEnApproche:array
++vehiculesEnAttente:
++getNeighbors():array
++mapRoutes():array
++registerRoute():Arret
++addPersonne():
++getFileDattente():
++addBusEnApproche():
++removeBusEnApproche():
++getBusEnApproche():
++arriveeBus():
++departBus():
++removeBusEnAttente():
++incrementTick():
+
+}
+abstract class App.Entities.Position
+{
++tick:
++tickTo():
++incrementTick():
+
+}
+class App.Entities.Bus
+{
++capacite:integer
++vitesseChargement:float
++vitesseDeplacement:int
+#parcours:Parcours
+#personnes:Personne[]
+#state:
+#timers:array
++tick:
+-registerRoutes():
++getState():
++setState():
++addTimer():
++getPlaceDisponible():void
++getParcours():Parcours
++isFull():
++incrementTick():
++tickTo():
++demarrerParcours():
++calculEtEnregistrementProchainPassage():
+
+}
+class App.Entities.Parcours
+{
++nom:string
++trajets:Trajet[]
++arretsAFaire:Arret[]
++currentArret:int
++nextArret:int
++previousArret:int
++addTrajet(Trajet:$trajet):self
++findNextArretObj():
++findNextArret():
++arriveArret(Position:$position):void
++getCurrentArretObj():
++getPreviousArretObj():
++getNextArretObj():
++getArretWithIndex():
++findNextRoute():
++getRoutes():
+
+}
+class App.Entities.Personne
+{
++trajetAller:Trajet
++trajetRetour:Trajet
++trajetEnCours:
++lastBus:Bus
++nom:string
++position:
++busAPrendre:
++arretsVisites:
++routeEnCours:
++setArretActuel():
++getTrajetEnCours():
++finFinal():
+
+}
+class App.Entities.PersonnePosition
+{
++tick:
++incrementTick():
++tickTo():
+
+}
+class App.Entities.Route
+{
++nom:
++arrets:Arret[]
++bus:Bus[]
++distance:
++registerArret():
++calculDistanceAvecBus():
++getNextArret():
++getArrets():
+
+}
+class App.Entities.Trajet
+{
++nom:
++routes:Route[]
++depart:
++arrivee:
++distance:
++tickArrivee:
++getRouteFromArret():
+
+}
+interface UnitEnum
+{
++cases():
+
+}
+class App.Enums.BusStateEnum
+{
++name:
++cases():
+
+}
+class App.Enums.TrajetEnCoursEnum
+{
++name:
++cases():
+
+}
+class Exception
+{
+#message:
+-string:
+#code:
+#file:
+#line:
+-trace:
+-previous:
++getMessage():
++getCode():
++getFile():
++getLine():
++getTrace():
++getPrevious():
++getTraceAsString():
+
+}
+interface Throwable
+{
++getMessage():
++getCode():
++getFile():
++getLine():
++getTrace():
++getPrevious():
++getTraceAsString():
+
+}
+class App.Exceptions.ArretsException
+{
+#message:
+#code:
+#file:
+#line:
++getMessage():
++getCode():
++getFile():
++getLine():
++getTrace():
++getPrevious():
++getTraceAsString():
+
+}
+class App.Exceptions.RouteException
+{
+#message:
+#code:
+#file:
+#line:
++getMessage():
++getCode():
++getFile():
++getLine():
++getTrace():
++getPrevious():
++getTraceAsString():
+
+}
+class App.Exceptions.RoutesException
+{
+#message:
+#code:
+#file:
+#line:
++getMessage():
++getCode():
++getFile():
++getLine():
++getTrace():
++getPrevious():
++getTraceAsString():
+
+}
+class App.Factories.BusFactory
+{
++make():
+
+}
+class App.Factories.RoutesFactory
+{
+
+}
+class App.Loaders.Arrets
+{
++arrets:
++load():
++map():
++getArret():
+
+}
+class App.Loaders.Bus
+{
++buses:
++load():
+
+}
+class App.Loaders.Parcours
+{
++parcours:
++load():
++getParcours():
+
+}
+class App.Loaders.PathFinder
+{
+-cache:
++findBestPath():
+-calculateTime():
+-calculateWaitingTime():
+-getOptionsFromStop():
+-reconstructPath():
+-getNodeKey():
+-parseNodeKey():
+-getDistance():
+
+}
+class App.Loaders.Personnes
+{
++personnes:
++load():
++unregister():
+
+}
+class App.Loaders.Routes
+{
++routes:
++load():
++getRoute():
++getRouteStr():
+
+}
+class App.Loaders.Trajets
+{
++trajets:array [
++key():
++addTrajet():
++addLongTrajet():
++findTrajetWithArret():
++findTrajet():
++calculTrajet():
+
+}
+class App.Timer.Time
+{
+-tick:
+-registredClass:TimeInterface[]
++incrementTick():
++getTick():
++resetTick():
++registerClass():
++run():
+
+}
+class App.Timer.Timer
+{
+-remainingTicks:
++getRemainingTicks():
++incrementTicks():
++incrementTick():
+
+}
+
+
+class App.Entities.Arret implements App.Interfaces.TimeInterface
+class App.Entities.Arret implements Stringable
+
+
+class App.Entities.Bus extends App.Entities.Position
+class App.Entities.Bus implements App.Interfaces.TimeInterface
+class App.Entities.Bus implements Stringable
+
+class App.Entities.Parcours implements Stringable
+
+
+class App.Entities.PersonnePosition extends App.Entities.Position
+class App.Entities.PersonnePosition implements App.Interfaces.TimeInterface
+
+class App.Entities.Route implements Stringable
+
+
+
+class App.Enums.BusStateEnum implements UnitEnum
+
+class App.Enums.TrajetEnCoursEnum implements UnitEnum
+
+
+
+class App.Exceptions.ArretsException extends Exception
+class App.Exceptions.ArretsException implements Throwable
+class App.Exceptions.ArretsException implements Stringable
+
+class App.Exceptions.RouteException extends Exception
+class App.Exceptions.RouteException implements Throwable
+class App.Exceptions.RouteException implements Stringable
+
+class App.Exceptions.RoutesException extends Exception
+class App.Exceptions.RoutesException implements Throwable
+class App.Exceptions.RoutesException implements Stringable
+
+
+
+
+
+
+
+
+
+
+
+class App.Timer.Timer implements App.Interfaces.TimeInterface
+class App.Timer.Timer implements Stringable
+
+
+
+@enduml

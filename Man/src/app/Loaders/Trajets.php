@@ -2,14 +2,10 @@
 
 namespace App\Loaders;
 
-use App\Timer\Timer;
-use SplPriorityQueue;
 use App\Entities\Arret;
-use App\Entities\Bus;
 use App\Entities\Route;
 use App\Loaders\Arrets;
 use App\Entities\Trajet;
-use App\Entities\Personne;
 use App\Exceptions\ArretsException;
 
 // /!\ Attention, trajet pour personnes => prendre en compte la vitesse du bus + positions des bus (incomming)
@@ -149,5 +145,15 @@ class Trajets
             "routes" => $routeList,
             "distance" => $distanceTotale
         ];
+    }
+
+    public static function export(): array
+    {
+        $data = [];
+        /** @var Trajet $trajet */
+        foreach (self::$trajets as $trajet) {
+            $data[spl_object_id($trajet)] = $trajet->export();
+        }
+        return $data;
     }
 }

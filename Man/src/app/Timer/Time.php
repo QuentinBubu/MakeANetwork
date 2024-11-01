@@ -40,4 +40,11 @@ class Time
             $class->incrementTick();
         }
     }
+
+    public static function export(): array
+    {
+        return [
+            'tick' => self::$tick
+        ];
+    }
 }

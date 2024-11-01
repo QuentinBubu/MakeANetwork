@@ -2,12 +2,14 @@
 
 namespace App\Entities;
 
+use App\Interfaces\StateInterface;
+
 /**
  * @Entity
  *
  * Un trajet est un ensemble de routes pour se rendre d'un point A à un point B
  */
-class Trajet
+class Trajet implements StateInterface
 {
     public string $nom;
     /**
@@ -48,5 +50,27 @@ class Trajet
             }
         }
         throw new \Exception("Aucune route trouvée pour l'arrêt $depart");
+    }
+
+    public function export(): array
+    {
+        return [
+            'nom' => $this->nom,
+            'depart' => $this->depart->nom,
+            'arrivee' => $this->arrivee->nom,
+            'distance' => $this->distance,
+            'tickArrivee' => $this->tickArrivee,
+            'routes' => array_map(
+                function ($route) {
+                    return $route->nom;
+                },
+                $this->routes
+            ),
+        ];
+    }
+
+    public function restore(array $state): void
+    {
+        throw new \Exception('Not implemented');
     }
 }

@@ -12,6 +12,7 @@ class Routes
     public static function load($routes): void
     {
         foreach ($routes as $name => $data) {
+            echo "Construction de la route {$name}\n";
             $route = new Route($name, $data['distance']);
             self::$routes[$name] = $route;
         }
@@ -40,5 +41,15 @@ class Routes
         }
 
         return array_values($route)[0];
+    }
+
+    public static function export(): array
+    {
+        $data = [];
+        /** @var Route $route */
+        foreach (self::$routes as $route) {
+            $data[spl_object_id($route)] = $route->export();
+        }
+        return $data;
     }
 }

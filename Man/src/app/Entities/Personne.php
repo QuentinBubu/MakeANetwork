@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use App\Interfaces\StateInterface;
 use App\Loaders\Personnes;
 use App\Loaders\PathFinder;
 use App\Enums\TrajetEnCoursEnum;
@@ -12,7 +13,7 @@ use App\Timer\Time;
  *
  * Une personne est décrite par leur nom, un trajet aller et un trajet retour
  */
-class Personne
+class Personne implements StateInterface
 {
     /**
      * Trajet aller de la personne
@@ -44,13 +45,7 @@ class Personne
      */
     public string $nom;
 
-    public Position $position;
-
-    public Bus $busAPrendre;
-
     public array $arretsVisites = [];
-
-    public Route $routeEnCours;
 
     /**
      * Constructeur
@@ -65,16 +60,15 @@ class Personne
         $this->trajetRetour = $trajetRetour;
         $this->nom = $nom;
         $this->trajetEnCours = TrajetEnCoursEnum::ALLER;
-        $this->position = new PersonnePosition();
         $this->lastBus = null;
         $this->setArretActuel($trajetAller->depart);
     }
 
     public function setArretActuel(Arret $arret): void
     {
+        echo "La personne {$this->nom} est à l'arrêt {$arret->nom}\n";
         $this->arretsVisites[] = $arret;
-        $this->routeEnCours = $this->getTrajetEnCours()->getRouteFromArret($arret, $this->arretsVisites);
-        $arret->addPersonne($this, $this->routeEnCours, Time::getTick());
+        $arret->addPersonne($this);
     }
 
     public function getTrajetEnCours(): Trajet
@@ -85,5 +79,22 @@ class Personne
     public function finFinal()
     {
         Personnes::unregister($this);
+    }
+
+    public function export(): array
+    {
+        return [
+            'nom' => $this->nom,
+            'trajetAller' => $this->trajetAller->nom,
+            'trajetRetour' => $this->trajetRetour->nom,
+            'trajetEnCours' => $this->trajetEnCours->name,
+            'lastBus' => $this->lastBus ? spl_object_id($this->lastBus) : null,
+            'arretsVisites' => array_map(fn ($arret) => $arret->nom, $this->arretsVisites)
+        ];
+    }
+
+    public function restore(array $state): void
+    {
+        throw new \Exception("Not implemented");
     }
 }

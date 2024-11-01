@@ -3,17 +3,17 @@
 namespace App\Entities;
 
 use App\Timer\Timer;
-use App\Actions\BusActions;
 use App\Enums\BusStateEnum;
+use App\Interfaces\StateInterface;
 use App\Interfaces\TimeInterface;
+use App\State\State;
 use App\Timer\Time;
 
 /**
  * Représente un bus
  */
-class Bus extends Position implements TimeInterface
+class Bus extends Position implements TimeInterface, StateInterface
 {
-    use BusActions;
     /**
      * Capacité max du bus
      *
@@ -72,7 +72,7 @@ class Bus extends Position implements TimeInterface
         $this->vitesseChargement = $vitesseChargement;
         $this->vitesseDeplacement = $vitesseDeplacement;
         $this->parcours = $parcours;
-        $this->parcours->arriveArret($this);
+        echo "Enregistrement du bus " . spl_object_id($this) . " sur le parcours " . $parcours->nom . PHP_EOL;
         Time::registerClass($this);
     }
 
@@ -156,5 +156,61 @@ class Bus extends Position implements TimeInterface
             $this->parcours->arriveArret($this);
             $this->setState(BusStateEnum::FLUX_VOYAGEURS);
         }
+    }
+
+    public function demarrerParcours(): void
+    {
+        $this->parcours->arriveArret($this);
+        // Enregistrement des ticks sur les arrêts
+        // array_slice offset 1 pour ne pas enregistrer le premier arrêt ???
+        foreach (array_slice($this->parcours->arretsAFaire, 1) as $arret) {
+            $this->calculEtEnregistrementProchainPassage($arret);
+            // Attention à calculer tout les n+1 parcours
+            /*
+                Considérons les parcours BED
+                Bus en E
+                Personne en D veut aller en B ou E
+                Il faut que le bus se soit enregistré dans X temps de nouveau à B et E
+                Il doit donc déposer son prochain passage
+            */
+        }
+        echo "Démarrage du bus\n";
+    }
+
+    public function calculEtEnregistrementProchainPassage(Arret $arret): void
+    {
+        echo "Calcul du prochain passage du bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom . PHP_EOL;
+        $timer = new Timer($this->tickTo($this->parcours, $arret, $this->vitesseDeplacement));
+        $arret->addBusEnApproche($this, $timer);
+        $this->addTimer($arret, $timer);
+    }
+
+    public function export(): array
+    {
+        return [
+            'capacite' => $this->capacite,
+            'vitesseChargement' => $this->vitesseChargement,
+            'vitesseDeplacement' => $this->vitesseDeplacement,
+            'parcours' => $this->parcours->nom,
+            'personnes' => array_map(
+                function ($personne) {
+                    return $personne->nom;
+                },
+                $this->personnes
+            ),
+            'state' => $this->state->name,
+            'timers' => array_map(
+                function ($timer) {
+                    return $timer->getRemainingTicks();
+                },
+                $this->timers
+            ),
+            'tick' => $this->tick,
+        ];
+    }
+
+    public function restore(array $state): void
+    {
+        throw new \Exception('Not implemented');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use App\Interfaces\StateInterface;
 use App\Loaders\Routes;
 
 /**
@@ -9,7 +10,7 @@ use App\Loaders\Routes;
  *
  * Un parcours est décrit par un ensemble de trajets
  */
-class Parcours
+class Parcours implements StateInterface
 {
     /**
      * Nom du parcours
@@ -113,10 +114,18 @@ class Parcours
     public function arriveArret(Bus $bus): void
     {
         // On fait un décallage
-        $this->previousArret = $this->currentArret;
-        $this->currentArret = $this->findNextArret($this->currentArret);
-        $this->nextArret = $this->findNextArret($this->currentArret);
+        if (is_null($this->currentArret)) {
+            $this->currentArret = 0;
+            $this->previousArret = array_key_last($this->arretsAFaire);
+            $this->nextArret = $this->findNextArret($this->currentArret);
+        } else {
+            $this->previousArret = $this->currentArret;
+            $this->currentArret = $this->findNextArret($this->currentArret);
+            $this->nextArret = $this->findNextArret($this->currentArret);
+        }
+
         $bus->tick = 0;
+        echo "Le bus faisaint le parcours {$bus->getParcours()->nom} en provenance de l'arrêt {$this->getPreviousArretObj()->nom} est arrivé à l'arrêt {$this->getCurrentArretObj()->nom}\n";
         $this->getCurrentArretObj()->arriveeBus($bus);
     }
 
@@ -145,6 +154,16 @@ class Parcours
         return Routes::getRouteStr($this->getCurrentArretObj()->nom, $this->getPreviousArretObj()->nom);
     }
 
+    public function getRoutes(): array
+    {
+        return array_map(
+            function ($trajet) {
+                return $trajet->routes;
+            },
+            $this->trajets
+        );
+    }
+
     /**
      * Retourne une représentation textuelle du parcours
      *
@@ -161,5 +180,32 @@ class Parcours
                 array: $this->trajets
             )
         );
+    }
+
+    public function export(): array
+    {
+        return [
+            'nom' => $this->nom,
+            'trajets' => array_map(
+                function ($trajet) {
+                    return $trajet->nom;
+                },
+                $this->trajets
+            ),
+            'arretsAFaire' => array_map(
+                function ($arret) {
+                    return $arret->nom;
+                },
+                $this->arretsAFaire
+            ),
+            'currentArret' => $this->currentArret,
+            'nextArret' => $this->nextArret,
+            'previousArret' => $this->previousArret
+        ];
+    }
+
+    public function restore(array $state): void
+    {
+        throw new \Exception("Not implemented");
     }
 }

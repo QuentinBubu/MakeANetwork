@@ -18,7 +18,10 @@ class Parcours
     public static function load(array $parcours): void
     {
         foreach ($parcours as $name => $arrets) {
+            echo "Construction du parcours {$name}\n";
             $arretsMap = array_map(fn ($arret) => Arrets::getArret($arret), $arrets);
+
+            echo "Construction des trajets pour le parcours {$name}\n";
             $parc = new EntityParcours(nom: $name, arretsAFaire: $arretsMap);
             for ($i = 0; $i < count($arretsMap) - 1; $i++) {
                 $arretA = $arrets[$i];
@@ -32,5 +35,15 @@ class Parcours
     public static function getParcours(string $nom): EntityParcours
     {
         return self::$parcours[$nom];
+    }
+
+    public static function export(): array
+    {
+        $data = [];
+        /** @var \App\Entities\Parcours $parcoursElement */
+        foreach (self::$parcours as $parcoursElement) {
+            $data[spl_object_id($parcoursElement)] = $parcoursElement->export();
+        }
+        return $data;
     }
 }
