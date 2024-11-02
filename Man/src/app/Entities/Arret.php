@@ -66,6 +66,7 @@ class Arret implements TimeInterface, StateInterface
         $this->nom = $nom;
         $this->genericRoutes = $genericRoutes;
         $this->fileAttente = new SplPriorityQueue();
+        $this->fileAttente->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
         Time::registerClass($this);
     }
 
@@ -121,13 +122,20 @@ class Arret implements TimeInterface, StateInterface
     public function removePersonne(Personne $personne): void
     {
         Message::log("Suppression de la personne {$personne->nom} de la file d'attente de l'arrêt {$this->nom}", Message::INFO);
-        /** @var Personne $personneFile */
-        foreach (clone $this->fileAttente as $personneFile) {
-            if ($personneFile === $personne) {
-                $this->fileAttente->extract();
-                break;
+    
+        // Nouvelle file pour réinsérer les éléments
+        $nouvelleFile = new SplPriorityQueue();
+        $nouvelleFile->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
+    
+        while (!$this->fileAttente->isEmpty()) {
+            $element = $this->fileAttente->extract(); // Récupère un élément
+
+            if ($element['data'] !== $personne) {
+                $nouvelleFile->insert($element['data'], $element['priority']);
             }
         }
+
+        $this->fileAttente = $nouvelleFile;
     }
 
     public function addBusEnApproche(Bus $bus, Timer $tick): void
@@ -161,13 +169,25 @@ class Arret implements TimeInterface, StateInterface
 
         Message::log("Début de l'embarquement des passagers dans le bus " . spl_object_id($bus) . " à l'arrêt {$this->nom}", Message::INFO);
 
-        /** @var Personne $personne */
         foreach (clone $this->fileAttente as $personne) {
+            /** @var Personne $personne */
+            $personne = $personne['data'];
+            if (Time::getTick() >= 9720 && str_starts_with($personne->nom, 'Charles')) {
+                echo '';
+            }
+
             if ($bus->isFull()) {
+                Message::log("Le bus " . spl_object_id($bus) . " est plein, arrêt de l'embarquement", Message::INFO);
                 break;
             }
 
             if (in_array($personne, $bus->personnesDescendu)) {
+                Message::log("Personne {$personne->nom} est déjà descendue du bus " . spl_object_id($bus), Message::DEBUG_DETAIL);
+                continue;
+            }
+
+            if ($personne->getTrajetEnCours()->tickDepart > Time::getTick()) {
+                Message::log("Personne {$personne->nom} est en attente de la tick de départ {$personne->getTrajetEnCours()->tickDepart} tick en cours : " . Time::getTick(), Message::INFO);
                 continue;
             }
 
@@ -181,18 +201,16 @@ class Arret implements TimeInterface, StateInterface
             // if ($prochainArret) {
             // Calcule le trajet optimisé de l'arrêt actuel vers le prochain arrêt
             Message::log("Calcul du trajet optimisé pour la personne {$personne->nom} à l'arrêt {$this->nom}", Message::DEBUG_DETAIL);
-            $trajetOptimise = $personne->calculTrajet($this, $trajetEnCours->vers);
-            Message::log("Trajet optimisé pour la personne {$personne->nom} à l'arrêt {$this->nom} : " . json_encode($trajetOptimise), Message::DEBUG_DETAIL);
+            $trajetOptimise = $personne->trajetOptimise;
+            if (is_null($trajetOptimise) || empty($trajetOptimise)) {
+                $personne->trajetOptimise = $personne->calculTrajet($this, $trajetEnCours->vers);
+            }
+            Message::log("Trajet optimisé pour la personne {$personne->nom} à l'arrêt {$this->nom} : " . json_encode($personne->trajetOptimise), Message::DEBUG_DETAIL);
 
             // Vérifie que le trajet optimisé est valide avant de l’enregistrer
             if (!empty($trajetOptimise)) {
                 // Enregistre le trajet optimisé dans l'attribut correspondant de la personne
-                $personne->trajetOptimise = $trajetOptimise;
-
-                if (str_starts_with($personne->nom, "Charles")) {
-                    Message::log("Charles a un trajet optimisé : " . json_encode($trajetOptimise), Message::INFO);
-                }
-
+                
                 if ($trajetOptimise[0]['busAPrendre'] !== $bus) {
                     continue;
                 }
@@ -269,7 +287,7 @@ class Arret implements TimeInterface, StateInterface
                 $this->routes
             ),
             'fileAttente' => array_map(
-                fn($personne) => $personne->nom,
+                fn($personne) => [$personne['data']->nom, $personne['priority']],
                 iterator_to_array(clone $this->fileAttente)
             ),
             'vehiculesEnApproche' => array_map(fn($item) => spl_object_id($item[0]), $this->vehiculesEnApproche),

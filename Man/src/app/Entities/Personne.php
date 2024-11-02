@@ -40,7 +40,7 @@ class Personne implements StateInterface
      */
     public string $nom;
 
-    public array $trajetOptimise;
+    public array $trajetOptimise = [];
 
     /**
      * Signaux de descente
@@ -111,6 +111,7 @@ class Personne implements StateInterface
     public function descendArret(Arret $arret): void
     {
         $this->removeSignalDescente($arret);
+        array_shift($this->trajetOptimise);
         if ($arret === $this->aller->vers) {
             Message::log("La personne {$this->nom} est arrivée à bout de son trajet aller", logLevel: Message::INFO);
             $this->trajetEnCours = TrajetEnCoursEnum::RETOUR;

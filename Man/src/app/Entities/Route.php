@@ -43,7 +43,6 @@ class Route implements StateInterface
         }
 
         $this->arrets[] = $arret;
-        $arret->registerRoute($this);
         if (count($this->arrets) == 2) {
             Message::log("Ajout de la route {$this->nom} à la liste des trajets", Message::DEBUG_ALL);
             Trajets::addTrajet($this);

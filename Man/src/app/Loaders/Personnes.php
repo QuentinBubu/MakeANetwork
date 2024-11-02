@@ -15,8 +15,8 @@ class Personnes
         foreach ($personnesList as $personne) {
             Message::log("Chargement de la personne {$personne['nom']}", Message::DEBUG_DETAIL);
             $passager = new Personne(
-                aller: new PersonneObjectif(depuis: $personne['aller']['depart'], vers: $personne['aller']['arrivee']),
-                retour: new PersonneObjectif(depuis: $personne['retour']['depart'], vers: $personne['retour']['arrivee']),
+                aller: new PersonneObjectif(depuis: $personne['aller']['depart'], vers: $personne['aller']['arrivee'], tickDepart: $personne['aller']['temps']),
+                retour: new PersonneObjectif(depuis: $personne['retour']['depart'], vers: $personne['retour']['arrivee'], tickDepart: $personne['retour']['temps']),
                 nom: $personne['nom']
             );
 

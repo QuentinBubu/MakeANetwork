@@ -165,7 +165,7 @@ function loadPersonnes(array &$personnesList) {
 State::registerFunction(Arrets::class, 'export', 'arrets');
 State::registerFunction(Bus::class, 'export', 'bus');
 // State::registerFunction(Parcours::class, 'export', 'parcours');
-// State::registerFunction(Personnes::class, 'export', 'personnes');
+State::registerFunction(Personnes::class, 'export', 'personnes');
 // State::registerFunction(Routes::class, 'export', 'routes');
 // State::registerFunction(Trajets::class, 'export', 'trajets');
 State::registerFunction(Time::class, 'export', 'time');
@@ -173,13 +173,11 @@ State::registerFunction(Time::class, 'export', 'time');
 // Message::log(State::exportData());
 
 while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Personnes::$personnes) > 0) {
-    if (Time::getTick() < 15) {
-        Message::log('GLOBAL TICK ' . Time::getTick(), Message::INFO);
-        Message::log(State::exportData(), Message::INFO);
-    }
-
     Time::run();
     Time::incrementTick();
+
+    checkUnicitePersonne();
+
     // Message::log(State::exportData());
     if (Time::getTick() % 100 === 0) {
         Message::log('GLOBAL TICK ' . Time::getTick(), Message::INFO);
@@ -187,5 +185,41 @@ while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Personnes::$personnes) >
     }
 }
 
+foreach (Bus::$buses as $bus) {
+    echo '';
+}
+
 Message::log('------ FIN ------', Message::INFO);
 Message::log(State::exportData(), Message::INFO);
+
+function checkUnicitePersonne() {
+    $personnes = Personnes::$personnes;
+    $personnesFind = [];
+
+    foreach (Arrets::$arrets as $arret) {
+        foreach (clone $arret->fileAttente as $personne) {
+            $personnesFind[] = $personne['data'];
+        }
+    }
+
+    foreach (Bus::$buses as $bus) {
+        foreach ($bus->getPersonnes() as $personne) {
+            $personnesFind[] = $personne;
+        }
+    }
+
+    foreach ($personnes as $personne) {
+        $ind = array_search($personne, $personnesFind);
+        if ($ind !== false) {
+            unset($personnesFind[$ind]);
+        } else {
+            Message::log(State::exportData(), Message::INFO);
+            throw new Exception("Personne non trouvée : " . $personne->nom);
+        }
+    }
+
+    if (!empty($personnesFind)) {
+        Message::log(State::exportData(), Message::INFO);
+        throw new Exception('Personne en trop :' . implode(',', array_map(fn($personne) => $personne->nom, $personnesFind)));
+    }
+}

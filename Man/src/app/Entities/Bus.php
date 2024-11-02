@@ -4,9 +4,9 @@ namespace App\Entities;
 
 use App\Timer\Time;
 use App\Log\Message;
-use App\State\State;
 use App\Timer\Timer;
 use App\Enums\BusStateEnum;
+use App\Exceptions\BusException;
 use App\Interfaces\TimeInterface;
 use App\Interfaces\StateInterface;
 
@@ -152,7 +152,13 @@ class Bus extends Position implements TimeInterface, StateInterface
 
     public function descentePassager(Personne $personne): void
     {
-        unset($this->personnes[array_search($personne, $this->personnes)]);
+        Message::log("Suppression de la personne {$personne->nom} du bus " . spl_object_id($this), Message::DEBUG_DETAIL);
+        $index = array_search($personne, $this->personnes);
+        if ($index === false) {
+            throw new BusException("La personne {$personne->nom} n'est pas dans le bus");
+        }
+        unset($this->personnes[$index]);
+        $this->personnes = array_values($this->personnes);
         $this->personnesDescendu[] = $personne;
     }
 
@@ -185,25 +191,6 @@ class Bus extends Position implements TimeInterface, StateInterface
         }
 
         $this->tick += 1;
-    }
-
-    public function demarrerParcours(): void
-    {
-        $this->parcours->arriveArret($this);
-        // Enregistrement des ticks sur les arrêts
-        // array_slice offset 1 pour ne pas enregistrer le premier arrêt ???
-        foreach (array_slice($this->parcours->arretsAFaire, 0) as $arret) {
-            $this->calculEtEnregistrementProchainPassage($arret);
-            // Attention à calculer tout les n+1 parcours
-            /*
-                Considérons les parcours BED
-                Bus en E
-                Personne en D veut aller en B ou E
-                Il faut que le bus se soit enregistré dans X temps de nouveau à B et E
-                Il doit donc déposer son prochain passage
-            */
-        }
-        Message::log("Démarrage du bus " . spl_object_id($this) . " sur le parcours " . $this->parcours->nom, Message::INFO);
     }
 
     public function calculEtEnregistrementProchainPassage(Arret $arret): void
