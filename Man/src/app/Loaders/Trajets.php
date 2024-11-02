@@ -2,6 +2,7 @@
 
 namespace App\Loaders;
 
+use App\Log\Message;
 use App\Entities\Arret;
 use App\Entities\Route;
 use App\Loaders\Arrets;
@@ -85,17 +86,17 @@ class Trajets
         $minHeap->insert($arretA, 0);
         $inQueue[$arretA] = true;
 
-        echo "Début du calcul du trajet de $arretA à $arretB\n";
+        Message::log("Début du calcul du trajet de $arretA à $arretB", Message::DEBUG_DETAIL);
 
         while (!$minHeap->isEmpty()) {
             $currentArretNom = $minHeap->extract();
             unset($inQueue[$currentArretNom]);
             $currentArret = Arrets::getArret($currentArretNom);
 
-            echo "Traitement de l'arrêt : $currentArretNom, Distance actuelle : {$distances[$currentArretNom]}\n";
+            Message::log("Traitement de l'arrêt : $currentArretNom, Distance actuelle : {$distances[$currentArretNom]}", Message::DEBUG_ALL);
 
             if ($currentArretNom === $arretB) {
-                echo "Destination atteinte\n";
+                Message::log("Destination atteinte", Message::DEBUG_ALL);
                 break;
             }
 
@@ -105,7 +106,7 @@ class Trajets
                 if (in_array($currentArret, $route->getArrets())) {
                     $alt = $distances[$currentArretNom] + $route->distance;
 
-                    echo "  Voisin : {$neighbor->nom}, Route : {$route->nom}, Distance : {$route->distance}, Distance totale potentielle : $alt\n";
+                    Message::log("  Voisin : {$neighbor->nom}, Route : {$route->nom}, Distance : {$route->distance}, Distance totale potentielle : $alt", Message::DEBUG_ALL);
 
                     if ($alt < $distances[$neighbor->nom]) {
                         $distances[$neighbor->nom] = $alt;
@@ -117,30 +118,29 @@ class Trajets
                         }
                         $minHeap->insert($neighbor->nom, -$alt);
 
-                        echo "  Mise à jour : {$neighbor->nom}, Nouvelle distance totale : $alt\n";
+                        Message::log("  Mise à jour : {$neighbor->nom}, Nouvelle distance totale : $alt", Message::DEBUG_ALL);
                     }
                     break;  // On a trouvé la bonne route, pas besoin de vérifier les autres
                 }
-                //}
             }
         }
 
         $routeList = [];
         $distanceTotale = 0;
-        echo "Reconstruction du chemin :\n";
+        Message::log("Reconstruction du chemin :", Message::DEBUG_ALL);
         for ($at = $arretB; $at !== null; $at = $precedent[$at]) {
-            echo "  Arrêt : $at\n";
+            Message::log("  Arrêt : $at", Message::DEBUG_ALL);
             if (isset($routes[$at])) {
                 array_unshift($routeList, $routes[$at]);
                 $distanceTotale += $routes[$at]->distance;
-                echo "    Route ajoutée : {$routes[$at]->nom}, Distance : {$routes[$at]->distance}\n";
+                Message::log("    Route ajoutée : {$routes[$at]->nom}, Distance : {$routes[$at]->distance}", Message::DEBUG_ALL);
             }
         }
 
-        echo "Chemin final : " . implode(" -> ", array_map(function ($route) {
+        Message::log("Chemin final : " . implode(" -> ", array_map(function ($route) {
             return $route->nom;
-        }, $routeList)) . "\n";
-        echo "Distance totale : $distanceTotale\n";
+        }, $routeList)), Message::DEBUG_DETAIL);
+        Message::log("Distance totale : $distanceTotale", Message::DEBUG_DETAIL);
 
         return [
             "routes" => $routeList,

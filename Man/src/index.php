@@ -7,6 +7,7 @@ use App\Loaders\Routes;
 use App\Loaders\Trajets;
 use App\Loaders\Parcours;
 use App\Loaders\Personnes;
+use App\Log\Message;
 use App\State\State;
 use App\Timer\Time;
 use Dotenv\Repository\RepositoryBuilder;
@@ -18,23 +19,23 @@ $dotenv = Dotenv::create($repository, './');
 $dotenv->load();
 $dotenv->required(['UNIVERS_START', 'UNIVERS_END']);
 
-echo '----- DEBUT -----' . PHP_EOL;
+Message::log('----- DEBUT -----');
 
 $arretsJson = json_decode(json: file_get_contents(filename: 'data/arrets.json'), associative: true);
 $routesJson = json_decode(json: file_get_contents(filename: 'data/routes.json'), associative: true);
 $parcoursJson = json_decode(json: file_get_contents(filename: 'data/parcours.json'), associative: true);
 $busJson = json_decode(json: file_get_contents(filename: 'data/bus.json'), associative: true);
 
-echo 'Chargement des arrets' . PHP_EOL;
+Message::log('Chargement des arrêts');
 Arrets::load(arrets: $arretsJson);
 
-echo 'Chargement des routes' . PHP_EOL;
+Message::log('Chargement des routes');
 Routes::load(routes: $routesJson);
 
-echo 'Mapping des routes' . PHP_EOL;
+Message::log('Mapping des routes');
 Arrets::map();
 
-echo 'Chargement des parcours' . PHP_EOL;
+Message::log('Chargement des parcours');
 Parcours::load(parcours: $parcoursJson);
 
 // Vérification des routes
@@ -61,26 +62,26 @@ $busList = [
     ],
 ];
 
-echo 'Chargement des bus' . PHP_EOL;
+Message::log('Chargement des bus');
 Bus::load(bus: $busList, config: $busJson);
 
-echo 'Démarrage des bus / parcours' . PHP_EOL;
+Message::log('Démarrage des parcours / bus');
 /** @var App\Entities\Bus $bus */
-foreach (Bus::$buses as $bus) {
-    $bus->demarrerParcours();
-}
+// foreach (Bus::$buses as $bus) {
+//     $bus->demarrerParcours();
+// }
 
-echo 'Chargement des personnes' . PHP_EOL;
+Message::log('Chargement des personnes');
 $personnesList = [];
 loadPersonnes(personnesList: $personnesList);
 Personnes::load(personnesList: $personnesList);
 
 foreach (Bus::$buses as $bus) {
-    echo "Bus : " . spl_object_id($bus) . " affecté au parcours " . $bus->getParcours()->nom . PHP_EOL;
+    Message::log("Bus : " . spl_object_id($bus) . " affecté au parcours " . $bus->getParcours()->nom);
 }
 
 
-echo '------ FIN ------' . PHP_EOL;
+Message::log('------ FIN ------');
 
 function loadPersonnes(array &$personnesList) {
     for ($i = 0; $i < 6; $i++) {
@@ -169,13 +170,22 @@ State::registerFunction(Bus::class, 'export', 'bus');
 // State::registerFunction(Trajets::class, 'export', 'trajets');
 State::registerFunction(Time::class, 'export', 'time');
 
-echo State::exportData() . PHP_EOL;
+// Message::log(State::exportData());
 
 while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Personnes::$personnes) > 0) {
+    if (Time::getTick() < 15) {
+        Message::log('GLOBAL TICK ' . Time::getTick(), Message::INFO);
+        Message::log(State::exportData(), Message::INFO);
+    }
+
     Time::run();
-    // echo State::exportData() . PHP_EOL;
     Time::incrementTick();
-    if (Time::getTick() % 1000 === 0) {
-        echo 'TICK ' . Time::getTick() . PHP_EOL;
+    // Message::log(State::exportData());
+    if (Time::getTick() % 100 === 0) {
+        Message::log('GLOBAL TICK ' . Time::getTick(), Message::INFO);
+        Message::log(State::exportData(), Message::INFO);
     }
 }
+
+Message::log('------ FIN ------', Message::INFO);
+Message::log(State::exportData(), Message::INFO);

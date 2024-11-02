@@ -2,11 +2,13 @@
 
 namespace App\Entities;
 
-use App\Interfaces\StateInterface;
+use App\Timer\Time;
+use App\Log\Message;
 use App\Loaders\Personnes;
 use App\Entities\PathFinder;
 use App\Enums\TrajetEnCoursEnum;
-use App\Timer\Time;
+use App\Interfaces\StateInterface;
+use App\State\State;
 
 /**
  * @Entity
@@ -18,16 +20,16 @@ class Personne implements StateInterface
     /**
      * Trajet aller de la personne
      *
-     * @var Trajet
+     * @var PersonneObjectif
      */
-    public Trajet $trajetAller;
+    public PersonneObjectif $aller;
 
     /**
      * Trajet retour
      *
-     * @var Trajet
+     * @var PersonneObjectif
      */
-    public Trajet $trajetRetour;
+    public PersonneObjectif $retour;
 
     public TrajetEnCoursEnum $trajetEnCours;
 
@@ -37,8 +39,6 @@ class Personne implements StateInterface
      * @var string
      */
     public string $nom;
-
-    public array $arretsVisites = [];
 
     public array $trajetOptimise;
 
@@ -51,35 +51,28 @@ class Personne implements StateInterface
     /**
      * Constructeur
      *
-     * @param Trajet $trajetAller
-     * @param Trajet $trajetRetour
+     * @param PersonneObjectif $aller
+     * @param PersonneObjectif $retour
      * @param string $nom
      */
-    public function __construct(Trajet $trajetAller, Trajet $trajetRetour, string $nom)
+    public function __construct(PersonneObjectif $aller, PersonneObjectif $retour, string $nom)
     {
-        $this->trajetAller = $trajetAller;
-        $this->trajetRetour = $trajetRetour;
+        $this->aller = $aller;
+        $this->retour = $retour;
         $this->nom = $nom;
         $this->trajetEnCours = TrajetEnCoursEnum::ALLER;
-        $this->setArretActuel($trajetAller->depart);
+        $aller->depuis->addPersonne($this);
     }
 
-    public function setArretActuel(Arret $arret): void
+    public function getTrajetEnCours(): PersonneObjectif
     {
-        echo "La personne {$this->nom} est à l'arrêt {$arret->nom}\n";
-        $this->arretsVisites[] = $arret;
-        $arret->addPersonne($this);
-    }
-
-    public function getTrajetEnCours(): Trajet
-    {
-        return $this->trajetEnCours === TrajetEnCoursEnum::ALLER ? $this->trajetAller : $this->trajetRetour;
+        return $this->trajetEnCours === TrajetEnCoursEnum::ALLER ? $this->aller : $this->retour;
     }
 
     public function finFinal()
     {
-        echo "La personne {$this->nom} a terminé son trajet\n";
-        Personnes::unregister($this);
+        Message::log("La personne {$this->nom} a terminé son trajet", Message::INFO);
+        Personnes::unregister(personne: $this);
     }
 
         /**
@@ -99,8 +92,8 @@ class Personne implements StateInterface
 
         // Parcours de chaque étape et affichage du trajet
         foreach ($meilleurTrajet as $etape => $info) {
-            echo $this->nom . " : Étape $etape : Prendre le bus " . spl_object_id($info['busAPrendre']) .
-                 " de " . $info['arretMontee'] . " à " . $info['arretDescente'] . PHP_EOL;
+            Message::log($this->nom . " : Étape $etape : Prendre le bus " . spl_object_id($info['busAPrendre']) .
+                 " de " . $info['arretMontee'] . " à " . $info['arretDescente']);
         }
 
         return $meilleurTrajet;
@@ -111,19 +104,22 @@ class Personne implements StateInterface
     }
 
     public function veutDescendre(Arret $arret): bool {
-        return in_array($arret, $this->signalDescente, true);
+        // Calculer s'il est plus intéressant de descendre à cet arrêt ou de rester dans le bus suivant la file d'attente à l'arrêt
+        return in_array($arret, $this->signalDescente);
     }
 
     public function descendArret(Arret $arret): void
     {
-        $this->setArretActuel($arret);
         $this->removeSignalDescente($arret);
-        if ($arret == $this->trajetAller->arrivee) {
-            echo "La personne {$this->nom} est arrivée à bout de son trajet aller\n";
+        if ($arret === $this->aller->vers) {
+            Message::log("La personne {$this->nom} est arrivée à bout de son trajet aller", logLevel: Message::INFO);
             $this->trajetEnCours = TrajetEnCoursEnum::RETOUR;
-        } elseif ($arret == $this->trajetRetour->arrivee) {
+        } elseif ($arret === $this->retour->vers) {
             $this->finFinal();
+            return;
         }
+        $arret->addPersonne($this);
+        Message::log(State::exportData(), Message::INFO);
     }
 
     private function removeSignalDescente(Arret $arret) {
@@ -139,15 +135,10 @@ class Personne implements StateInterface
     {
         return [
             'nom' => $this->nom,
-            'trajetAller' => $this->trajetAller->nom,
-            'trajetRetour' => $this->trajetRetour->nom,
+            // 'trajetAller' => $this->trajetAller->nom,
+            // 'trajetRetour' => $this->trajetRetour->nom,
             'trajetEnCours' => $this->trajetEnCours->name,
-            'arretsVisites' => array_map(fn ($arret) => $arret->nom, $this->arretsVisites)
         ];
-    }
-
-    public function arriveeArret(Arret $arret): void
-    {
     }
 
     public function restore(array $state): void

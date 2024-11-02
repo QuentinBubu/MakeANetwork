@@ -2,12 +2,13 @@
 
 namespace App\Entities;
 
+use App\Timer\Time;
+use App\Log\Message;
+use App\State\State;
 use App\Timer\Timer;
 use App\Enums\BusStateEnum;
-use App\Interfaces\StateInterface;
 use App\Interfaces\TimeInterface;
-use App\State\State;
-use App\Timer\Time;
+use App\Interfaces\StateInterface;
 
 /**
  * Représente un bus
@@ -19,21 +20,23 @@ class Bus extends Position implements TimeInterface, StateInterface
      *
      * @var integer
      */
-    public int $capacite;
+    public readonly int $capacite;
 
     /**
      * Vitesse de chargement
      *
      * @var float
      */
-    public int $vitesseChargement;
+    public readonly int $vitesseChargement;
 
     /**
      * Vitesse de déplacement
      *
      * @var int
      */
-    public int $vitesseDeplacement;
+    public readonly int $vitesseDeplacement;
+
+    public readonly string $type;
 
     /**
      * Parcours du bus
@@ -56,7 +59,7 @@ class Bus extends Position implements TimeInterface, StateInterface
      */
     public array $personnesDescendu = [];
 
-    protected BusStateEnum $state = BusStateEnum::FLUX_VOYAGEURS;
+    protected BusStateEnum $state = BusStateEnum::DEPLACEMENT;
 
     /**
      * Liste de ses timers
@@ -73,43 +76,36 @@ class Bus extends Position implements TimeInterface, StateInterface
      * @param float $vitesseDeplacement
      * @param Parcours $parcours
      */
-    public function __construct(int $capacite, float $vitesseChargement, float $vitesseDeplacement, Parcours $parcours)
+    public function __construct(int $capacite, float $vitesseChargement, float $vitesseDeplacement, string $type, Parcours $parcours)
     {
         $this->capacite = $capacite;
         $this->vitesseChargement = $vitesseChargement;
         $this->vitesseDeplacement = $vitesseDeplacement;
+        $this->type = $type;
         $this->parcours = $parcours;
-        echo "Enregistrement du bus " . spl_object_id($this) . " sur le parcours " . $parcours->nom . PHP_EOL;
+        Message::log("Enregistrement du bus " . spl_object_id($this) . " sur le parcours " . $parcours->nom);
         Time::registerClass($this);
     }
 
-    public function getState(): BusStateEnum
+    public function getPersonnes(): array
     {
-        return $this->state;
+        return $this->personnes;
     }
 
     public function setState(BusStateEnum $state): void
     {
+        $this->tick = 0;
         $this->personnesDescendu = [];
         $this->state = $state;
         if (count($this->personnes) > 0) {
-            echo microtime(true) . " & Bus " . spl_object_id($this) . " & à l'arrêt " . $this->parcours->currentArret . " ( " . $this->parcours->getCurrentArretObj()->nom . " )" . PHP_EOL;
+            Message::log(microtime(true) . " & Bus " . spl_object_id($this) . " & à l'arrêt " . $this->parcours->currentArret . " ( " . $this->parcours->getCurrentArretObj()->nom . " )");
         }
     }
 
     public function addTimer(Arret $arret, Timer $timer): void
     {
+        Message::log("Enregistrement du timer pour le bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom);
         $this->timers[spl_object_id($arret)] = $timer;
-    }
-
-    /**
-     * Retourne la place disponible dans le bus
-     *
-     * @return void
-     */
-    public function getPlaceDisponible(): int
-    {
-        return $this->capacite - count($this->personnes);
     }
 
     /**
@@ -150,8 +146,14 @@ class Bus extends Position implements TimeInterface, StateInterface
 
     public function addPersonne(Personne $personne): void
     {
-        echo "Ajout de la personne {$personne->nom} dans le bus " . spl_object_id($this) . PHP_EOL;
+        Message::log("Ajout de la personne {$personne->nom} dans le bus " . spl_object_id($this));
         $this->personnes[] = $personne;
+    }
+
+    public function descentePassager(Personne $personne): void
+    {
+        unset($this->personnes[array_search($personne, $this->personnes)]);
+        $this->personnesDescendu[] = $personne;
     }
 
     public function isFull(): bool
@@ -159,38 +161,30 @@ class Bus extends Position implements TimeInterface, StateInterface
         return count($this->personnes) >= $this->capacite;
     }
 
-    // Attention, tous les passagers descendent en même temps là alors que c'est 1 par tick
-    private function verifierSignauxDescente() {
-        foreach ($this->personnes as $key => $passager) {
-            if ($passager->veutDescendre($this->parcours->getCurrentArretObj())) {
-                // Le passager souhaite descendre à cet arrêt
-                unset($this->personnes[$key]);
-                $this->personnesDescendu[] = $passager;
-                echo "Le passager {$passager->nom} descend du bus " . spl_object_id($this) . " à l'arrêt " . $this->parcours->getCurrentArretObj()->nom . PHP_EOL;
-                $passager->descendArret($this->parcours->getCurrentArretObj());
-                $this->parcours->getCurrentArretObj()->addPersonne($passager);
-            }
-        }
-        // Réindexer le tableau pour éviter des clés manquantes
-        $this->personnes = array_values($this->personnes);
+    public function peutDesservir(Arret $depart, Arret $destination): bool
+    {
+        $parcours = $this->getParcours()->arretsAFaire;
+        $departIndex = array_search($depart, $parcours);
+        $destinationIndex = array_search($destination, $parcours);
+
+        return $departIndex !== false && $destinationIndex !== false;
     }
 
 
     public function incrementTick(): void
     {
-        $this->tick += 1;
         if (
             $this->state === BusStateEnum::DEPLACEMENT
             && $this->tick % $this->vitesseDeplacement === 0
-            && $this->tickTo($this->parcours, $this->parcours->getNextArretObj(), $this->vitesseDeplacement) <= 0
+            && ($this->tickTo($this->parcours, $this->parcours->getNextArretObj(), $this->vitesseDeplacement) <= 0
+                || Time::getTick() === 0
+            )
         ) {
+            Message::log("GT : " . Time::getTick());
             $this->parcours->arriveArret($this);
-            $this->setState(BusStateEnum::FLUX_VOYAGEURS);
         }
 
-        if ($this->state === BusStateEnum::FLUX_VOYAGEURS) {
-            $this->verifierSignauxDescente();
-        }
+        $this->tick += 1;
     }
 
     public function demarrerParcours(): void
@@ -198,7 +192,7 @@ class Bus extends Position implements TimeInterface, StateInterface
         $this->parcours->arriveArret($this);
         // Enregistrement des ticks sur les arrêts
         // array_slice offset 1 pour ne pas enregistrer le premier arrêt ???
-        foreach (array_slice($this->parcours->arretsAFaire, 1) as $arret) {
+        foreach (array_slice($this->parcours->arretsAFaire, 0) as $arret) {
             $this->calculEtEnregistrementProchainPassage($arret);
             // Attention à calculer tout les n+1 parcours
             /*
@@ -209,13 +203,15 @@ class Bus extends Position implements TimeInterface, StateInterface
                 Il doit donc déposer son prochain passage
             */
         }
-        echo "Démarrage du bus\n";
+        Message::log("Démarrage du bus " . spl_object_id($this) . " sur le parcours " . $this->parcours->nom, Message::INFO);
     }
 
     public function calculEtEnregistrementProchainPassage(Arret $arret): void
     {
-        echo "Calcul du prochain passage du bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom . PHP_EOL;
+        // Pb (cf debug timer 2 arrets A) ?
+        Message::log("Calcul du prochain passage du bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom, Message::DEBUG_DETAIL);
         $timer = new Timer($this->tickTo($this->parcours, $arret, $this->vitesseDeplacement));
+        Message::log("Enregistrement du prochain passage du bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom . " dans " . $timer->getRemainingTicks() . " ticks", Message::INFO);
         $arret->addBusEnApproche($this, $timer);
         $this->addTimer($arret, $timer);
     }

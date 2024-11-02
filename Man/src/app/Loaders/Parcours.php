@@ -2,6 +2,7 @@
 
 namespace App\Loaders;
 
+use App\Log\Message;
 use App\Entities\Parcours as EntityParcours;
 
 /**
@@ -18,10 +19,10 @@ class Parcours
     public static function load(array $parcours): void
     {
         foreach ($parcours as $name => $arrets) {
-            echo "Construction du parcours {$name}\n";
+            Message::log("Construction du parcours {$name}", Message::DEBUG_DETAIL);
             $arretsMap = array_map(fn ($arret) => Arrets::getArret($arret), $arrets);
 
-            echo "Construction des trajets pour le parcours {$name}\n";
+            Message::log("Construction des trajets pour le parcours {$name}", Message::DEBUG_DETAIL);
             $parc = new EntityParcours(nom: $name, arretsAFaire: $arretsMap);
             for ($i = 0; $i < count($arretsMap) - 1; $i++) {
                 $arretA = $arrets[$i];

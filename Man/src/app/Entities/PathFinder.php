@@ -2,77 +2,130 @@
 
 namespace App\Entities;
 
+use stdClass;
+use App\Loaders\Bus;
+use App\Log\Message;
+use SplPriorityQueue;
 use App\Entities\Arret;
-use App\Entities\Bus;
-use App\Entities\Personne;
 use App\Loaders\Arrets;
+use App\Entities\Personne;
 
 class PathFinder
 {
     public function findBestPath(Personne $personne, Arret $arretFrom, Arret $arretTo): array
     {
-        $distances = [];
+        // Initialisation de Dijkstra
+        $distances = array_fill_keys(array_keys(Arrets::$arrets), INF);
+        $distances[$arretFrom->nom] = 0;
         $previousArrets = [];
         $busTaken = [];
-        $queue = new \SplPriorityQueue();
+        $queue = new SplPriorityQueue();
 
-        // Initialiser les distances avec l'infini sauf pour l'arrêt de départ
-        foreach (Arrets::$arrets as $arret) {
-            $distances[$arret->nom] = PHP_INT_MAX;
-            $previousArrets[$arret->nom] = null;
-        }
-        $distances[$arretFrom->nom] = 0;
-        $queue->insert($arretFrom, 0);
+        $queue->insert($arretFrom->nom, 0);
 
-        // Algorithme de Dijkstra
+        Message::log("Début de l'algorithme de Dijkstra depuis l'arrêt de départ : {$arretFrom->nom}", Message::DEBUG_DETAIL);
+
+        // Exécution de Dijkstra
         while (!$queue->isEmpty()) {
-            $currentArret = $queue->extract();
+            $currentArretNom = $queue->extract();
 
-            // Arrêt de la recherche si on atteint l'arrêt de destination
-            if ($currentArret->nom === $arretTo->nom) break;
+            if ($currentArretNom === $arretTo->nom) {
+                Message::log("Arrêt destination atteint : {$arretTo->nom}", Message::DEBUG_ALL);
+                break;
+            }
 
-            foreach ($currentArret->getNeighbors() as $neighborData) {
-                $route = $neighborData->route;
-                $neighborArret = $neighborData->arret;
-            
-                foreach ($neighborArret->vehiculesEnApproche as $busData) {
-                    /** @var Bus $bus */
-                    $bus = $busData[0];
-                    $arrivalTime = $busData[1];
-            
-                    // Calcul du temps total en fonction de la vitesse du bus
-                    $routeDistance = $route->distance;
-                    $travelTime = $routeDistance / $bus->vitesseDeplacement;
-            
-                    $newTime = $distances[$currentArret->nom] + $arrivalTime->getRemainingTicks() + $travelTime;
-            
-                    if ($newTime < $distances[$neighborArret->nom]) {
-                        $distances[$neighborArret->nom] = $newTime;
-                        $previousArrets[$neighborArret->nom] = $currentArret->nom;
-                        $busTaken[$neighborArret->nom] = $bus;
-                        $queue->insert($neighborArret, -$newTime); // -$newTime pour la priorité croissante
+            Message::log("Traitement de l'arrêt : {$currentArretNom}, Distance actuelle : {$distances[$currentArretNom]}", Message::DEBUG_ALL);
+
+            $currentArret = Arrets::getArret($currentArretNom);
+            /** @var stdClass $voisin */
+            foreach ($currentArret->getNeighbors() as $voisin) {
+                foreach (Bus::$buses as $bus) {
+                    if (!$bus->peutDesservir($currentArret, $voisin->arret)) {
+                        Message::log("   -> Bus {$bus->type} parcours {$bus->getParcours()->nom} ne dessert pas {$voisin->arret->nom} depuis {$currentArretNom}", Message::DEBUG_ALL);
+                        continue;
+                    }
+
+                    $route = $currentArret->getRouteTo($voisin->arret);
+                    $time = $route->distance * $bus->vitesseDeplacement;
+                    $newDistance = $distances[$currentArretNom] + $time;
+
+                    Message::log("   -> Tentative de mise à jour pour voisin : {$voisin->arret->nom} avec bus {$bus->type} (Distance : {$newDistance})", Message::DEBUG_ALL);
+
+                    if ($newDistance < $distances[$voisin->arret->nom]) {
+                        $distances[$voisin->arret->nom] = $newDistance;
+                        $previousArrets[$voisin->arret->nom] = $currentArretNom;
+                        $busTaken[$voisin->arret->nom] = $bus;
+                        $queue->insert($voisin->arret->nom, -$newDistance);
+
+                        Message::log("   -> Mise à jour réussie pour {$voisin->arret->nom} avec bus {$bus->type}. Nouvelle distance : {$newDistance}", Message::DEBUG_ALL);
+                    } else {
+                        Message::log("   -> Non mis à jour : distance existante plus courte ou boucle détectée.", Message::DEBUG_ALL);
                     }
                 }
             }
+
+            Message::log("Fin du traitement de l'arrêt : {$currentArretNom}", Message::DEBUG_ALL);
         }
 
-        // Reconstruire le chemin et le formatage de la réponse
+        // Vérifier si le chemin complet est atteint
+        if (!isset($previousArrets[$arretTo->nom]) && $arretFrom->nom !== $arretTo->nom) {
+            throw new \RuntimeException("Impossible de rejoindre l'arrêt de départ. Dernier arrêt atteint : {$currentArretNom}");
+        }
+
+        Message::log("Fin de l'algorithme de Dijkstra", Message::DEBUG_DETAIL);
+
+        // Reconstruction du chemin
         $path = [];
+        $visitedArrets = [];
         $arret = $arretTo->nom;
 
-        while ($previousArrets[$arret] !== null) {
+        Message::log("Reconstruction du chemin depuis l'arrêt destination : {$arretTo->nom}", Message::DEBUG_DETAIL);
+        $maxSteps = count(Arrets::$arrets);
+        $steps = 0;
+
+        while ($arret !== $arretFrom->nom) {
+            if (isset($visitedArrets[$arret])) {
+                throw new \RuntimeException("Boucle détectée lors de la reconstruction du chemin à l'arrêt : {$arret}");
+            }
+            $visitedArrets[$arret] = true;
+
+            if (++$steps > $maxSteps) {
+                throw new \RuntimeException("Nombre maximal d'étapes dépassé lors de la reconstruction du chemin.");
+            }
+
+            // Vérifier si un previousArret existe
+            if (!isset($previousArrets[$arret])) {
+                throw new \RuntimeException("Erreur lors de la reconstruction : Pas de précédent pour l'arrêt {$arret}. Chemin incomplet.");
+            }
+
+            // Récupérer l'arrêt précédent
+            $previous = $previousArrets[$arret];
+
+            // Vérifier que le bus associé à cet arrêt est bien défini
+            if (!isset($busTaken[$arret])) {
+                throw new \RuntimeException("Erreur lors de la reconstruction : Pas de bus défini pour l'arrêt {$arret} vers {$previous}.");
+            }
+
+            $personne->setSignalDescente(Arrets::getArret($arret));
+
             $path[] = [
                 'busAPrendre' => $busTaken[$arret],
-                'arretMontee' => $previousArrets[$arret],
+                'arretMontee' => $previous,
                 'arretDescente' => $arret
             ];
-    
-            // Définir le signal de descente pour cet arrêt
-            $personne->setSignalDescente($arretTo);
-    
-            $arret = $previousArrets[$arret];
+
+            Message::log("Étape : Bus {$busTaken[$arret]->type} de {$previous} à {$arret}", Message::DEBUG_ALL);
+
+            // Mettre à jour l'arrêt en cours pour continuer la reconstruction
+            $arret = $previous;
         }
 
-        return array_reverse($path); // Retourne le chemin du départ vers l’arrivée
+        // Vérification finale pour s'assurer que le chemin est bien complet
+        if ($arret !== $arretFrom->nom) {
+            throw new \RuntimeException("Impossible de rejoindre l'arrêt de départ. Dernier arrêt atteint : {$arret}");
+        }
+
+        Message::log("Fin de la reconstruction du chemin", Message::DEBUG_DETAIL);
+        return array_reverse($path);
     }
 }

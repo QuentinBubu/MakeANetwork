@@ -2,8 +2,9 @@
 
 namespace App\Loaders;
 
-use App\Exceptions\RoutesException;
+use App\Log\Message;
 use App\Entities\Route;
+use App\Exceptions\RoutesException;
 
 class Routes
 {
@@ -12,7 +13,7 @@ class Routes
     public static function load($routes): void
     {
         foreach ($routes as $name => $data) {
-            echo "Construction de la route {$name}\n";
+            Message::log("Construction de la route {$name}", Message::DEBUG_ALL);
             $route = new Route($name, $data['distance']);
             self::$routes[$name] = $route;
         }

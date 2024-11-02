@@ -2,9 +2,10 @@
 
 namespace App\Loaders;
 
+use App\Log\Message;
 use App\Entities\Arret;
-use App\Exceptions\ArretsException;
 use App\Interfaces\StateInterface;
+use App\Exceptions\ArretsException;
 
 class Arrets
 {
@@ -13,7 +14,7 @@ class Arrets
     public static function load(array $arrets): void
     {
         foreach ($arrets as $name => $data) {
-            echo "Construction de l'arrêt {$name}\n";
+            Message::log("Construction de l'arrêt {$name}", Message::DEBUG_DETAIL);
             $arret = new Arret(nom: $name, genericRoutes: $data['routes']);
             self::$arrets[$name] = $arret;
         }

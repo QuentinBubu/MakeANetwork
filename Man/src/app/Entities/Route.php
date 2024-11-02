@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use App\Log\Message;
 use App\Loaders\Trajets;
 use App\Exceptions\RouteException;
 use App\Interfaces\StateInterface;
@@ -36,7 +37,7 @@ class Route implements StateInterface
 
     public function registerArret(Arret $arret): self
     {
-        echo "Ajout de l'arrêt {$arret->nom} à la route {$this->nom}\n";
+        Message::log("Ajout de l'arrêt {$arret->nom} à la route {$this->nom}", Message::DEBUG_ALL);
         if (count($this->arrets) == 2) {
             throw new RouteException('Un arrêt ne peut pas être ajouté à plus de deux routes');
         }
@@ -44,7 +45,7 @@ class Route implements StateInterface
         $this->arrets[] = $arret;
         $arret->registerRoute($this);
         if (count($this->arrets) == 2) {
-            echo "Ajout de la route {$this->nom} à la liste des trajets\n";
+            Message::log("Ajout de la route {$this->nom} à la liste des trajets", Message::DEBUG_ALL);
             Trajets::addTrajet($this);
         }
 
@@ -108,6 +109,11 @@ class Route implements StateInterface
                 $this->bus
             ),
         ];
+    }
+
+    public function hasArret(Arret $arret): bool
+    {
+        return in_array($arret, $this->arrets);
     }
 
     public function restore(array $state): void

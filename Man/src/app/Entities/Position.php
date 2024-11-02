@@ -15,14 +15,19 @@ abstract class Position implements TimeInterface
 
     public function tickTo(Parcours $parcours, Arret $arret, int $multiplicateur = 1): int
     {
-        $from = $parcours->currentArret;
+        $from = $parcours->getCurrentArretObj();
         $dist = 0;
 
-        while ($parcours->findNextArret($from) !== null && $parcours->getArretWithIndex($from) !== $arret) {
-            $next = $parcours->findNextArret($from);
-            $dist += Trajets::findTrajetWithArret($parcours->getArretWithIndex($from), $parcours->getArretWithIndex($next))->distance;
-            $from = $next;
+        $allNextArrets = $parcours->findAllNextArretsObj($parcours->currentArret);
+
+        /** @var Arret $row */
+        foreach ($allNextArrets as $row) {
+            $dist += Trajets::findTrajetWithArret($from, $row)->distance;
+            $from = $row;
         }
+
+        $dist += Trajets::findTrajetWithArret($from, $arret)->distance;
+
         return ($dist * $multiplicateur) - $this->tick;
     }
 

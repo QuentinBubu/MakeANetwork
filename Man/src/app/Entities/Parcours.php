@@ -2,8 +2,10 @@
 
 namespace App\Entities;
 
-use App\Interfaces\StateInterface;
+use App\Timer\Time;
+use App\Log\Message;
 use App\Loaders\Routes;
+use App\Interfaces\StateInterface;
 
 /**
  * @Entity
@@ -67,6 +69,8 @@ class Parcours implements StateInterface
         $this->nom = $nom;
         $this->arretsAFaire = $arretsAFaire;
         $this->trajets = $trajets;
+        $this->currentArret = 0;
+        $this->nextArret = 0;
     }
 
     /**
@@ -92,13 +96,26 @@ class Parcours implements StateInterface
         return $index == array_key_last($this->arretsAFaire) ? $this->arretsAFaire[0] : $this->arretsAFaire[$index + 1];
     }
 
-    public function findNextArret(?int $arret): ?int
+    public function findNextArret(?int $arret): int
     {
         if (is_null($arret)) {
             return 0;
         }
 
         return $arret == array_key_last($this->arretsAFaire) ? 0 : $arret + 1;
+    }
+
+    /**
+     * Retourne tous les arrêts suivants en bouclant jusqu'à l'arrêt donné
+     * @param int $arret
+     * @return Arret[]
+     */
+    public function findAllNextArretsObj(int $arret): array
+    {
+        return array_merge(
+            array_slice($this->arretsAFaire, $arret + 1),
+            array_slice($this->arretsAFaire, 0, $arret + 1)
+        );
     }
 
     /**
@@ -113,20 +130,15 @@ class Parcours implements StateInterface
      */
     public function arriveArret(Bus $bus): void
     {
-        // On fait un décallage
-        if (is_null($this->currentArret)) {
-            $this->currentArret = 0;
-            $this->previousArret = array_key_last($this->arretsAFaire);
-            $this->nextArret = $this->findNextArret($this->currentArret);
-        } else {
-            $this->previousArret = $this->currentArret;
+        Message::log("TIME : {$bus->tick} TIME GLOBAL : " . Time::getTick());
+        $this->previousArret = $this->currentArret;
+        if ($this->currentArret !== $this->nextArret) {
             $this->currentArret = $this->findNextArret($this->currentArret);
-            $this->nextArret = $this->findNextArret($this->currentArret);
         }
-
-        $bus->tick = 0;
-        echo "Le bus faisaint le parcours {$bus->getParcours()->nom} en provenance de l'arrêt {$this->getPreviousArretObj()->nom} est arrivé à l'arrêt {$this->getCurrentArretObj()->nom}\n";
+        $this->nextArret = $this->findNextArret($this->currentArret);
         $this->getCurrentArretObj()->arriveeBus($bus);
+        $bus->tick = 0;
+        Message::log("Le bus " . spl_object_id($bus) . " faisaint le parcours {$bus->getParcours()->nom} est arrivé à l'arrêt {$this->getCurrentArretObj()->nom}", Message::INFO);
     }
 
     public function getCurrentArretObj(): Arret
@@ -147,21 +159,6 @@ class Parcours implements StateInterface
     public function getArretWithIndex(int $index): Arret
     {
         return $this->arretsAFaire[$index];
-    }
-
-    public function findNextRoute(): Route
-    {
-        return Routes::getRouteStr($this->getCurrentArretObj()->nom, $this->getPreviousArretObj()->nom);
-    }
-
-    public function getRoutes(): array
-    {
-        return array_map(
-            function ($trajet) {
-                return $trajet->routes;
-            },
-            $this->trajets
-        );
     }
 
     /**
