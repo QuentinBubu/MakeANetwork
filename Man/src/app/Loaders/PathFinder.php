@@ -39,6 +39,7 @@ class PathFinder
             $currentArret = Arrets::getArret($currentArretNom);
             /** @var stdClass $voisin */
             foreach ($currentArret->getNeighbors() as $voisin) {
+                /** @var \App\Entities\Bus $bus */
                 foreach (Bus::$buses as $bus) {
                     if (!$bus->peutDesservir($currentArret, $voisin->arret)) {
                         Message::log("   -> Bus {$bus->type} parcours {$bus->getParcours()->nom} ne dessert pas {$voisin->arret->nom} depuis {$currentArretNom}", Message::DEBUG_ALL);
@@ -56,7 +57,6 @@ class PathFinder
                         $previousArrets[$voisin->arret->nom] = $currentArretNom;
                         $busTaken[$voisin->arret->nom] = $bus;
                         $queue->insert($voisin->arret->nom, -$newDistance);
-
                         Message::log("   -> Mise à jour réussie pour {$voisin->arret->nom} avec bus {$bus->type}. Nouvelle distance : {$newDistance}", Message::DEBUG_ALL);
                     } else {
                         Message::log("   -> Non mis à jour : distance existante plus courte ou boucle détectée.", Message::DEBUG_ALL);

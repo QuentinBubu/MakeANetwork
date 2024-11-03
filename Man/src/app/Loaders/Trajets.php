@@ -152,8 +152,8 @@ class Trajets
     {
         $data = [];
         /** @var Trajet $trajet */
-        foreach (self::$trajets as $trajet) {
-            $data[spl_object_id($trajet)] = $trajet->export();
+        foreach (self::$trajets as $key => $trajet) {
+            $data[$key] = $trajet->export();
         }
         return $data;
     }

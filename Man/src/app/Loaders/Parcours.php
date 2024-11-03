@@ -43,7 +43,7 @@ class Parcours
         $data = [];
         /** @var \App\Entities\Parcours $parcoursElement */
         foreach (self::$parcours as $parcoursElement) {
-            $data[spl_object_id($parcoursElement)] = $parcoursElement->export();
+            $data[$parcoursElement->nom] = $parcoursElement->export();
         }
         return $data;
     }

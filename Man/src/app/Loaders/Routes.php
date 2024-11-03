@@ -49,7 +49,7 @@ class Routes
         $data = [];
         /** @var Route $route */
         foreach (self::$routes as $route) {
-            $data[spl_object_id($route)] = $route->export();
+            $data[$route->nom] = $route->export();
         }
         return $data;
     }

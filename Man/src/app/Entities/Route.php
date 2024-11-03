@@ -51,11 +51,6 @@ class Route implements StateInterface
         return $this;
     }
 
-    public function calculDistanceAvecBus(Bus $bus): int
-    {
-        return $this->distance * $bus->vitesseDeplacement;
-    }
-
     public function getNextArret(Arret $arret): Arret
     {
         return array_values(

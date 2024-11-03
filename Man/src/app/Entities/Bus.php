@@ -224,12 +224,19 @@ class Bus extends Position implements TimeInterface, StateInterface
             'capacite' => $this->capacite,
             'vitesseChargement' => $this->vitesseChargement,
             'vitesseDeplacement' => $this->vitesseDeplacement,
+            'type' => $this->type,
             'parcours' => $this->parcours->nom,
             'personnes' => array_map(
                 function ($personne) {
                     return $personne->nom;
                 },
                 $this->personnes
+            ),
+            'personnesDescendu' => array_map(
+                function ($personne) {
+                    return $personne->nom;
+                },
+                $this->personnesDescendu
             ),
             'state' => $this->state->name,
             'timers' => array_map(

@@ -4,7 +4,6 @@ namespace App\Loaders;
 
 use App\Log\Message;
 use App\Entities\Arret;
-use App\Interfaces\StateInterface;
 use App\Exceptions\ArretsException;
 
 class Arrets
@@ -41,7 +40,7 @@ class Arrets
         $data = [];
         /** @var Arret $arret */
         foreach (self::$arrets as $arret) {
-            $data[spl_object_id($arret)] = $arret->export();
+            $data[$arret->nom] = $arret->export();
         }
         return $data;
     }

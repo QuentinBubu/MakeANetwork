@@ -79,7 +79,6 @@ class Arret implements TimeInterface, StateInterface
     {
         Message::log("Recherche des voisins de l'arrêt {$this->nom}", Message::DEBUG_ALL);
         $neighbors = [];
-        /** @var Route $route */
         foreach ($this->routes as $route) {
             foreach ($route->getArrets() as $neighbor) {
                 if ($neighbor !== $this) {
@@ -95,7 +94,6 @@ class Arret implements TimeInterface, StateInterface
      */
     public function mapRoutes(): void
     {
-        /** @var string $route */
         foreach ($this->genericRoutes as $route) {
             Message::log("Mapping de la route {$route} pour l'arrêt {$this->nom}", Message::DEBUG_DETAIL);
             $this->registerRoute(Routes::getRoute($route)->registerArret($this));
@@ -122,11 +120,11 @@ class Arret implements TimeInterface, StateInterface
     private function removePersonne(Personne $personne): void
     {
         Message::log("Suppression de la personne {$personne->nom} de la file d'attente de l'arrêt {$this->nom}", Message::INFO);
-    
+
         // Nouvelle file pour réinsérer les éléments
         $nouvelleFile = new SplPriorityQueue();
         $nouvelleFile->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
-    
+
         while (!$this->fileAttente->isEmpty()) {
             $element = $this->fileAttente->extract(); // Récupère un élément
 
@@ -163,50 +161,44 @@ class Arret implements TimeInterface, StateInterface
     {
         Message::log("Arrivée du bus " . spl_object_id($bus) . " à l'arrêt {$this->nom}", Message::INFO);
         $bus->setState(BusStateEnum::FLUX_VOYAGEURS);
-        $this->verifierSignauxDescente($bus);
-        $this->vehiculesEnAttente[] = $bus;
         $this->removeBusEnApproche($bus);
-
-        Message::log("Début de l'embarquement des passagers dans le bus " . spl_object_id($bus) . " à l'arrêt {$this->nom}", Message::INFO);
-
-        foreach (clone $this->fileAttente as $personne) {
-            /** @var Personne $personne */
-            $personne = $personne['data'];
-
-            if (!$bus->canTake($personne)) {
-                continue;
-            }
-
-            if (!$personne->canTake($bus, $this)) {
-                continue;
-            }
-
-            $bus->addPersonne($personne);
-            $this->removePersonne($personne);
-        }
-
-        $this->departBus($bus);
+        $this->vehiculesEnAttente[] = $bus;
     }
 
-    // Attention, tous les passagers descendent en même temps là alors que c'est 1 par tick
-    private function verifierSignauxDescente(Bus $bus)
+    public function obtenirProchainePersonnePourBus(Bus $bus): ?Personne
     {
-        Message::log("Vérification des signaux de descente du bus " . spl_object_id($this) . " à l'arrêt " . $this->nom);
-        /** @var Personne $passager */
-        foreach ($bus->getPersonnes() as $passager) {
-            if ($passager->veutDescendre($this)) {
-                // Le passager souhaite descendre à cet arrêt
-                $bus->descentePassager($passager);
-                Message::log("Le passager {$passager->nom} descend du bus " . spl_object_id($this) . " à l'arrêt " . $this->nom);
-                $passager->descendArret($this);
+        $fileTemporaire = new SplPriorityQueue();
+        $fileTemporaire->setExtractFlags(SplPriorityQueue::EXTR_BOTH);
+        $trouvee = null;
+
+        while (!$this->fileAttente->isEmpty()) {
+            $personne = $this->fileAttente->extract();
+            /** @var Personne $personneDt */
+            $personneDt = $personne['data'];
+            if ($bus->canTake($personneDt) && $personneDt->canTake($bus, $this) && $trouvee === null) {
+                $trouvee = $personneDt;
+            } else {
+                $fileTemporaire->insert($personneDt, $personne['priority']);
             }
         }
+
+        $this->fileAttente = $fileTemporaire;
+        return $trouvee;
+    }
+
+    public function estFileVidePourBus(Bus $bus): bool
+    {
+        foreach (clone $this->fileAttente as $personne) {
+            if ($personne['data']->canTake($bus, $this)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function getRouteTo(Arret $arret): Route
     {
         Message::log("Recherche de la route entre l'arrêt {$this->nom} et l'arrêt {$arret->nom}", Message::DEBUG_DETAIL);
-        /** @var Route $route */
         foreach ($this->routes as $route) {
             if ($route->hasArret($arret)) {
                 return $route;
@@ -220,19 +212,39 @@ class Arret implements TimeInterface, StateInterface
         Message::log("Départ du bus " . spl_object_id($bus) . " de l'arrêt {$this->nom}", Message::INFO);
         $bus->setState(BusStateEnum::DEPLACEMENT);
         $this->removeBusEnAttente(bus: $bus);
-        $bus->calculEtEnregistrementProchainPassage($this);
     }
 
     public function incrementTick(): void
     {
         Message::log("Tick de l'arrêt {$this->nom}", Message::DEBUG_DETAIL);
+
         foreach ($this->vehiculesEnAttente as $bus) {
-            if ($bus->isFull() || $this->fileAttente->isEmpty()) {
+            $this->debarquementProgressif($bus);
+
+            if (!$bus->isFull() && !$this->estFileVidePourBus($bus)) {
+                $personne = $this->obtenirProchainePersonnePourBus($bus);
+                if ($personne !== null) {
+                    $bus->addPersonne($personne);
+                    $this->removePersonne($personne);
+                    Message::log("Embarquement progressif: La personne {$personne->nom} monte dans le bus " . spl_object_id($bus) . " à l'arrêt {$this->nom} au tick : " . Time::getTick(), Message::INFO);
+                }
+            } else {
                 $this->departBus($bus);
             }
         }
     }
 
+    private function debarquementProgressif(Bus $bus): void
+    {
+        foreach ($bus->getPersonnes() as $passager) {
+            if ($passager->veutDescendre($this)) {
+                $bus->descentePassager($passager);
+                Message::log("Débarquement progressif: Le passager {$passager->nom} descend du bus " . spl_object_id($bus) . " à l'arrêt " . $this->nom, Message::INFO);
+                $passager->descendArret($this);
+                break;
+            }
+        }
+    }
     public function export(): array
     {
         return [

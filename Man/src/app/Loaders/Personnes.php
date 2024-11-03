@@ -34,7 +34,7 @@ class Personnes
         $data = [];
         /** @var Personne $personne */
         foreach (self::$personnes as $personne) {
-            $data[spl_object_id($personne)] = $personne->export();
+            $data[$personne->nom] = $personne->export();
         }
         return $data;
     }

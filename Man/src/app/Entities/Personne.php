@@ -20,6 +20,13 @@ use App\Interfaces\StateInterface;
 class Personne implements StateInterface
 {
     /**
+     * Nom de la personne
+     *
+     * @var string
+     */
+    public string $nom;
+
+    /**
      * Trajet aller de la personne
      *
      * @var PersonneObjectif
@@ -34,13 +41,6 @@ class Personne implements StateInterface
     public PersonneObjectif $retour;
 
     public TrajetEnCoursEnum $trajetEnCours;
-
-    /**
-     * Nom de la personne
-     *
-     * @var string
-     */
-    public string $nom;
 
     public array $trajetOptimise = [];
 
@@ -155,11 +155,14 @@ class Personne implements StateInterface
 
     public function export(): array
     {
+        // ATTENTION : trajet optimisé n'est pas encore exporté
         return [
             'nom' => $this->nom,
-            // 'trajetAller' => $this->trajetAller->nom,
-            // 'trajetRetour' => $this->trajetRetour->nom,
+            'aller' => $this->aller->export(),
+            'retour' => $this->retour->export(),
             'trajetEnCours' => $this->trajetEnCours->name,
+            'signalDescente' => array_map(fn($arret) => $arret->nom, $this->signalDescente),
+            // 'trajetOptimise' => $this->trajetOptimise,
         ];
     }
 
