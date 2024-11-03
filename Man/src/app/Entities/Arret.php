@@ -177,11 +177,6 @@ class Arret implements TimeInterface, StateInterface
                 continue;
             }
 
-            if ($bus->isFull()) {
-                Message::log("Le bus " . spl_object_id($bus) . " est plein, arrêt de l'embarquement", Message::INFO);
-                break;
-            }
-
             if (!$personne->canTake($bus, $this)) {
                 continue;
             }

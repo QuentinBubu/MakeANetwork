@@ -135,7 +135,7 @@ class Personne implements StateInterface
             Message::log("Personne {$this->nom} est en attente de la tick de départ {$this->getTrajetEnCours()->tickDepart} tick en cours : " . Time::getTick(), Message::INFO);
             return false;
         }
-
+        
         if (is_null($this->trajetOptimise) || empty($this->trajetOptimise)) {
             Message::log("Calcul du trajet optimisé pour la personne {$this->nom} à l'arrêt {$arret->nom}", Message::DEBUG_DETAIL);
             $this->trajetOptimise = $this->calculTrajet($arret, $this->getTrajetEnCours()->vers);
