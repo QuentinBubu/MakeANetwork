@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entities;
+namespace App\Loaders;
 
 use stdClass;
 use App\Loaders\Bus;
@@ -12,7 +12,7 @@ use App\Entities\Personne;
 
 class PathFinder
 {
-    public function findBestPath(Personne $personne, Arret $arretFrom, Arret $arretTo): array
+    public static function findBestPath(Personne $personne, Arret $arretFrom, Arret $arretTo): array
     {
         // Initialisation de Dijkstra
         $distances = array_fill_keys(array_keys(Arrets::$arrets), INF);
@@ -78,6 +78,7 @@ class PathFinder
         $path = [];
         $visitedArrets = [];
         $arret = $arretTo->nom;
+        $previousBus = null;
 
         Message::log("Reconstruction du chemin depuis l'arrêt destination : {$arretTo->nom}", Message::DEBUG_DETAIL);
         $maxSteps = count(Arrets::$arrets);
@@ -93,32 +94,30 @@ class PathFinder
                 throw new \RuntimeException("Nombre maximal d'étapes dépassé lors de la reconstruction du chemin.");
             }
 
-            // Vérifier si un previousArret existe
             if (!isset($previousArrets[$arret])) {
                 throw new \RuntimeException("Erreur lors de la reconstruction : Pas de précédent pour l'arrêt {$arret}. Chemin incomplet.");
             }
 
-            // Récupérer l'arrêt précédent
             $previous = $previousArrets[$arret];
+            $currentBus = $busTaken[$arret] ?? null;
 
-            // Vérifier que le bus associé à cet arrêt est bien défini
-            if (!isset($busTaken[$arret])) {
-                throw new \RuntimeException("Erreur lors de la reconstruction : Pas de bus défini pour l'arrêt {$arret} vers {$previous}.");
+            // Vérifiez si le bus est le même que pour l'arrêt précédent
+            if ($currentBus !== $previousBus && $currentBus !== null) {
+                $personne->setSignalDescente(Arrets::getArret($arret));
             }
 
-            $personne->setSignalDescente(Arrets::getArret($arret));
-
             $path[] = [
-                'busAPrendre' => $busTaken[$arret],
+                'busAPrendre' => $currentBus,
                 'arretMontee' => $previous,
                 'arretDescente' => $arret
             ];
 
-            Message::log("Étape : Bus {$busTaken[$arret]->type} de {$previous} à {$arret}", Message::DEBUG_ALL);
+            Message::log("Étape : Bus {$currentBus->type} de {$previous} à {$arret}", Message::DEBUG_ALL);
 
-            // Mettre à jour l'arrêt en cours pour continuer la reconstruction
+            $previousBus = $currentBus; // Mise à jour du bus précédent pour l'étape suivante
             $arret = $previous;
         }
+
 
         // Vérification finale pour s'assurer que le chemin est bien complet
         if ($arret !== $arretFrom->nom) {

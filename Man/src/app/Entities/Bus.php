@@ -57,7 +57,7 @@ class Bus extends Position implements TimeInterface, StateInterface
      *
      * @var Personne[]
      */
-    public array $personnesDescendu = [];
+    protected array $personnesDescendu = [];
 
     protected BusStateEnum $state = BusStateEnum::DEPLACEMENT;
 
@@ -116,6 +116,21 @@ class Bus extends Position implements TimeInterface, StateInterface
     public function getParcours(): Parcours
     {
         return $this->parcours;
+    }
+
+    public function canTake(Personne $personne): bool
+    {
+        if (in_array($personne, $this->personnesDescendu)) {
+            Message::log("Personne {$personne->nom} est déjà descendue du bus " . spl_object_id($this), Message::DEBUG_DETAIL);
+            return false;
+        }
+
+        if ($this->isFull()) {
+            Message::log("Bus " . spl_object_id($this) . " plein", Message::DEBUG_DETAIL);
+            return false;
+        }
+
+        return true;
     }
 
     /**

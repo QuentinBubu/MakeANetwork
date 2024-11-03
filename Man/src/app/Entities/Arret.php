@@ -105,7 +105,7 @@ class Arret implements TimeInterface, StateInterface
     /**
      * Enregistre une route dans sa mémoire
      */
-    public function registerRoute(Route $route): self
+    private function registerRoute(Route $route): self
     {
         Message::log("Enregistrement de la route {$route->nom} pour l'arrêt {$this->nom}", Message::DEBUG_DETAIL);
         $this->routes[] = $route;
@@ -119,7 +119,7 @@ class Arret implements TimeInterface, StateInterface
         $this->fileAttente->insert($personne, $priorite);
     }
 
-    public function removePersonne(Personne $personne): void
+    private function removePersonne(Personne $personne): void
     {
         Message::log("Suppression de la personne {$personne->nom} de la file d'attente de l'arrêt {$this->nom}", Message::INFO);
     
@@ -144,13 +144,13 @@ class Arret implements TimeInterface, StateInterface
         $this->vehiculesEnApproche[spl_object_id($bus)] = [$bus, $tick];
     }
 
-    public function removeBusEnApproche(Bus $bus): void
+    private function removeBusEnApproche(Bus $bus): void
     {
         Message::log("Bus " . spl_object_id($bus) . " n'est plus en approche de l'arrêt {$this->nom}", Message::INFO);
         unset($this->vehiculesEnApproche[spl_object_id($bus)]);
     }
 
-    public function removeBusEnAttente(Bus $bus): void
+    private function removeBusEnAttente(Bus $bus): void
     {
         Message::log("Bus " . spl_object_id($bus) . " n'est plus en attente de l'arrêt {$this->nom}", Message::INFO);
         $key = array_search($bus, $this->vehiculesEnAttente);
@@ -172,8 +172,9 @@ class Arret implements TimeInterface, StateInterface
         foreach (clone $this->fileAttente as $personne) {
             /** @var Personne $personne */
             $personne = $personne['data'];
-            if (Time::getTick() >= 9720 && str_starts_with($personne->nom, 'Charles')) {
-                echo '';
+
+            if (!$bus->canTake($personne)) {
+                continue;
             }
 
             if ($bus->isFull()) {
@@ -181,58 +182,19 @@ class Arret implements TimeInterface, StateInterface
                 break;
             }
 
-            if (in_array($personne, $bus->personnesDescendu)) {
-                Message::log("Personne {$personne->nom} est déjà descendue du bus " . spl_object_id($bus), Message::DEBUG_DETAIL);
+            if (!$personne->canTake($bus, $this)) {
                 continue;
             }
 
-            if ($personne->getTrajetEnCours()->tickDepart > Time::getTick()) {
-                Message::log("Personne {$personne->nom} est en attente de la tick de départ {$personne->getTrajetEnCours()->tickDepart} tick en cours : " . Time::getTick(), Message::INFO);
-                continue;
-            }
-
-            // Récupère le trajet en cours de la personne
-            $trajetEnCours = $personne->getTrajetEnCours();
-
-            // Détermine le prochain arrêt du trajet
-            // $prochainArret = $trajetEnCours->getProchainArret($this);
-
-            // Si un prochain arrêt est déterminé
-            // if ($prochainArret) {
-            // Calcule le trajet optimisé de l'arrêt actuel vers le prochain arrêt
-            Message::log("Calcul du trajet optimisé pour la personne {$personne->nom} à l'arrêt {$this->nom}", Message::DEBUG_DETAIL);
-            $trajetOptimise = $personne->trajetOptimise;
-            if (is_null($trajetOptimise) || empty($trajetOptimise)) {
-                $personne->trajetOptimise = $personne->calculTrajet($this, $trajetEnCours->vers);
-            }
-            Message::log("Trajet optimisé pour la personne {$personne->nom} à l'arrêt {$this->nom} : " . json_encode($personne->trajetOptimise), Message::DEBUG_DETAIL);
-
-            // Vérifie que le trajet optimisé est valide avant de l’enregistrer
-            if (!empty($trajetOptimise)) {
-                // Enregistre le trajet optimisé dans l'attribut correspondant de la personne
-                
-                if ($trajetOptimise[0]['busAPrendre'] !== $bus) {
-                    continue;
-                }
-
-                /** @var Bus $bus */
-                $bus = $trajetOptimise[0]['busAPrendre'];
-                $bus->addPersonne($personne);
-
-                $this->removePersonne($personne);
-            }
-
-            // if ($key === array_key_last($this->fileAttente)) {
-            //     $this->departBus($bus);
-            // }
-            // }
+            $bus->addPersonne($personne);
+            $this->removePersonne($personne);
         }
 
         $this->departBus($bus);
     }
 
     // Attention, tous les passagers descendent en même temps là alors que c'est 1 par tick
-    public function verifierSignauxDescente(Bus $bus)
+    private function verifierSignauxDescente(Bus $bus)
     {
         Message::log("Vérification des signaux de descente du bus " . spl_object_id($this) . " à l'arrêt " . $this->nom);
         /** @var Personne $passager */

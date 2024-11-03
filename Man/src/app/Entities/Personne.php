@@ -4,11 +4,13 @@ namespace App\Entities;
 
 use App\Timer\Time;
 use App\Log\Message;
-use App\Loaders\Personnes;
-use App\Entities\PathFinder;
-use App\Enums\TrajetEnCoursEnum;
-use App\Interfaces\StateInterface;
 use App\State\State;
+use App\Entities\Arret;
+use App\Loaders\Personnes;
+use App\Loaders\PathFinder;
+use App\Enums\TrajetEnCoursEnum;
+use App\Entities\PersonneObjectif;
+use App\Interfaces\StateInterface;
 
 /**
  * @Entity
@@ -85,10 +87,8 @@ class Personne implements StateInterface
      */
     public function calculTrajet(Arret $arretFrom, Arret $arretTo): array
     {
-        $pathFinder = new PathFinder();
-        
         // Utilisation de PathFinder pour obtenir le trajet optimal
-        $meilleurTrajet = $pathFinder->findBestPath($this, $arretFrom, $arretTo);
+        $meilleurTrajet = PathFinder::findBestPath($this, $arretFrom, $arretTo);
 
         // Parcours de chaque étape et affichage du trajet
         foreach ($meilleurTrajet as $etape => $info) {
@@ -130,7 +130,28 @@ class Personne implements StateInterface
         );
     }
 
+    public function canTake(Bus $bus, Arret $arret): bool {
+        if ($this->getTrajetEnCours()->tickDepart > Time::getTick()) {
+            Message::log("Personne {$this->nom} est en attente de la tick de départ {$this->getTrajetEnCours()->tickDepart} tick en cours : " . Time::getTick(), Message::INFO);
+            return false;
+        }
 
+        if (is_null($this->trajetOptimise) || empty($this->trajetOptimise)) {
+            Message::log("Calcul du trajet optimisé pour la personne {$this->nom} à l'arrêt {$arret->nom}", Message::DEBUG_DETAIL);
+            $this->trajetOptimise = $this->calculTrajet($arret, $this->getTrajetEnCours()->vers);
+            Message::log("Trajet optimisé pour la personne {$this->nom} à l'arrêt {$this->nom} : " . json_encode($this->trajetOptimise), Message::DEBUG_DETAIL);
+        }
+
+        if (empty($this->trajetOptimise)) {
+            return false;
+        }
+
+        if ($this->trajetOptimise[0]['busAPrendre'] !== $bus) {
+            return false;
+        }
+
+        return true;
+    }
 
     public function export(): array
     {
