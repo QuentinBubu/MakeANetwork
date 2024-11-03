@@ -1,15 +1,20 @@
 <?php
 
+use App\Man;
 use Dotenv\Dotenv;
+use App\Timer\Time;
 use App\Loaders\Bus;
+use App\Log\Message;
 use App\Loaders\Arrets;
 use App\Loaders\Routes;
 use App\Loaders\Trajets;
 use App\Loaders\Parcours;
 use App\Loaders\Personnes;
-use App\Log\Message;
-use App\State\State;
-use App\Timer\Time;
+use WebServer\SocketServer;
+use Ratchet\Http\HttpServer;
+use Ratchet\Server\IoServer;
+use React\EventLoop\Factory;
+use Ratchet\WebSocket\WsServer;
 use Dotenv\Repository\RepositoryBuilder;
 
 require_once 'vendor/autoload.php';
@@ -19,71 +24,27 @@ $dotenv = Dotenv::create($repository, './');
 $dotenv->load();
 $dotenv->required(['UNIVERS_START', 'UNIVERS_END']);
 
-Message::log('----- DEBUT -----');
-
-$arretsJson = json_decode(json: file_get_contents(filename: 'data/arrets.json'), associative: true);
-$routesJson = json_decode(json: file_get_contents(filename: 'data/routes.json'), associative: true);
-$parcoursJson = json_decode(json: file_get_contents(filename: 'data/parcours.json'), associative: true);
-$busJson = json_decode(json: file_get_contents(filename: 'data/bus.json'), associative: true);
-
-Message::log('Chargement des arrêts');
-Arrets::load(arrets: $arretsJson);
-
-Message::log('Chargement des routes');
-Routes::load(routes: $routesJson);
-
-Message::log('Mapping des routes');
-Arrets::map();
-
-Message::log('Chargement des parcours');
-Parcours::load(parcours: $parcoursJson);
-
-// Vérification des routes
-
-Trajets::findTrajet(depart: 'A', arrivee: 'C');
-Trajets::findTrajet(depart: 'B', arrivee: 'C');
-
-$busList = [
-    [
-        'type' => 'double',
-        'parcours' => 'p1',
-    ],
-    [
-        'type' => 'double',
-        'parcours' => 'p2',
-    ],
-    [
-        'type' => 'double',
-        'parcours' => 'p3',
-    ],
-    [
-        'type' => 'fast',
-        'parcours' => 'p4',
-    ],
-];
-
-Message::log('Chargement des bus');
-Bus::load(bus: $busList, config: $busJson);
-
-Message::log('Démarrage des parcours / bus');
-/** @var App\Entities\Bus $bus */
-// foreach (Bus::$buses as $bus) {
-//     $bus->demarrerParcours();
-// }
-
-Message::log('Chargement des personnes');
 $personnesList = [];
 loadPersonnes(personnesList: $personnesList);
-Personnes::load(personnesList: $personnesList);
 
-foreach (Bus::$buses as $bus) {
-    Message::log("Bus : " . spl_object_id($bus) . " affecté au parcours " . $bus->getParcours()->nom);
-}
+$man = new Man(__DIR__ . '/data');
+$man->setPersonnes($personnesList)
+    ->setStates([
+        ['class' => Arrets::class, 'method' => 'export', 'name' => 'arrets'],
+        ['class' => Bus::class, 'method' => 'export', 'name' => 'bus'],
+        ['class' => Parcours::class, 'method' => 'export', 'name' => 'parcours'],
+        ['class' => Personnes::class, 'method' => 'export', 'name' => 'personnes'],
+        ['class' => Routes::class, 'method' => 'export', 'name' => 'routes'],
+        ['class' => Trajets::class, 'method' => 'export', 'name' => 'trajets'],
+        ['class' => Time::class, 'method' => 'export', 'name' => 'time'],
+    ])
+    ->setMessageLevel(Message::INFO)
+    ->build();
 
-
-Message::log('------ FIN ------');
-
-function loadPersonnes(array &$personnesList) {
+$ss = new SocketServer($man);
+$ss->start(8080);
+function loadPersonnes(array &$personnesList)
+{
     for ($i = 0; $i < 6; $i++) {
         $personnesList[] = [
             'nom' => "Albert{$i}",
@@ -99,7 +60,7 @@ function loadPersonnes(array &$personnesList) {
             ]
         ];
     }
-    
+
     for ($i = 0; $i < 12; $i++) {
         $personnesList[] = [
             'nom' => "Bob{$i}",
@@ -114,7 +75,7 @@ function loadPersonnes(array &$personnesList) {
                 'temps' => 500,
             ]
         ];
-    
+
         $personnesList[] = [
             'nom' => "Charles{$i}",
             'aller' => [
@@ -128,7 +89,7 @@ function loadPersonnes(array &$personnesList) {
                 'temps' => 500,
             ]
         ];
-    
+
         $personnesList[] = [
             'nom' => "Damien{$i}",
             'aller' => [
@@ -143,7 +104,7 @@ function loadPersonnes(array &$personnesList) {
             ]
         ];
     }
-    
+
     for ($i = 0; $i < 45; $i++) {
         $personnesList[] = [
             'nom' => "Edouard{$i}",
@@ -158,68 +119,5 @@ function loadPersonnes(array &$personnesList) {
                 'temps' => 300,
             ]
         ];
-    }
-}
-
-// Enregistrement des données
-State::registerFunction(Arrets::class, 'export', 'arrets');
-State::registerFunction(Bus::class, 'export', 'bus');
-// State::registerFunction(Parcours::class, 'export', 'parcours');
-State::registerFunction(Personnes::class, 'export', 'personnes');
-// State::registerFunction(Routes::class, 'export', 'routes');
-// State::registerFunction(Trajets::class, 'export', 'trajets');
-State::registerFunction(Time::class, 'export', 'time');
-
-// Message::log(State::exportData());
-
-while (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Personnes::$personnes) > 0) {
-    Time::run();
-    Time::incrementTick();
-
-    checkUnicitePersonne();
-
-    // Message::log(State::exportData());
-    if (Time::getTick() % 100 === 0) {
-        Message::log('GLOBAL TICK ' . Time::getTick(), Message::INFO);
-        Message::log(State::exportData(), Message::INFO);
-    }
-}
-
-foreach (Bus::$buses as $bus) {
-    echo '';
-}
-
-Message::log('------ FIN ------', Message::INFO);
-Message::log(State::exportData(), Message::INFO);
-
-function checkUnicitePersonne() {
-    $personnes = Personnes::$personnes;
-    $personnesFind = [];
-
-    foreach (Arrets::$arrets as $arret) {
-        foreach (clone $arret->fileAttente as $personne) {
-            $personnesFind[] = $personne['data'];
-        }
-    }
-
-    foreach (Bus::$buses as $bus) {
-        foreach ($bus->getPersonnes() as $personne) {
-            $personnesFind[] = $personne;
-        }
-    }
-
-    foreach ($personnes as $personne) {
-        $ind = array_search($personne, $personnesFind);
-        if ($ind !== false) {
-            unset($personnesFind[$ind]);
-        } else {
-            Message::log(State::exportData(), Message::INFO);
-            throw new Exception("Personne non trouvée : " . $personne->nom);
-        }
-    }
-
-    if (!empty($personnesFind)) {
-        Message::log(State::exportData(), Message::INFO);
-        throw new Exception('Personne en trop :' . implode(',', array_map(fn($personne) => $personne->nom, $personnesFind)));
     }
 }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+
+<h1>WebSocket Client</h1>
+<button id="pauseBtn">Pause</button>
+<button id="resumeBtn">Resume</button>
+
+<div id="messages"></div>
+
+<script>
+    const host = 'ws://localhost:8080';
+    const messagesDiv = document.getElementById('messages');
+
+    // Crée une nouvelle connexion WebSocket
+    const socket = new WebSocket(host);
+
+    // Événement déclenché lorsque la connexion est ouverte
+    socket.addEventListener('open', () => {
+        console.log('Connected to the server');
+        appendMessage('Connected to the server');
+    });
+
+    // Événement déclenché lorsque des messages sont reçus
+    socket.addEventListener('message', (event) => {
+        console.log('Message from server: ', event.data);
+        appendMessage('Message from server: ' + event.data);
+    });
+
+    // Événement déclenché en cas d'erreur
+    socket.addEventListener('error', (error) => {
+        console.error('WebSocket error: ', error);
+        appendMessage('WebSocket error: ' + error.message);
+    });
+
+    // Événement déclenché lorsque la connexion est fermée
+    socket.addEventListener('close', () => {
+        console.log('Disconnected from the server');
+        appendMessage('Disconnected from the server');
+    });
+
+    // Envoi de la commande "pause" lorsque le bouton Pause est cliqué
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+        socket.send('pause');
+        appendMessage('Sent: pause');
+    });
+
+    // Envoi de la commande "resume" lorsque le bouton Resume est cliqué
+    document.getElementById('resumeBtn').addEventListener('click', () => {
+        socket.send('resume');
+        appendMessage('Sent: resume');
+    });
+
+    // Fonction pour ajouter un message à la zone de messages
+    function appendMessage(message) {
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight; // Faire défiler vers le bas
+    }
+</script>
+
+</body>
+</html>

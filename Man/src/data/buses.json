@@ -1,0 +1,18 @@
+[
+    {
+        "type": "double",
+        "parcours": "p1"
+    },
+    {
+        "type": "double",
+        "parcours": "p2"
+    },
+    {
+        "type": "double",
+        "parcours": "p3"
+    },
+    {
+        "type": "fast",
+        "parcours": "p4"
+    }
+]

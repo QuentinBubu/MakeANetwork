@@ -31,4 +31,9 @@ class Message
 
         echo $message . PHP_EOL;
     }
+
+    public static function setLevel(int $level): void
+    {
+        self::$logLevel = $level;
+    }
 }
