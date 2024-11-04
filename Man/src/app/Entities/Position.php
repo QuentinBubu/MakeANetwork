@@ -15,18 +15,36 @@ abstract class Position implements TimeInterface
 
     public function tickTo(Parcours $parcours, Arret $arret, int $multiplicateur = 1): int
     {
-        $from = $parcours->getCurrentArretObj();
+        $from = $parcours->currentArret;
         $dist = 0;
 
-        $allNextArrets = $parcours->findAllNextArretsObj($parcours->currentArret);
-
-        /** @var Arret $row */
-        foreach ($allNextArrets as $row) {
-            $dist += Trajets::findTrajetWithArret($from, $row)->distance;
-            $from = $row;
+        /** @var Arret $arret */
+        while ($parcours->getArretWithIndex($from) !== $arret) {
+            $nextArret = $parcours->findNextArret($from);
+            $dist += Trajets::findTrajetWithArret(
+                depart: $parcours->getArretWithIndex($from),
+                arrivee: $parcours->getArretWithIndex($nextArret)
+            )->distance;
+            $from = $nextArret;
         }
 
-        $dist += Trajets::findTrajetWithArret($from, $arret)->distance;
+        return ($dist * $multiplicateur) - $this->tick;
+    }
+
+    public function tickToNextComming(Parcours $parcours, int $multiplicateur = 1): int
+    {
+        $from = $parcours->currentArret;
+        $dist = 0;
+
+        /** @var Arret $arret */
+        do {
+            $nextArret = $parcours->findNextArret($from);
+            $dist += Trajets::findTrajetWithArret(
+                depart: $parcours->getArretWithIndex($from),
+                arrivee: $parcours->getArretWithIndex($nextArret)
+            )->distance;
+            $from = $nextArret;
+        } while ($parcours->getArretWithIndex($nextArret) !== $parcours->getArretWithIndex($parcours->currentArret));
 
         return ($dist * $multiplicateur) - $this->tick;
     }

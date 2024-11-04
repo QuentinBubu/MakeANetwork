@@ -113,6 +113,7 @@ class Arret implements TimeInterface, StateInterface
     public function addPersonne(Personne $personne): void
     {
         Message::log("Arrivée de la personne {$personne->nom} à l'arrêt {$this->nom} au tick " . Time::getTick(), Message::INFO);
+        // Priorité: -temps, nom, utilisation du - pour avoir un ordre 1er arrivé, 1er servi
         $priorite = [-Time::getTick(), $personne->nom];
         $this->fileAttente->insert($personne, $priorite);
     }
@@ -146,6 +147,7 @@ class Arret implements TimeInterface, StateInterface
     {
         Message::log("Bus " . spl_object_id($bus) . " n'est plus en approche de l'arrêt {$this->nom}", Message::INFO);
         unset($this->vehiculesEnApproche[spl_object_id($bus)]);
+        $bus->removeTimer($this);
     }
 
     private function removeBusEnAttente(Bus $bus): void
@@ -189,7 +191,7 @@ class Arret implements TimeInterface, StateInterface
     public function estFileVidePourBus(Bus $bus): bool
     {
         foreach (clone $this->fileAttente as $personne) {
-            if ($personne['data']->canTake($bus, $this)) {
+            if ($bus->canTake($personne['data']) && $personne['data']->canTake($bus, $this)) {
                 return false;
             }
         }
@@ -212,12 +214,12 @@ class Arret implements TimeInterface, StateInterface
         Message::log("Départ du bus " . spl_object_id($bus) . " de l'arrêt {$this->nom}", Message::INFO);
         $bus->setState(BusStateEnum::DEPLACEMENT);
         $this->removeBusEnAttente(bus: $bus);
+        $bus->calculEtEnregistrementProchainPassage($this);
     }
 
     public function incrementTick(): void
     {
         Message::log("Tick de l'arrêt {$this->nom}", Message::DEBUG_DETAIL);
-
         foreach ($this->vehiculesEnAttente as $bus) {
             $this->debarquementProgressif($bus);
 
@@ -259,7 +261,7 @@ class Arret implements TimeInterface, StateInterface
                 fn($personne) => [$personne['data']->nom, $personne['priority']],
                 iterator_to_array(clone $this->fileAttente)
             ),
-            'vehiculesEnApproche' => array_map(fn($item) => spl_object_id($item[0]), $this->vehiculesEnApproche),
+            'vehiculesEnApproche' => array_map(fn($item) => $item[1]->getRemainingTicks(), $this->vehiculesEnApproche),
             'vehiculesEnAttente' => array_map(fn($bus) => spl_object_id($bus), $this->vehiculesEnAttente),
         ];
     }

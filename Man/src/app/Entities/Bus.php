@@ -68,6 +68,8 @@ class Bus extends Position implements TimeInterface, StateInterface
      */
     protected array $timers = [];
 
+    private int $previousActionTime = 0;
+
     /**
      * Constructeur
      *
@@ -108,6 +110,12 @@ class Bus extends Position implements TimeInterface, StateInterface
         $this->timers[spl_object_id($arret)] = $timer;
     }
 
+    public function removeTimer(Arret $arret): void
+    {
+        Message::log("Suppression du timer pour le bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom);
+        unset($this->timers[spl_object_id($arret)]);
+    }
+
     /**
      * Retourne le parcours du bus
      *
@@ -120,6 +128,11 @@ class Bus extends Position implements TimeInterface, StateInterface
 
     public function canTake(Personne $personne): bool
     {
+        if ($this->previousActionTime === Time::getTick()) {
+            Message::log("Le bus " . spl_object_id($this) . " a déjà effectué une action dans ce tick", Message::DEBUG_DETAIL);
+            return false;
+        }
+
         if (in_array($personne, $this->personnesDescendu)) {
             Message::log("Personne {$personne->nom} est déjà descendue du bus " . spl_object_id($this), Message::DEBUG_DETAIL);
             return false;
@@ -163,6 +176,7 @@ class Bus extends Position implements TimeInterface, StateInterface
     {
         Message::log("Ajout de la personne {$personne->nom} dans le bus " . spl_object_id($this));
         $this->personnes[] = $personne;
+        $this->previousActionTime = Time::getTick();
     }
 
     public function descentePassager(Personne $personne): void
@@ -194,6 +208,15 @@ class Bus extends Position implements TimeInterface, StateInterface
 
     public function incrementTick(): void
     {
+        // gérer ici les timers ? FLUX => +1 pour chaque, DEPL => -1 pour chaque
+
+        if ($this->state === BusStateEnum::FLUX_VOYAGEURS) {
+            /** @var Timer $timer */
+            foreach ($this->timers as $timer) {
+                $timer->incrementTicks();
+            }
+        }
+
         if (
             $this->state === BusStateEnum::DEPLACEMENT
             && $this->tick % $this->vitesseDeplacement === 0
@@ -205,14 +228,18 @@ class Bus extends Position implements TimeInterface, StateInterface
             $this->parcours->arriveArret($this);
         }
 
-        $this->tick += 1;
+        // Pour pas qu'il fasse 2 actions en 1 tick
+        if ($this->state === BusStateEnum::DEPLACEMENT) {
+            $this->tick += 1;
+            $this->previousActionTime = Time::getTick();
+        }
     }
 
     public function calculEtEnregistrementProchainPassage(Arret $arret): void
     {
         // Pb (cf debug timer 2 arrets A) ?
         Message::log("Calcul du prochain passage du bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom, Message::DEBUG_DETAIL);
-        $timer = new Timer($this->tickTo($this->parcours, $arret, $this->vitesseDeplacement));
+        $timer = new Timer($this->tickToNextComming($this->parcours, $this->vitesseDeplacement));
         Message::log("Enregistrement du prochain passage du bus " . spl_object_id($this) . " à l'arrêt " . $arret->nom . " dans " . $timer->getRemainingTicks() . " ticks", Message::INFO);
         $arret->addBusEnApproche($this, $timer);
         $this->addTimer($arret, $timer);
@@ -246,6 +273,7 @@ class Bus extends Position implements TimeInterface, StateInterface
                 $this->timers
             ),
             'tick' => $this->tick,
+            'tick'
         ];
     }
 

@@ -120,7 +120,6 @@ class Trajets
 
                         Message::log("  Mise à jour : {$neighbor->nom}, Nouvelle distance totale : $alt", Message::DEBUG_ALL);
                     }
-                    break;  // On a trouvé la bonne route, pas besoin de vérifier les autres
                 }
             }
         }

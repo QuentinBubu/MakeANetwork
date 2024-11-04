@@ -12,6 +12,7 @@ class Message
         "Recherche de la route entre l'arrêt",
     ];
 
+    public const DATA = -1;
     public const NONE = 0;
     public const INFO = 1;
     public const DEBUG_DETAIL = 2;

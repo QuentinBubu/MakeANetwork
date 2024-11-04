@@ -112,6 +112,7 @@ class Man
             }
             Time::run();
             Time::incrementTick();
+            Message::log(State::exportData(), Message::DATA);
             // $this->lastState = State::exportData(); Pas besoin de sauvegarder l'état pour debug
             $this->checkUnicitePersonne();
         }

@@ -47,7 +47,7 @@ class PathFinder
                     }
 
                     $route = $currentArret->getRouteTo($voisin->arret);
-                    $time = $route->distance * $bus->vitesseDeplacement;
+                    $time = $route->distance * $bus->vitesseDeplacement; // + $currentArret->nbPersonnesPourBus($bus);
                     $newDistance = $distances[$currentArretNom] + $time;
 
                     Message::log("   -> Tentative de mise à jour pour voisin : {$voisin->arret->nom} avec bus {$bus->type} (Distance : {$newDistance})", Message::DEBUG_ALL);

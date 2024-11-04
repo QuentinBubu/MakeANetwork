@@ -35,14 +35,16 @@ $man->setPersonnes($personnesList)
     ->setStates([
         ['class' => Arrets::class, 'method' => 'export', 'name' => 'arrets'],
         ['class' => Bus::class, 'method' => 'export', 'name' => 'bus'],
-        ['class' => Parcours::class, 'method' => 'export', 'name' => 'parcours'],
-        ['class' => Personnes::class, 'method' => 'export', 'name' => 'personnes'],
-        ['class' => Routes::class, 'method' => 'export', 'name' => 'routes'],
-        ['class' => Trajets::class, 'method' => 'export', 'name' => 'trajets'],
+        // ['class' => Parcours::class, 'method' => 'export', 'name' => 'parcours'],
+        // ['class' => Personnes::class, 'method' => 'export', 'name' => 'personnes'],
+        // ['class' => Routes::class, 'method' => 'export', 'name' => 'routes'],
+        // ['class' => Trajets::class, 'method' => 'export', 'name' => 'trajets'],
         ['class' => Time::class, 'method' => 'export', 'name' => 'time'],
     ])
-    ->setMessageLevel(Message::INFO)
+    ->setMessageLevel(Message::DATA)
     ->build();
+
+var_dump(Trajets::findTrajet('B', 'E'));
 
 $man->runAll();
 Message::log(State::exportData(), Message::INFO);
