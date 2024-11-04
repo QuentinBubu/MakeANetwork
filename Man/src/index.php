@@ -10,11 +10,8 @@ use App\Loaders\Routes;
 use App\Loaders\Trajets;
 use App\Loaders\Parcours;
 use App\Loaders\Personnes;
+use App\State\State;
 use WebServer\SocketServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\Server\IoServer;
-use React\EventLoop\Factory;
-use Ratchet\WebSocket\WsServer;
 use Dotenv\Repository\RepositoryBuilder;
 
 require_once 'vendor/autoload.php';
@@ -25,7 +22,13 @@ $dotenv->load();
 $dotenv->required(['UNIVERS_START', 'UNIVERS_END']);
 
 $personnesList = [];
-loadPersonnes(personnesList: $personnesList);
+loadPersonnes(personnesList: $personnesList, nbPersonnes: [
+    'Albert' => 3,
+    'Bob' => 2,
+    'Charles' => 3,
+    'Damien' => 1,
+    'Edouard' => 1,
+]);
 
 $man = new Man(__DIR__ . '/data');
 $man->setPersonnes($personnesList)
@@ -41,11 +44,19 @@ $man->setPersonnes($personnesList)
     ->setMessageLevel(Message::INFO)
     ->build();
 
-$ss = new SocketServer($man);
-$ss->start(8080);
-function loadPersonnes(array &$personnesList)
+$man->runAll();
+Message::log(State::exportData(), Message::INFO);
+// $ss = new SocketServer($man);
+// $ss->start(8080);
+function loadPersonnes(array &$personnesList, array $nbPersonnes = [
+    'Albert' => 6,
+    'Bob' => 12,
+    'Charles' => 12,
+    'Damien' => 12,
+    'Edouard' => 45,
+])
 {
-    for ($i = 0; $i < 6; $i++) {
+    for ($i = 0; $i < $nbPersonnes['Albert']; $i++) {
         $personnesList[] = [
             'nom' => "Albert{$i}",
             'aller' => [
@@ -61,7 +72,7 @@ function loadPersonnes(array &$personnesList)
         ];
     }
 
-    for ($i = 0; $i < 12; $i++) {
+    for ($i = 0; $i < $nbPersonnes['Bob']; $i++) {
         $personnesList[] = [
             'nom' => "Bob{$i}",
             'aller' => [
@@ -75,7 +86,9 @@ function loadPersonnes(array &$personnesList)
                 'temps' => 500,
             ]
         ];
+    }
 
+    for ($i = 0; $i < $nbPersonnes['Charles']; $i++) {
         $personnesList[] = [
             'nom' => "Charles{$i}",
             'aller' => [
@@ -89,7 +102,9 @@ function loadPersonnes(array &$personnesList)
                 'temps' => 500,
             ]
         ];
+    }
 
+    for ($i = 0; $i < $nbPersonnes['Damien']; $i++) {
         $personnesList[] = [
             'nom' => "Damien{$i}",
             'aller' => [
@@ -105,7 +120,7 @@ function loadPersonnes(array &$personnesList)
         ];
     }
 
-    for ($i = 0; $i < 45; $i++) {
+    for ($i = 0; $i < $nbPersonnes['Edouard']; $i++) {
         $personnesList[] = [
             'nom' => "Edouard{$i}",
             'aller' => [
