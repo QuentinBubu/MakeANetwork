@@ -19,8 +19,6 @@ class Man
 
     private array $json = [];
 
-    private array $personnes = [];
-
     public static $requiredFiles = ['bus', 'arrets', 'routes', 'parcours', 'buses', 'peoples'];
 
     private string $lastState = '';
@@ -53,10 +51,14 @@ class Man
         return $this;
     }
 
-    public function build(): self
+    public function build(?array $data = null): self
     {
         Message::log('----- DEBUT -----', Message::INFO);
-        $this->loadJson();
+        if (is_null($data)) {
+            $this->loadJson();
+        } else {
+            $this->json = $data;
+        }
         $this->loadAsObject();
         Message::log('----- FIN -----', Message::INFO);
         $this->state = ManEnum::WAITING_START;

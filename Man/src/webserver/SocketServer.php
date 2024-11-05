@@ -1,4 +1,5 @@
 <?php
+
 namespace WebServer;
 
 use App\Enums\ManEnum;
@@ -18,7 +19,10 @@ class SocketServer implements MessageComponentInterface
     private float $interval = 0.1;
     private $server = null;
 
-    public function __construct(ManApp $man) {
+    private $loop = null;
+
+    public function __construct(ManApp $man)
+    {
         $this->clients = new \SplObjectStorage;
         $this->man = $man;
     }
@@ -29,7 +33,7 @@ class SocketServer implements MessageComponentInterface
 
         // Créer le socket server en spécifiant seulement le port et le contexte d'options
         $socket = new ReactSocketServer("0.0.0.0:$port", [], $loop);
-        
+
         // Créer le serveur WebSocket et HttpServer
         $server = new IoServer(
             new HttpServer(new WsServer($this)),
@@ -37,16 +41,9 @@ class SocketServer implements MessageComponentInterface
             $loop
         );
 
-        // Ajouter notre timer périodique
-        $loop->addPeriodicTimer($this->interval, function() {
-            echo "Running periodically...\n"; // Debug
-            $this->runPeriodiquement();
-        });
+        $this->loop = $loop;
 
         echo "Server running at 0.0.0.0:$port\n";
-        
-        // Démarrer le loop
-        $loop->run();
     }
 
     public function onOpen(ConnectionInterface $conn)
@@ -62,12 +59,12 @@ class SocketServer implements MessageComponentInterface
     {
         $conn->send(json_encode([
             'configuring' => [
-                'arrets' => file_get_contents(__DIR__ . './../data/arrets.json'),
-                'bus' => file_get_contents(__DIR__ . './../data/bus.json'),
-                'routes' => file_get_contents(__DIR__ . './../data/routes.json'),
-                'parcours' => file_get_contents(__DIR__ . './../data/parcours.json'),
-                'buses' => file_get_contents(__DIR__ . './../data/buses.json'),
-                'peoples' => file_get_contents(__DIR__ . './../data/peoples.json')
+                'arrets' => json_encode(json_decode(file_get_contents(__DIR__ . '/../data/arrets.json'))),
+                'bus' => json_encode(json_decode(file_get_contents(__DIR__ . '/../data/bus.json'))),
+                'routes' => json_encode(json_decode(file_get_contents(__DIR__ . '/../data/routes.json'))),
+                'parcours' => json_encode(json_decode(file_get_contents(__DIR__ . '/../data/parcours.json'))),
+                'buses' => json_encode(json_decode(file_get_contents(__DIR__ . '/../data/buses.json'))),
+                'peoples' => json_encode(json_decode(file_get_contents(__DIR__ . '/../data/peoples.json')))
             ]
         ]));
     }
@@ -75,6 +72,23 @@ class SocketServer implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         echo "Received message: $msg\n";
+
+        if (json_validate($msg)) {
+            $msg = json_decode($msg, true);
+            if (isset($msg['configuration']) && $this->man->state === ManEnum::UNUNITIALIZED) {
+                $this->man->build($msg['configuration']);
+                // Ajouter notre timer périodique
+                $this->loop->addPeriodicTimer($this->interval, function () {
+                    $this->runPeriodiquement();
+                });
+
+                // Démarrer le loop
+                $this->loop->run();
+                $this->broadcast(json_encode(['configuration' => 'done']));
+            }
+            return;
+        }
+
         switch (trim($msg)) {
             case 'pause':
                 $this->man->state = ManEnum::PAUSED;
@@ -124,7 +138,7 @@ class SocketServer implements MessageComponentInterface
         foreach (Loop::get() as $timer) {
             Loop::get()->cancelTimer($timer);
         }
-        
+
         foreach ($this->clients as $client) {
             $client->close();
         }
