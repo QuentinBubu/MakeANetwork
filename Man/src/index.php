@@ -22,13 +22,15 @@ $dotenv->load();
 $dotenv->required(['UNIVERS_START', 'UNIVERS_END']);
 
 $personnesList = [];
-loadPersonnes(personnesList: $personnesList, nbPersonnes: [
-    'Albert' => 3,
-    'Bob' => 2,
-    'Charles' => 3,
-    'Damien' => 1,
-    'Edouard' => 1,
-]);
+loadPersonnes(personnesList: $personnesList
+// , nbPersonnes: [
+//     'Albert' => 3,
+//     'Bob' => 2,
+//     'Charles' => 3,
+//     'Damien' => 1,
+//     'Edouard' => 1,
+// ]
+);
 
 $man = new Man(__DIR__ . '/data');
 $man->setPersonnes($personnesList)
@@ -43,9 +45,7 @@ $man->setPersonnes($personnesList)
     ])
     ->setMessageLevel(Message::DATA)
     ->build();
-
-var_dump(Trajets::findTrajet('B', 'E'));
-
+    
 $man->runAll();
 Message::log(State::exportData(), Message::INFO);
 // $ss = new SocketServer($man);

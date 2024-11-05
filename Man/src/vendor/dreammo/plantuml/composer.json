@@ -1,0 +1,22 @@
+{
+    "name": "dreammo/plantuml",
+    "description": "Convert php source project to plantuml language format",
+    "license": "MIT",
+    "type": "library",
+    "autoload": {
+        "classmap":["src/Dreammo"]
+    },
+    "require": {
+        "php": ">=5.6",
+        "jan-swiecki/simple-annotations": "0.3.1"
+    },
+    "authors": [
+        {
+            "name": "dreammo",
+            "email": "dreammovip@163.com",
+            "role": "Lead Developer"
+        }
+    ],
+    "bin": ["bin/puml"],
+    "minimum-stability": "stable"
+}
