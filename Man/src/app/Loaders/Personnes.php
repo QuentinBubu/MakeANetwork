@@ -13,14 +13,16 @@ class Personnes
     public static function load(array $personnesList): void
     {
         foreach ($personnesList as $personne) {
-            Message::log("Chargement de la personne {$personne['nom']}", Message::DEBUG_DETAIL);
-            $passager = new Personne(
-                aller: new PersonneObjectif(depuis: $personne['aller']['depart'], vers: $personne['aller']['arrivee'], tickDepart: $personne['aller']['temps']),
-                retour: new PersonneObjectif(depuis: $personne['retour']['depart'], vers: $personne['retour']['arrivee'], tickDepart: $personne['retour']['temps']),
-                nom: $personne['nom']
-            );
+            for ($i = 0; $i < $personne['nombre']; $i++) {
+                Message::log("Chargement de la personne {$personne['nom']}{$i}", Message::DEBUG_DETAIL);
+                $passager = new Personne(
+                    aller: new PersonneObjectif(depuis: $personne['aller']['depart'], vers: $personne['aller']['arrivee'], tickDepart: $personne['aller']['temps']),
+                    retour: new PersonneObjectif(depuis: $personne['retour']['depart'], vers: $personne['retour']['arrivee'], tickDepart: $personne['retour']['temps']),
+                    nom: $personne['nom'] . $i,
+                );
 
-            self::$personnes[spl_object_id($passager)] = $passager;
+                self::$personnes[spl_object_id($passager)] = $passager;
+            }
         }
     }
 

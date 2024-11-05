@@ -21,7 +21,7 @@ class Man
 
     private array $personnes = [];
 
-    public static $requiredFiles = ['bus', 'arrets', 'routes', 'parcours', 'buses'];
+    public static $requiredFiles = ['bus', 'arrets', 'routes', 'parcours', 'buses', 'peoples'];
 
     private string $lastState = '';
 
@@ -31,12 +31,6 @@ class Man
     {
         $this->dataDir = $dataDir;
         $this->state = ManEnum::UNUNITIALIZED;
-    }
-
-    public function setPersonnes(array $personnes): self
-    {
-        $this->personnes = $personnes;
-        return $this;
     }
 
     public function setStates(array $states): self
@@ -100,7 +94,7 @@ class Man
         }
 
         Message::log('Chargement des personnes', Message::DEBUG_DETAIL);
-        Personnes::load(personnesList: $this->personnes);
+        Personnes::load(personnesList: $this->json['peoples']);
     }
 
     public function runAll(): bool

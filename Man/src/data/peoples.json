@@ -1,0 +1,72 @@
+{
+    "Albert": {
+        "nom": "Albert",
+        "nombre": 6,
+        "aller": {
+            "depart": "B",
+            "arrivee": "D",
+            "temps": 0
+        },
+        "retour": {
+            "depart": "D",
+            "arrivee": "A",
+            "temps": 500
+        }
+    },
+    "Bob": {
+        "nom": "Bob",
+        "nombre": 12,
+        "aller": {
+            "depart": "B",
+            "arrivee": "C",
+            "temps": 0
+        },
+        "retour": {
+            "depart": "C",
+            "arrivee": "B",
+            "temps": 500
+        }
+    },
+    "Charles": {
+        "nom": "Charles",
+        "nombre": 12,
+        "aller": {
+            "depart": "B",
+            "arrivee": "C",
+            "temps": 0
+        },
+        "retour": {
+            "depart": "C",
+            "arrivee": "B",
+            "temps": 500
+        }
+    },
+    "Damien": {
+        "nom": "Damien",
+        "nombre": 12,
+        "aller": {
+            "depart": "E",
+            "arrivee": "A",
+            "temps": 0
+        },
+        "retour": {
+            "depart": "A",
+            "arrivee": "E",
+            "temps": 600
+        }
+    },
+    "Edouard": {
+        "nom": "Edouard",
+        "nombre": 45,
+        "aller": {
+            "depart": "A",
+            "arrivee": "C",
+            "temps": 0
+        },
+        "retour": {
+            "depart": "C",
+            "arrivee": "A",
+            "temps": 300
+        }
+    }
+}

@@ -23,7 +23,7 @@ class SocketServer implements MessageComponentInterface
         $this->man = $man;
     }
 
-    public function start(int $port = 8080): void 
+    public function start(int $port = 8080): void
     {
         $loop = Loop::get();
 
@@ -53,6 +53,23 @@ class SocketServer implements MessageComponentInterface
     {
         $this->clients[$conn] = true;
         echo "New client connected: {$conn->resourceId}\n";
+        if ($this->man->state === ManEnum::UNUNITIALIZED) {
+            $this->configMan($conn);
+        }
+    }
+
+    private function configMan(ConnectionInterface $conn): void
+    {
+        $conn->send(json_encode([
+            'configuring' => [
+                'arrets' => file_get_contents(__DIR__ . './../data/arrets.json'),
+                'bus' => file_get_contents(__DIR__ . './../data/bus.json'),
+                'routes' => file_get_contents(__DIR__ . './../data/routes.json'),
+                'parcours' => file_get_contents(__DIR__ . './../data/parcours.json'),
+                'buses' => file_get_contents(__DIR__ . './../data/buses.json'),
+                'peoples' => file_get_contents(__DIR__ . './../data/peoples.json')
+            ]
+        ]));
     }
 
     public function onMessage(ConnectionInterface $from, $msg)
