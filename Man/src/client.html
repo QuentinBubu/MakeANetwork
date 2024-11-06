@@ -4,25 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebSocket Client</title>
+    <link rel="stylesheet" href="./client/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      body {
-        font-family: "Arial", sans-serif;
-        margin: 20px;
-      }
-
-      #messages {
-        margin-top: 20px;
-        border: 1px solid #ccc;
-        padding: 10px;
-        height: 200px;
-        overflow-y: scroll;
-      }
-
-      .hidden-content {
-        display: none;
-      }
-    </style>
   </head>
 
   <body class="bg-gray-100 text-gray-900">
@@ -43,6 +26,11 @@
           Resume
         </button>
       </div>
+
+      <div class="wrapper">
+        <canvas id="busCanvas"></canvas>
+        <canvas id="entityCanvas"></canvas>
+        </div>
 
       <div
         id="messages"
@@ -525,5 +513,6 @@
         }
       }
     </script>
+
   </body>
 </html>
