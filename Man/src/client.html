@@ -1,329 +1,529 @@
 <!DOCTYPE html>
 <html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebSocket Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+      body {
+        font-family: "Arial", sans-serif;
+        margin: 20px;
+      }
 
-        #messages {
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            height: 200px;
-            overflow-y: scroll;
-        }
+      #messages {
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 200px;
+        overflow-y: scroll;
+      }
+
+      .hidden-content {
+        display: none;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body class="bg-gray-100 text-gray-900">
+    <div class="container mx-auto p-6">
+      <h1 class="text-3xl font-semibold mb-4 text-center">WebSocket Client</h1>
 
-    <h1>WebSocket Client</h1>
-    <button id="pauseBtn">Pause</button>
-    <button id="resumeBtn">Resume</button>
+      <div class="flex justify-center gap-4 mb-6">
+        <button
+          id="pauseBtn"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Pause
+        </button>
+        <button
+          id="resumeBtn"
+          class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Resume
+        </button>
+      </div>
 
-    <div id="messages"></div>
+      <div
+        id="messages"
+        class="mb-6 bg-white border border-gray-300 rounded shadow-md p-4 max-h-72 overflow-y-auto"
+      ></div>
 
-    <section id="config">
-        <form id="configForm">
-            <!-- Section Arrêts -->
-            <fieldset id="arretsSection">
-                <legend>Arrêts</legend>
-                <div id="arretsList"></div>
-                <button type="button" onclick="addArret()">Ajouter un arrêt</button>
-            </fieldset>
+      <section id="config">
+        <form id="configForm" class="space-y-6">
+          <!-- Section Arrêts -->
+          <div class="accordion-section">
+            <button
+              type="button"
+              class="accordion-toggle bg-gray-200 w-full text-left p-4 rounded-t-md font-medium text-lg text-gray-700"
+              onclick="toggleAccordion('arretsSection')"
+            >
+              Arrêts
+            </button>
+            <div
+              id="arretsSection"
+              class="hidden-content p-4 bg-white border-b border-gray-300 rounded-b-md"
+            >
+              <div id="arretsList"></div>
+              <button
+                type="button"
+                onclick="addArret()"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Ajouter un arrêt
+              </button>
+            </div>
+          </div>
 
-            <!-- Section Bus -->
-            <fieldset id="busSection">
-                <legend>Bus</legend>
-                <div id="busList"></div>
-                <button type="button" onclick="addBus()">Ajouter un bus</button>
-            </fieldset>
+          <!-- Section Bus -->
+          <div class="accordion-section">
+            <button
+              type="button"
+              class="accordion-toggle bg-gray-200 w-full text-left p-4 rounded-t-md font-medium text-lg text-gray-700"
+              onclick="toggleAccordion('busSection')"
+            >
+              Bus
+            </button>
+            <div
+              id="busSection"
+              class="hidden-content p-4 bg-white border-b border-gray-300 rounded-b-md"
+            >
+              <div id="busList"></div>
+              <button
+                type="button"
+                onclick="addBus()"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Ajouter un bus
+              </button>
+            </div>
+          </div>
 
-            <!-- Section Buses -->
-            <fieldset id="busesSection">
-                <legend>Bus</legend>
-                <div id="busesList"></div>
-                <button type="button" onclick="addBus()">Ajouter un parcours au bus</button>
-            </fieldset>
+          <!-- Section Buses -->
+          <div class="accordion-section">
+            <button
+              type="button"
+              class="accordion-toggle bg-gray-200 w-full text-left p-4 rounded-t-md font-medium text-lg text-gray-700"
+              onclick="toggleAccordion('busesSection')"
+            >
+              Buses
+            </button>
+            <div
+              id="busesSection"
+              class="hidden-content p-4 bg-white border-b border-gray-300 rounded-b-md"
+            >
+              <div id="busesList"></div>
+              <button
+                type="button"
+                onclick="addBus()"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Ajouter un parcours au bus
+              </button>
+            </div>
+          </div>
 
-            <!-- Section Routes -->
-            <fieldset id="routesSection">
-                <legend>Routes</legend>
-                <div id="routesList"></div>
-                <button type="button" onclick="addRoute()">Ajouter une route</button>
-            </fieldset>
+          <!-- Section Routes -->
+          <div class="accordion-section">
+            <button
+              type="button"
+              class="accordion-toggle bg-gray-200 w-full text-left p-4 rounded-t-md font-medium text-lg text-gray-700"
+              onclick="toggleAccordion('routesSection')"
+            >
+              Routes
+            </button>
+            <div
+              id="routesSection"
+              class="hidden-content p-4 bg-white border-b border-gray-300 rounded-b-md"
+            >
+              <div id="routesList"></div>
+              <button
+                type="button"
+                onclick="addRoute()"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Ajouter une route
+              </button>
+            </div>
+          </div>
 
-            <!-- Section Parcours -->
-            <fieldset id="parcoursSection">
-                <legend>Parcours</legend>
-                <div id="parcoursList"></div>
-                <button type="button" onclick="addParcours()">Ajouter un parcours</button>
-            </fieldset>
+          <!-- Section Parcours -->
+          <div class="accordion-section">
+            <button
+              type="button"
+              class="accordion-toggle bg-gray-200 w-full text-left p-4 rounded-t-md font-medium text-lg text-gray-700"
+              onclick="toggleAccordion('parcoursSection')"
+            >
+              Parcours
+            </button>
+            <div
+              id="parcoursSection"
+              class="hidden-content p-4 bg-white border-b border-gray-300 rounded-b-md"
+            >
+              <div id="parcoursList"></div>
+              <button
+                type="button"
+                onclick="addParcours()"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Ajouter un parcours
+              </button>
+            </div>
+          </div>
 
-            <!-- Section Passagers -->
-            <fieldset id="peoplesSection">
-                <legend>Passagers</legend>
-                <div id="peoplesList"></div>
-                <button type="button" onclick="addPerson()">Ajouter un passager</button>
-            </fieldset>
+          <!-- Section Passagers -->
+          <div class="accordion-section">
+            <button
+              type="button"
+              class="accordion-toggle bg-gray-200 w-full text-left p-4 rounded-t-md font-medium text-lg text-gray-700"
+              onclick="toggleAccordion('peoplesSection')"
+            >
+              Passagers
+            </button>
+            <div
+              id="peoplesSection"
+              class="hidden-content p-4 bg-white border-b border-gray-300 rounded-b-md"
+            >
+              <div id="peoplesList"></div>
+              <button
+                type="button"
+                onclick="addPerson()"
+                class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Ajouter un passager
+              </button>
+            </div>
+          </div>
 
-            <button type="button" onclick="submitConfig()">Envoyer la configuration</button>
+          <div class="text-center mt-6">
+            <button
+              type="button"
+              onclick="submitConfig()"
+              class="px-6 py-3 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >
+              Envoyer la configuration
+            </button>
+          </div>
         </form>
-    </section>
-
+      </section>
+    </div>
 
     <script>
-        const host = 'ws://localhost:8080';
-        const messagesDiv = document.getElementById('messages');
-        const socket = new WebSocket(host);
+      function toggleAccordion(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.classList.toggle("hidden-content");
+      }
 
-        // Événement déclenché lorsque la connexion est ouverte
-        socket.addEventListener('open', () => {
-            console.log('Connected to the server');
-            appendMessage('Connected to the server');
-        });
+      // Ajout dynamique de champs pour chaque section avec paramètres
+      function addArret(nom = "", routes = "") {
+        const div = document.createElement("div");
+        div.classList.add("space-y-4");
+        div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                <label class="block text-gray-700 col-span-1">Nom de l'arrêt: <input type="text" list="arretsOptions" class="arretNom p-2 border rounded w-full" value="${nom}" required></label>
+                <label class="block text-gray-700 col-span-1">Routes: <input type="text" list="routesOptions" class="arretRoutes p-2 border rounded w-full" value="${routes}" placeholder="route1, route2" required></label>
+                          <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex justify-center mt-4">
+            <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="this.parentElement.parentElement.remove()">Supprimer</button>
+          </div>
+        </div>
+            `;
+        document.getElementById("arretsList").appendChild(div);
+      }
 
-        // Événement déclenché lorsque des messages sont reçus
-        socket.addEventListener('message', (event) => {
-            console.log('Message from server: ', event.data);
-            appendMessage('Message from server: ' + event.data);
-            if (JSON.parse(event.data).hasOwnProperty('configuring')) {
-                const configData = JSON.parse(event.data);
-                decodeJSON(configData);
-                populateForm(configData);
-            }
-        });
+      function addBus(
+        type = "",
+        capacite = "",
+        vitesseChargement = "",
+        vitesseDeplacement = ""
+      ) {
+        const div = document.createElement("div");
+        div.classList.add("space-y-4");
+        div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-4">
+                <label class="block text-gray-700 col-span-1">Type: <input type="text" list="busTypesOptions" class="busType p-2 border rounded w-full" value="${type}" required></label>
+                <label class="block text-gray-700 col-span-1">Capacité max: <input type="number" class="busCapacite p-2 border rounded w-full" value="${capacite}" required></label>
+                <label class="block text-gray-700 col-span-1">Vitesse de chargement: <input type="number" class="busVitesseChargement p-2 border rounded w-full" value="${vitesseChargement}" required></label>
+                <label class="block text-gray-700 col-span-1">Vitesse de déplacement: <input type="number" class="busVitesseDeplacement p-2 border rounded w-full" value="${vitesseDeplacement}" required></label>
+                          <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex justify-center mt-4">
+            <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="this.parentElement.parentElement.remove()">Supprimer</button>
+          </div>
+        </div>
+            `;
+        document.getElementById("busList").appendChild(div);
+      }
 
-        socket.addEventListener('error', (error) => {
-            console.error('WebSocket error: ', error);
-            appendMessage('WebSocket error: ' + error.message);
-        });
+      function addRoute(nom = "", arrets = "", distance = "") {
+        const div = document.createElement("div");
+        div.classList.add("space-y-4");
+        div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                <label class="block text-gray-700 col-span-1">Nom de la route: <input type="text" list="routesOptions" class="routeNom p-2 border rounded w-full" value="${nom}" required></label>
+                <label class="block text-gray-700 col-span-1">Arrêts: <input type="text" list="arretsOptions" class="routeArrets p-2 border rounded w-full" value="${arrets}" placeholder="A, B" required></label>
+                <label class="block text-gray-700 col-span-1">Distance: <input type="number" class="routeDistance p-2 border rounded w-full" value="${distance}" required></label>
+                          <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex justify-center mt-4">
+            <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="this.parentElement.parentElement.remove()">Supprimer</button>
+          </div>
+        </div>
+            `;
+        document.getElementById("routesList").appendChild(div);
+      }
 
-        socket.addEventListener('close', () => {
-            console.log('Disconnected from the server');
-            appendMessage('Disconnected from the server');
-        });
+      // Buses
+      function addBuses(type = "", parcours = "") {
+        const div = document.createElement("div");
+        div.classList.add("space-y-4");
+        div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+        <label class="block text-gray-700 col-span-1">Type: <input type="text" class="busType p-2 border rounded w-full" value="${type}" required></label>
+        <label class="block text-gray-700 col-span-1">Parcours: <input type="text" class="busParcours p-2 border rounded w-full" value="${parcours}" placeholder="parcours1" required></label>
+                  <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex justify-center mt-4">
+            <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="this.parentElement.parentElement.remove()">Supprimer</button>
+          </div>
+        </div>
+    `;
+        document.getElementById("busesList").appendChild(div);
+      }
 
-        document.getElementById('pauseBtn').addEventListener('click', () => {
-            socket.send('pause');
-            appendMessage('Sent: pause');
-        });
+      // Parcours
+      function addParcours(nom = "", etapes = "") {
+        const div = document.createElement("div");
+        div.classList.add("space-y-4");
+        div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+        <label class="block text-gray-700 col-span-1">Nom du parcours: <input type="text" class="parcoursNom p-2 border rounded w-full" value="${nom}" required></label>
+        <label class="block text-gray-700 col-span-1">Étapes: <input type="text" class="parcoursEtapes p-2 border rounded w-full" value="${etapes}" placeholder="A, B, C" required></label>
+                  <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex justify-center mt-4">
+            <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="this.parentElement.parentElement.remove()">Supprimer</button>
+          </div>
+        </div>
+    `;
+        document.getElementById("parcoursList").appendChild(div);
+      }
 
-        document.getElementById('resumeBtn').addEventListener('click', () => {
-            socket.send('resume');
-            appendMessage('Sent: resume');
-        });
+      // Passagers
+      function addPerson(nom = "", nombre = "", aller = {}, retour = {}) {
+        const div = document.createElement("div");
+        div.classList.add("space-y-4");
+        div.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+            <label class="block text-gray-700 col-span-1">Nom du passager: <input type="text" class="personNom p-2 border rounded w-full" value="${nom}" required></label>
+            <label class="block text-gray-700 col-span-1">Nombre: <input type="number" class="personNombre p-2 border rounded w-full" value="${nombre}" required></label>
+            <br>
+            <label class="block text-gray-700 col-span-1">Aller - Départ: <input type="text" class="personAllerDepart p-2 border rounded w-full" value="${
+              aller.depart || ""
+            }" required></label>
+            <label class="block text-gray-700 col-span-1">Aller - Arrivée: <input type="text" class="personAllerArrivee p-2 border rounded w-full" value="${
+              aller.arrivee || ""
+            }" required></label>
+            <label class="block text-gray-700 col-span-1">Aller - Temps: <input type="number" class="personAllerTemps p-2 border rounded w-full" value="${
+              aller.temps || 0
+            }" required></label>
+            <label class="block text-gray-700 col-span-1">Retour - Départ: <input type="text" class="personRetourDepart p-2 border rounded w-full" value="${
+              retour.depart || ""
+            }" required></label>
+            <label class="block text-gray-700 col-span-1">Retour - Arrivée: <input type="text" class="personRetourArrivee p-2 border rounded w-full" value="${
+              retour.arrivee || ""
+            }" required></label>
+            <label class="block text-gray-700 col-span-1">Retour - Temps: <input type="number" class="personRetourTemps p-2 border rounded w-full" value="${
+              retour.temps || 0
+            }" required></label>
+          <div class="col-span-2 sm:col-span-2 lg:col-span-3 flex justify-center mt-4">
+            <button type="button" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onclick="this.parentElement.parentElement.remove()">Supprimer</button>
+          </div>
+        </div>
+        `;
+        document.getElementById("peoplesList").appendChild(div);
+      }
 
-        // Fonction pour ajouter un message à la zone de messages
-        function appendMessage(message) {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            messagesDiv.appendChild(messageElement);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        function populateForm(data) {
-            // Arrêts
-            for (const [nom, arret] of Object.entries(data.configuring.arrets)) {
-                addArret(arret.nom, arret.routes.join(", "));
-            }
-
-            // Bus
-            for (const [type, bus] of Object.entries(data.configuring.bus)) {
-                addBus(bus.type, bus["capacite-max"], bus["vitesse-chargement"], bus["vitesse-deplacement"]);
-            }
-
-            // Buses
-            for (const [no, conf] of Object.entries(data.configuring.buses)) {
-                addBuses(conf.type, conf.parcours);
-            }
-
-            // Routes
-            for (const [nom, route] of Object.entries(data.configuring.routes)) {
-                addRoute(route.nom, route.arrets.join(", "), route.distance);
-            }
-
-            // Parcours
-            for (const [nom, parcours] of Object.entries(data.configuring.parcours)) {
-                addParcours(nom, parcours.join(", "));
-            }
-
-            // Passagers
-            for (const [nom, person] of Object.entries(data.configuring.peoples)) {
-                addPerson(person.nom, person.nombre, person.aller, person.retour);
-            }
-        }
-
-        // Ajout dynamique de champs pour chaque section avec paramètres
+      // Envoi de la configuration
+      function submitConfig() {
+        // Récupération des valeurs des champs
+        const configData = {
+          configuration: {
+            arrets: {},
+            bus: {},
+            buses: {},
+            routes: {},
+            parcours: {},
+            peoples: {},
+          },
+        };
         // Arrêts
-        function addArret(nom = "", routes = "") {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <label>Nom de l'arrêt: <input type="text" class="arretNom" value="${nom}" required></label>
-                <label>Routes: <input type="text" class="arretRoutes" value="${routes}" placeholder="route1, route2" required></label>
-                <hr>
-                `;
-            document.getElementById("arretsList").appendChild(div);
+        configData.configuration.arrets = {};
+        document.querySelectorAll("#arretsList > div").forEach((div) => {
+          const nom = div.querySelector(".arretNom").value;
+          const routes = div.querySelector(".arretRoutes").value.split(", ");
+          configData.configuration.arrets[nom] = { nom, routes };
+        });
+
+        // Bus
+        configData.configuration.bus = {};
+        document.querySelectorAll("#busList > div").forEach((div) => {
+          const type = div.querySelector(".busType").value;
+          const capacite = parseInt(div.querySelector(".busCapacite").value);
+          const vitesseChargement = parseInt(
+            div.querySelector(".busVitesseChargement").value
+          );
+          const vitesseDeplacement = parseInt(
+            div.querySelector(".busVitesseDeplacement").value
+          );
+          configData.configuration.bus[type] = {
+            type,
+            "capacite-max": capacite,
+            "vitesse-chargement": vitesseChargement,
+            "vitesse-deplacement": vitesseDeplacement,
+          };
+        });
+
+        // Buses
+        configData.configuration.buses = [];
+        document.querySelectorAll("#busesList > div").forEach((div) => {
+          const type = div.querySelector(".busType").value;
+          const parcours = div.querySelector(".busParcours").value;
+          configData.configuration.buses.push({
+            type: type,
+            parcours: parcours,
+          });
+        });
+
+        // Routes
+        configData.configuration.routes = {};
+        document.querySelectorAll("#routesList > div").forEach((div) => {
+          const nom = div.querySelector(".routeNom").value;
+          const arrets = div.querySelector(".routeArrets").value.split(", ");
+          const distance = parseInt(div.querySelector(".routeDistance").value);
+          configData.configuration.routes[nom] = { nom, arrets, distance };
+        });
+
+        // Parcours
+        configData.configuration.parcours = {};
+        document.querySelectorAll("#parcoursList > div").forEach((div) => {
+          const nom = div.querySelector(".parcoursNom").value;
+          const etapes = div.querySelector(".parcoursEtapes").value.split(", ");
+          configData.configuration.parcours[nom] = etapes;
+        });
+
+        // Passagers
+        configData.configuration.peoples = {};
+        document.querySelectorAll("#peoplesList > div").forEach((div) => {
+          const nom = div.querySelector(".personNom").value;
+          const nombre = parseInt(div.querySelector(".personNombre").value);
+          const aller = {
+            depart: div.querySelector(".personAllerDepart").value,
+            arrivee: div.querySelector(".personAllerArrivee").value,
+            temps: parseInt(div.querySelector(".personAllerTemps").value),
+          };
+          const retour = {
+            depart: div.querySelector(".personRetourDepart").value,
+            arrivee: div.querySelector(".personRetourArrivee").value,
+            temps: parseInt(div.querySelector(".personRetourTemps").value),
+          };
+          configData.configuration.peoples[nom] = {
+            nom,
+            nombre,
+            aller,
+            retour,
+          };
+        });
+
+        console.log(configData);
+        socket.send(JSON.stringify(configData));
+      }
+
+      function decodeJSON(data) {
+        for (const key in data.configuring) {
+          if (typeof data.configuring[key] === "string") {
+            data.configuring[key] = JSON.parse(data.configuring[key]);
+          }
+        }
+      }
+
+      const host = "ws://localhost:8080";
+      const messagesDiv = document.getElementById("messages");
+      const socket = new WebSocket(host);
+
+      // Événements WebSocket
+      socket.addEventListener("open", () => {
+        console.log("Connected to the server");
+        appendMessage("Connected to the server");
+      });
+
+      socket.addEventListener("message", (event) => {
+        console.log("Message from server: ", event.data);
+        appendMessage("Message from server: " + event.data);
+        if (JSON.parse(event.data).hasOwnProperty("configuring")) {
+          const configData = JSON.parse(event.data);
+          decodeJSON(configData);
+          populateForm(configData);
+        }
+      });
+
+      socket.addEventListener("error", (error) => {
+        console.error("WebSocket error: ", error);
+        appendMessage("WebSocket error: " + error.message);
+      });
+
+      socket.addEventListener("close", () => {
+        console.log("Disconnected from the server");
+        appendMessage("Disconnected from the server");
+      });
+
+      document.getElementById("pauseBtn").addEventListener("click", () => {
+        socket.send("pause");
+        appendMessage("Sent: pause");
+      });
+
+      document.getElementById("resumeBtn").addEventListener("click", () => {
+        socket.send("resume");
+        appendMessage("Sent: resume");
+      });
+
+      // Fonction pour ajouter un message à la zone de messages
+      function appendMessage(message) {
+        const messageElement = document.createElement("div");
+        messageElement.textContent = message;
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      function populateForm(data) {
+        // Arrêts
+        for (const [nom, arret] of Object.entries(data.configuring.arrets)) {
+          addArret(arret.nom, arret.routes.join(", "));
         }
 
         // Bus
-        function addBus(type = "", capacite = "", vitesseChargement = "", vitesseDeplacement = "") {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <label>Type: <input type="text" class="busType" value="${type}" required></label>
-                <label>Capacité max: <input type="number" class="busCapacite" value="${capacite}" required></label>
-                <label>Vitesse de chargement: <input type="number" class="busVitesseChargement" value="${vitesseChargement}" required></label>
-                <label>Vitesse de déplacement: <input type="number" class="busVitesseDeplacement" value="${vitesseDeplacement}" required></label>
-                <hr>
-            `;
-            document.getElementById("busList").appendChild(div);
+        for (const [type, bus] of Object.entries(data.configuring.bus)) {
+          addBus(
+            bus.type,
+            bus["capacite-max"],
+            bus["vitesse-chargement"],
+            bus["vitesse-deplacement"]
+          );
         }
 
         // Buses
-        function addBuses(type = "", parcours = "") {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <label>Type: <input type="text" class="busType" value="${type}" required></label>
-                <label>Parcours: <input type="text" class="busParcours" value="${parcours}" placeholder="parcours1" required></label>
-                <hr>
-            `;
-            document.getElementById("busesList").appendChild(div);
+        for (const [no, conf] of Object.entries(data.configuring.buses)) {
+          addBuses(conf.type, conf.parcours);
         }
 
         // Routes
-        function addRoute(nom = "", arrets = "", distance = "") {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <label>Nom de la route: <input type="text" class="routeNom" value="${nom}" required></label>
-                <label>Arrêts: <input type="text" class="routeArrets" value="${arrets}" placeholder="A, B" required></label>
-                <label>Distance: <input type="number" class="routeDistance" value="${distance}" required></label>
-                <hr>
-            `;
-            document.getElementById("routesList").appendChild(div);
+        for (const [nom, route] of Object.entries(data.configuring.routes)) {
+          addRoute(route.nom, route.arrets.join(", "), route.distance);
         }
 
         // Parcours
-        function addParcours(nom = "", etapes = "") {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <label>Nom du parcours: <input type="text" class="parcoursNom" value="${nom}" required></label>
-                <label>Étapes: <input type="text" class="parcoursEtapes" value="${etapes}" placeholder="A, B, C" required></label>
-                <hr>
-            `;
-            document.getElementById("parcoursList").appendChild(div);
+        for (const [nom, parcours] of Object.entries(
+          data.configuring.parcours
+        )) {
+          addParcours(nom, parcours.join(", "));
         }
 
         // Passagers
-        function addPerson(nom = "", nombre = "", aller = {}, retour = {}) {
-            const div = document.createElement("div");
-            div.innerHTML = `
-                <label>Nom du passager: <input type="text" class="personNom" value="${nom}" required></label><br>
-                <label>Nombre: <input type="number" class="personNombre" value="${nombre}" required></label><br>
-                <label>Aller - Départ: <input type="text" class="personAllerDepart" value="${aller.depart || ''}" required></label><br>
-                <label>Aller - Arrivée: <input type="text" class="personAllerArrivee" value="${aller.arrivee || ''}" required></label><br>
-                <label>Aller - Temps: <input type="number" class="personAllerTemps" value="${aller.temps || 0}" required></label><br>
-                <label>Retour - Départ: <input type="text" class="personRetourDepart" value="${retour.depart || ''}" required></label><br>
-                <label>Retour - Arrivée: <input type="text" class="personRetourArrivee" value="${retour.arrivee || ''}" required></label><br>
-                <label>Retour - Temps: <input type="number" class="personRetourTemps" value="${retour.temps || 0}" required></label><br>
-                <hr>
-            `;
-            document.getElementById("peoplesList").appendChild(div);
+        for (const [nom, person] of Object.entries(data.configuring.peoples)) {
+          addPerson(person.nom, person.nombre, person.aller, person.retour);
         }
-
-        // Envoi de la configuration
-        function submitConfig() {
-            // Récupération des valeurs des champs
-            const configData = {
-                configuration: {
-                    arrets: {},
-                    bus: {},
-                    buses: {},
-                    routes: {},
-                    parcours: {},
-                    peoples: {}
-                }
-            };
-            // Arrêts
-            configData.configuration.arrets = {};
-            document.querySelectorAll("#arretsList > div").forEach(div => {
-                const nom = div.querySelector(".arretNom").value;
-                const routes = div.querySelector(".arretRoutes").value.split(", ");
-                configData.configuration.arrets[nom] = { nom, routes };
-            });
-
-            // Bus
-            configData.configuration.bus = {};
-            document.querySelectorAll("#busList > div").forEach(div => {
-                const type = div.querySelector(".busType").value;
-                const capacite = parseInt(div.querySelector(".busCapacite").value);
-                const vitesseChargement = parseInt(div.querySelector(".busVitesseChargement").value);
-                const vitesseDeplacement = parseInt(div.querySelector(".busVitesseDeplacement").value);
-                configData.configuration.bus[type] = { type, "capacite-max": capacite, "vitesse-chargement": vitesseChargement, "vitesse-deplacement": vitesseDeplacement };
-            });
-
-            // Buses
-            configData.configuration.buses = [];
-            document.querySelectorAll("#busesList > div").forEach(div => {
-                const type = div.querySelector(".busType").value;
-                const parcours = div.querySelector(".busParcours").value;
-                configData.configuration.buses.push({ "type": type, "parcours": parcours });
-            });
-
-            // Routes
-            configData.configuration.routes = {};
-            document.querySelectorAll("#routesList > div").forEach(div => {
-                const nom = div.querySelector(".routeNom").value;
-                const arrets = div.querySelector(".routeArrets").value.split(", ");
-                const distance = parseInt(div.querySelector(".routeDistance").value);
-                configData.configuration.routes[nom] = { nom, arrets, distance };
-            });
-
-            // Parcours
-            configData.configuration.parcours = {};
-            document.querySelectorAll("#parcoursList > div").forEach(div => {
-                const nom = div.querySelector(".parcoursNom").value;
-                const etapes = div.querySelector(".parcoursEtapes").value.split(", ");
-                configData.configuration.parcours[nom] = etapes;
-            });
-
-            // Passagers
-            configData.configuration.peoples = {};
-            document.querySelectorAll("#peoplesList > div").forEach(div => {
-                const nom = div.querySelector(".personNom").value;
-                const nombre = parseInt(div.querySelector(".personNombre").value);
-                const aller = {
-                    depart: div.querySelector(".personAllerDepart").value,
-                    arrivee: div.querySelector(".personAllerArrivee").value,
-                    temps: parseInt(div.querySelector(".personAllerTemps").value)
-                };
-                const retour = {
-                    depart: div.querySelector(".personRetourDepart").value,
-                    arrivee: div.querySelector(".personRetourArrivee").value,
-                    temps: parseInt(div.querySelector(".personRetourTemps").value)
-                };
-                configData.configuration.peoples[nom] = { nom, nombre, aller, retour };
-            });
-
-            console.log(configData);
-            socket.send(JSON.stringify(configData));
-        }
-
-        function decodeJSON(data) {
-            for (const key in data.configuring) {
-                if (typeof data.configuring[key] === 'string') {
-                    data.configuring[key] = JSON.parse(data.configuring[key]);
-                }
-            }
-        }
-
+      }
     </script>
-
-</body>
-
+  </body>
 </html>
