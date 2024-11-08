@@ -14,7 +14,7 @@ CHANGELOG
   * Use non-deprecated Guzzle API calls
 
 * 0.4.3 (2020-06-04)
-  * BF: Fixed interface acceptable regression in `App`
+  * BF: Fixed interface acceptable regression in App`
   * Update RFC6455 library with latest fixes
 
 * 0.4.2 (2020-01-27)

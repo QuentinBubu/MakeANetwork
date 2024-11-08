@@ -13,24 +13,63 @@ use App\Loaders\Routes;
 use App\Loaders\Parcours;
 use App\Loaders\Personnes;
 
+/**
+ * Class Man
+ * 
+ * Représente l'entité de gestion de la simulation des bus et des personnes.
+ */
 class Man
 {
+    /**
+     * Répertoire où sont stockées les données JSON utilisées pour initialiser la simulation.
+     * @var string
+     */
     private string $dataDir;
 
+    /**
+     * Tableau des données JSON chargées dans la simulation.
+     * @var array
+     */
     private array $json = [];
 
+    /**
+     * Liste des fichiers nécessaires pour la simulation.
+     * @var string[]
+     */
     public static $requiredFiles = ['bus', 'arrets', 'routes', 'parcours', 'buses', 'peoples'];
 
+    /**
+     * Dernier état de la simulation, représenté sous forme de chaîne JSON.
+     * @var string
+     */
     private string $lastState = '';
 
+    /**
+     * État actuel de la simulation.
+     * @var ManEnum
+     */
     public ManEnum $state;
 
+    /**
+     * Man constructor.
+     * 
+     * Initialise la simulation avec un répertoire de données.
+     * L'état initial de la simulation est UNUNITIALIZED.
+     * 
+     * @param string $dataDir Répertoire contenant les fichiers JSON.
+     */
     public function __construct(string $dataDir)
     {
         $this->dataDir = $dataDir;
         $this->state = ManEnum::UNUNITIALIZED;
     }
 
+    /**
+     * Définit les fonctions à exécuter pour exporter l'état de la simulation.
+     * 
+     * @param array $states Liste des fonctions à enregistrer (classe, méthode, clé).
+     * @return $this
+     */
     public function setStates(array $states): self
     {
         foreach ($states as $state) {
@@ -39,18 +78,40 @@ class Man
         return $this;
     }
 
+    /**
+     * Ajoute une fonction spécifique pour exporter l'état de la simulation.
+     * 
+     * @param string $class Classe contenant la méthode.
+     * @param string $method Méthode à appeler pour exporter l'état.
+     * @param string $name Nom associé à cette fonction.
+     * @return $this
+     */
     public function addState(string $class, string $method, string $name): self
     {
         State::registerFunction($class, $method, $name);
         return $this;
     }
 
+    /**
+     * Définit le niveau de journalisation des messages dans la simulation.
+     * 
+     * @param int $level Niveau de journalisation.
+     * @return $this
+     */
     public function setMessageLevel(int $level): self
     {
         Message::setLevel($level);
         return $this;
     }
 
+    /**
+     * Initialise la simulation en chargeant les données JSON et en les transformant en objets.
+     * 
+     * @param array|null $data Données JSON à charger (si null, charge les fichiers depuis le répertoire).
+     * @return $this
+     * 
+     * Complexité: O(n + m) où n est le nombre de fichiers JSON et m est le nombre d'objets à charger après le parsing.
+     */
     public function build(?array $data = null): self
     {
         Message::log('----- DEBUT -----', Message::INFO);
@@ -65,6 +126,13 @@ class Man
         return $this;
     }
 
+    /**
+     * Charge les fichiers JSON nécessaires à la simulation.
+     * 
+     * @throws \Exception Si un fichier JSON est manquant ou corrompu.
+     * 
+     * Complexité: O(n) où n est le nombre de fichiers JSON à charger.
+     */
     private function loadJson()
     {
         Message::log('----- DEBUT CHARGEMENT JSON -----', Message::DEBUG_DETAIL);
@@ -74,6 +142,11 @@ class Man
         Message::log('----- FIN CHARGEMENT JSON -----', Message::DEBUG_DETAIL);
     }
 
+    /**
+     * Charge les données JSON en objets et effectue les associations nécessaires (parcours, bus, arrêts, etc.).
+     * 
+     * Complexité: O(n * m) où n est le nombre d'objets à charger (par exemple, arrêts, routes) et m est le nombre d'associations à faire.
+     */
     private function loadAsObject()
     {
         Message::log('Chargement des arrêts', Message::DEBUG_DETAIL);
@@ -99,6 +172,13 @@ class Man
         Personnes::load(personnesList: $this->json['peoples']);
     }
 
+    /**
+     * Lance l'ensemble de la simulation, effectuant chaque tick jusqu'à ce que l'univers prenne fin ou que toutes les personnes aient été transportées.
+     * 
+     * Complexité: O(t * n) où t est le nombre de ticks et n est le nombre de personnes à gérer.
+     * 
+     * @return bool Retourne true lorsque la simulation se termine avec succès.
+     */
     public function runAll(): bool
     {
         $this->state = ManEnum::RUNNING;
@@ -116,6 +196,11 @@ class Man
         return true;
     }
 
+    /**
+     * Exécute un seul tick de la simulation.
+     * 
+     * @return ManEnum L'état actuel de la simulation.
+     */
     public function runOnce(): ManEnum
     {
         if ($this->state !== ManEnum::RUNNING) {
@@ -133,6 +218,14 @@ class Man
         return ManEnum::SUCCEEDED;
     }
 
+    /**
+     * Vérifie l'unicité des personnes dans la simulation, s'assurant qu'elles sont présentes aux arrêts ou dans les bus.
+     * 
+     * Complexité : O(n + m) où n est le nombre de personnes et m est le nombre de bus et d'arrêts à parcourir.
+     * 
+     * @return bool Retourne true si toutes les personnes sont présentes et uniques dans la simulation.
+     * @throws ManException Si une personne est introuvable ou en trop.
+     */
     private function checkUnicitePersonne(): bool
     {
         $personnes = Personnes::$personnes;
@@ -162,12 +255,17 @@ class Man
 
         if (!empty($personnesFind)) {
             Message::log(State::exportData(), Message::INFO);
-            throw new ManException('Personne en trop :' . implode(',', array_map(fn($personne) => $personne->nom, $personnesFind)));
+            throw new ManException('Personne en trop :' . implode(',', array_keys($personnesFind)));
         }
 
         return true;
     }
 
+    /**
+     * Retourne l'état de la simulation sous forme JSON.
+     * 
+     * @return string L'état actuel sous forme JSON.
+     */
     public function getLastState(): string
     {
         return $this->lastState;

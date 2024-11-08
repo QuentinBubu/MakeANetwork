@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entities;
 
 use App\Interfaces\StateInterface;
@@ -7,20 +6,50 @@ use App\Interfaces\StateInterface;
 /**
  * @Entity
  *
- * Un trajet est un ensemble de routes pour se rendre d'un point A à un point B
+ * Représente un trajet, qui est un ensemble de routes permettant de se rendre d'un point A à un point B.
+ * Un trajet peut comporter plusieurs routes et permet de calculer le prochain arrêt à partir d'un arrêt donné.
  */
 class Trajet implements StateInterface
 {
     public string $nom;
+
     /**
+     * Liste des routes qui composent le trajet.
+     * 
      * @var Route[]
      */
     public array $routes;
-    public Arret $depart;
-    public Arret $arrivee;
-    public int $distance;
-    public int $tickArrivee; // Stats sur temps attente ? :)
 
+    /**
+     * L'arrêt de départ du trajet.
+     * 
+     * @var Arret
+     */
+    public Arret $depart;
+
+    /**
+     * L'arrêt d'arrivée du trajet.
+     * 
+     * @var Arret
+     */
+    public Arret $arrivee;
+
+    /**
+     * Distance totale du trajet, qui est la somme des distances de toutes les routes.
+     * 
+     * @var int
+     */
+    public int $distance;
+
+    /**
+     * Constructeur de la classe Trajet.
+     *
+     * @param string $nom Nom du trajet.
+     * @param array $route Liste des routes qui composent le trajet.
+     * @param Arret $depart L'arrêt de départ.
+     * @param Arret $arrivee L'arrêt d'arrivée.
+     * @param int $distance La distance totale du trajet.
+     */
     public function __construct(string $nom, array $route, Arret $depart, Arret $arrivee, int $distance)
     {
         $this->nom = $nom;
@@ -28,9 +57,19 @@ class Trajet implements StateInterface
         $this->depart = $depart;
         $this->arrivee = $arrivee;
         $this->distance = $distance;
-        $this->tickArrivee = $distance;
     }
 
+    /**
+     * Trouve la route correspondant à un arrêt de départ donné, en évitant de revisiter un arrêt déjà visité.
+     *
+     * Complexité: O(n * m) où n est le nombre de routes et m est le nombre d'arrêts par route.
+     * Cette méthode parcourt toutes les routes et tous les arrêts de chaque route à la recherche d'un arrêt non visité.
+     *
+     * @param Arret $depart L'arrêt de départ.
+     * @param array $arretsVisites Liste des arrêts déjà visités.
+     * @return Route La route qui correspond à l'arrêt de départ.
+     * @throws \Exception Si aucune route valide n'est trouvée.
+     */
     public function getRouteFromArret(Arret $depart, array $arretsVisites): Route
     {
         foreach ($this->routes as $route) {
@@ -49,9 +88,18 @@ class Trajet implements StateInterface
                 }
             }
         }
-        throw new \Exception("Aucune route trouvée pour l'arrêt $depart");
+        throw new \Exception("Aucune route trouvée pour l'arrêt {$depart->nom}");
     }
 
+    /**
+     * Trouve le prochain arrêt à partir d'un arrêt donné.
+     *
+     * Complexité: O(n * m) où n est le nombre de routes et m est le nombre d'arrêts par route.
+     * La méthode parcourt chaque route et recherche l'arrêt actuel dans la liste des arrêts.
+     *
+     * @param Arret $arretActuel L'arrêt actuel d'où on veut obtenir le prochain arrêt.
+     * @return Arret|null Le prochain arrêt si trouvé, sinon null.
+     */
     public function getProchainArret(Arret $arretActuel): ?Arret
     {
         foreach ($this->routes as $route) {
@@ -67,7 +115,11 @@ class Trajet implements StateInterface
         return null;
     }
 
-
+    /**
+     * Exporte les informations du trajet sous forme de tableau.
+     * 
+     * @return array Un tableau contenant les informations du trajet.
+     */
     public function export(): array
     {
         return [
@@ -75,7 +127,6 @@ class Trajet implements StateInterface
             'depart' => $this->depart->nom,
             'arrivee' => $this->arrivee->nom,
             'distance' => $this->distance,
-            'tickArrivee' => $this->tickArrivee,
             'routes' => array_map(
                 function ($route) {
                     return $route->nom;
@@ -85,6 +136,13 @@ class Trajet implements StateInterface
         ];
     }
 
+    /**
+     * Restaure l'état de l'objet à partir d'un tableau d'état.
+     * Cette méthode n'est pas implémentée pour l'instant.
+     *
+     * @param array $state L'état à restaurer.
+     * @throws \Exception Si la méthode est appelée, une exception est levée.
+     */
     public function restore(array $state): void
     {
         throw new \Exception('Not implemented');
