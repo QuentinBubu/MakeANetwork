@@ -15,7 +15,7 @@ use App\Loaders\Personnes;
 
 /**
  * Class Man
- * 
+ *
  * Représente l'entité de gestion de la simulation des bus et des personnes.
  */
 class Man
