@@ -71,8 +71,6 @@ let arrets = {};
       arret.setX(mouseX/ratio);
       arret.setY(mouseY/ratio);
   
-      console.log(`Coordinates set for arret: (${mouseX}, ${mouseY})`);
-  
 
       document.removeEventListener("click", handleClick, true);
   
@@ -85,7 +83,6 @@ let arrets = {};
   
     document.addEventListener("click", handleClick, { capture: true, once: true });
     renderStops()
-    console.log(arret)
   }
         
 
@@ -115,8 +112,6 @@ function fixRatio(Canvas){
   Canvas.height = dimensions.height;
 
   let ctx = Canvas.getContext("2d");
-  console.log(Canvas.clientWidth,Canvas.clientWidth);
-  console.log(sizeX,sizeY);
   let ratio = Math.min(
     Canvas.clientWidth / sizeX,
     Canvas.clientHeight / sizeY
@@ -124,7 +119,6 @@ function fixRatio(Canvas){
   sizeX = Canvas.clientWidth;
   sizeY = Canvas.clientHeight;
   ctx.scale(ratio, ratio); //adjust this!
-  console.log(ratio);
   return ratio;
 }
 
