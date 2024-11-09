@@ -105,6 +105,18 @@ class Man
     }
 
     /**
+     * Définit le fichier de sortie des messages de la simulation.
+     *
+     * @param string $output Fichier de sortie.
+     * @return $this
+     */
+    public function setMessageOutput(string $output): self
+    {
+        Message::setOutput($output);
+        return $this;
+    }
+
+    /**
      * Initialise la simulation en chargeant les données JSON et en les transformant en objets.
      * 
      * @param array|null $data Données JSON à charger (si null, charge les fichiers depuis le répertoire).
@@ -121,6 +133,7 @@ class Man
             $this->json = $data;
         }
         $this->loadAsObject();
+        $this->lastState = State::exportData();
         Message::log('----- FIN -----', Message::INFO);
         $this->state = ManEnum::WAITING_START;
         return $this;
@@ -214,7 +227,7 @@ class Man
             $this->checkUnicitePersonne();
             return ManEnum::RUNNING;
         }
-
+        $this->state = ManEnum::SUCCEEDED;
         return ManEnum::SUCCEEDED;
     }
 
