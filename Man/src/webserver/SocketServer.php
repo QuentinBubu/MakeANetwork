@@ -86,7 +86,10 @@ class SocketServer implements MessageComponentInterface
                 // Démarrer le loop
                 $this->loop->run();
                 $this->broadcast(json_encode(['configuration' => 'done']));
+            } elseif (array_key_exists('get_state', $msg)) {
+                $from->send($this->man->getState($msg['get_state']));
             }
+
             return;
         }
 
