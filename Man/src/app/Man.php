@@ -133,7 +133,7 @@ class Man
             $this->json = $data;
         }
         $this->loadAsObject();
-        $this->state[Time::getTick()] = State::exportData();
+        $this->exportedStates[Time::getTick()] = State::exportData();
         Message::log('----- FIN -----', Message::INFO);
         $this->state = ManEnum::WAITING_START;
         return $this;
@@ -279,7 +279,7 @@ class Man
      *
      * @return string L'état actuel sous forme JSON.
      */
-    public function getLastState(): string
+    public function getLastState(): ?string
     {
         return $this->exportedStates[count($this->exportedStates) - 1];
     }
@@ -287,5 +287,10 @@ class Man
     public function getState(int $state): ?string
     {
         return $this->exportedStates[$state] ?? null;
+    }
+
+    public function getTick(): int
+    {
+        return Time::getTick();
     }
 }

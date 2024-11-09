@@ -28,8 +28,43 @@
       <canvas height="100" width="300" style="object-fit:contain;" id="entityCanvas"></canvas>
     </div>
 
+    <!-- Section des contrôles -->
+    <div class="flex items-center justify-center mb-4 gap-2">
+      <!-- Bouton Backward -->
+      <button class="p-2 bg-gray-200 rounded hover:bg-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Input Number avec le séparateur et le nombre -->
+      <div class="flex items-center">
+        <input type="number" class="border border-gray-300 rounded p-2 w-16 text-center" min="0" id="inputNumber">
+        <span class="mx-2 text-gray-700">/</span>
+        <span id="totalNumber" class="text-gray-700">0</span>
+      </div>
+
+      <!-- Bouton Forward -->
+      <button class="p-2 bg-gray-200 rounded hover:bg-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Bouton "Voir la tick" -->
+    <div class="flex justify-center mb-6">
+      <button id="viewTickBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Voir la tick
+      </button>
+    </div>
+
+    <!-- Cadrant à messages -->
     <div id="messages" class="mb-6 bg-white border border-gray-300 rounded shadow-md p-4 max-h-72 overflow-y-auto">
     </div>
+
 
     <section id="config">
       <form id="configForm" class="space-y-6">
@@ -246,8 +281,8 @@
         };
       });
 
-      setup(configData["configuration"]);
       socket.send(JSON.stringify(configData));
+      // setup(configData["configuration"]);
     }
 
     function decodeJSON(data) {
@@ -271,11 +306,22 @@
     socket.addEventListener("message", (event) => {
       console.log("Message from server: ", event.data);
       appendMessage("Message from server: " + event.data);
-      if (JSON.parse(event.data).hasOwnProperty("configuring")) {
-        const configData = JSON.parse(event.data);
+
+      const data = JSON.parse(event.data);
+
+      if (data.hasOwnProperty("configuring")) {
+        const configData = data;
         decodeJSON(configData);
         populateForm(configData);
         showPopup('Configuration', 'Merci de configurer l\'application, puis cliquez sur "Envoyer la configuration".');
+      } else if (data.hasOwnProperty("running-state")) {
+        const runningState = data["running-state"];
+        decodeJSON(runningState);
+        document.getElementById("totalNumber").textContent = data['tick'];
+      } else if (data.hasOwnProperty("state")) {
+        const state = data["state"];
+        decodeJSON(state);
+        document.getElementById("totalNumber").textContent = data['on'];
       }
     });
 
@@ -354,6 +400,11 @@
 
     document.getElementById('closePopup').addEventListener('click', function () {
       document.getElementById('popupModal').classList.add('hidden');
+    });
+
+    document.getElementById('viewTickBtn').addEventListener('click', function () {
+      socket.send(JSON.stringify({ "get_state": document.getElementById("inputNumber").value }));
+      appendMessage('Sent: view-tick');
     });
   </script>
   <script type="module" src="./client/main.js"></script>

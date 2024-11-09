@@ -87,7 +87,11 @@ class SocketServer implements MessageComponentInterface
                 $this->loop->run();
                 $this->broadcast(json_encode(['configuration' => 'done']));
             } elseif (array_key_exists('get_state', $msg)) {
-                $from->send($this->man->getState($msg['get_state']));
+                $from->send(json_encode([
+                    'state' => $msg['get_state'],
+                    'on' => $this->man->getTick(),
+                    'data' => $this->man->getState($msg['get_state'])
+                ]));
             }
 
             return;
@@ -104,7 +108,7 @@ class SocketServer implements MessageComponentInterface
                 echo "Unknown command: $msg\n";
                 break;
         }
-        $this->broadcast($this->man->getLastState());
+        $this->sendRunningState();
     }
 
     public function onClose(ConnectionInterface $conn)
@@ -126,11 +130,19 @@ class SocketServer implements MessageComponentInterface
         }
     }
 
+    private function sendRunningState(): void
+    {
+        $this->broadcast(json_encode([
+            'running-state' => $this->man->getLastState(),
+            'tick' => $this->man->getTick(),
+        ]));
+    }
+
     public function runPeriodiquement(): void
     {
         if ($this->man->state === ManEnum::RUNNING) {
             $this->man->runOnce();
-            $this->broadcast($this->man->getLastState());
+            $this->sendRunningState();
         }
 
         if ($this->man->state === ManEnum::SUCCEEDED) {
