@@ -77,6 +77,7 @@ class SocketServer implements MessageComponentInterface
             $msg = json_decode($msg, true);
             if (isset($msg['configuration']) && $this->man->state === ManEnum::UNUNITIALIZED) {
                 $this->man->build($msg['configuration']);
+                $from->send(json_encode(['configuration' => 'done', 'data' => $this->man->getLastState()]));
                 // Ajouter notre timer périodique
                 $this->loop->addPeriodicTimer($this->interval, function () {
                     $this->runPeriodiquement();
@@ -125,11 +126,13 @@ class SocketServer implements MessageComponentInterface
     public function runPeriodiquement(): void
     {
         if ($this->man->state === ManEnum::RUNNING) {
-            if ($this->man->runOnce() !== ManEnum::SUCCEEDED) {
-                $this->broadcast($this->man->getLastState());
-            } else {
-                $this->close();
-            }
+            $this->man->runOnce();
+            $this->broadcast($this->man->getLastState());
+        }
+
+        if ($this->man->state === ManEnum::SUCCEEDED) {
+            $this->broadcast(json_encode(['state' => 'succeeded']));
+            $this->close();
         }
     }
 

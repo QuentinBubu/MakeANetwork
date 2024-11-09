@@ -12,6 +12,13 @@ class Message
     public static int $logLevel = 1;
 
     /**
+     * Fichier de sortie des logs.
+     * 
+     * @var string
+     */
+    public static string $output = 'php://stdout';
+
+    /**
      * Liste des messages à ignorer dans les logs.
      * Ces messages ne seront pas affichés même si le niveau de log est suffisant.
      * 
@@ -43,9 +50,8 @@ class Message
      * 
      * @param string $message Le message à enregistrer.
      * @param int $logLevel Le niveau de log du message. Par défaut, il est DEBUG_DETAIL.
-     * @param string $out Le fichier de sortie. Par défaut, c'est la sortie standard.
      */
-    public static function log(string $message, int $logLevel = self::DEBUG_DETAIL, string $out = 'php://stdout'): void
+    public static function log(string $message, int $logLevel = self::DEBUG_DETAIL): void
     {
         // Si le niveau de log du message est inférieur au niveau de log global, on ignore le message
         if ($logLevel > self::$logLevel) {
@@ -61,7 +67,7 @@ class Message
         }
 
         // Affiche le message s'il ne doit pas être ignoré
-        file_put_contents($out, $message . PHP_EOL);
+        file_put_contents(self::$output, $message . PHP_EOL, FILE_APPEND);
     }
 
     /**
@@ -72,5 +78,15 @@ class Message
     public static function setLevel(int $level): void
     {
         self::$logLevel = $level;
+    }
+
+    /**
+     * Modifie le fichier de sortie des logs.
+     * 
+     * @param string $output Le fichier de sortie des logs.
+     */
+    public static function setOutput(string $output): void
+    {
+        self::$output = $output;
     }
 }
