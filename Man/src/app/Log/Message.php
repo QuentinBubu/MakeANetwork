@@ -67,7 +67,7 @@ class Message
         }
 
         // Affiche le message s'il ne doit pas être ignoré
-        file_put_contents(self::$output, $message . PHP_EOL);
+        file_put_contents(self::$output, $message . PHP_EOL, FILE_APPEND);
     }
 
     /**
