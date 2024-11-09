@@ -1,0 +1,72 @@
+#!/usr/bin/env php
+<?php
+
+use App\Man;
+use Dotenv\Dotenv;
+use App\Timer\Time;
+use App\Loaders\Bus;
+use App\Log\Message;
+use App\Loaders\Arrets;
+use App\Loaders\Routes;
+use App\Loaders\Trajets;
+use App\Loaders\Parcours;
+use App\Loaders\Personnes;
+use WebServer\SocketServer;
+use Dotenv\Repository\RepositoryBuilder;
+
+require_once 'vendor/autoload.php';
+
+if (version_compare(phpversion(), '8.3', '<')) {
+    die('Merci de passer à PHP 8.3 ou plus récent');
+}
+
+$man = new Man(__DIR__ . '/data');
+$man->setStates([
+    ['class' => Arrets::class, 'method' => 'export', 'name' => 'arrets'],
+    ['class' => Bus::class, 'method' => 'export', 'name' => 'bus'],
+    ['class' => Parcours::class, 'method' => 'export', 'name' => 'parcours'],
+    ['class' => Personnes::class, 'method' => 'export', 'name' => 'personnes'],
+    ['class' => Routes::class, 'method' => 'export', 'name' => 'routes'],
+    ['class' => Trajets::class, 'method' => 'export', 'name' => 'trajets'],
+    ['class' => Time::class, 'method' => 'export', 'name' => 'time'],
+])
+    ->setMessageLevel(Message::DEBUG_ALL);
+
+$repository = RepositoryBuilder::createWithDefaultAdapters()->make();
+$dotenv = Dotenv::create($repository, './');
+$dotenv->load();
+$dotenv->required(['UNIVERS_START', 'UNIVERS_END']);
+
+function runAll(Man &$man, ?string $outputFile = null): void
+{
+    if (!is_null($outputFile)) {
+        $man->setMessageOutput($outputFile);
+    }
+    $man->build()
+        ->runAll();
+}
+
+function socket(Man &$man)
+{
+    $ss = new SocketServer($man);
+    $ss->start(8080);
+}
+
+// Récupérer les options via getopt
+$options = getopt("p:l:o:", ["program:", "log:", "out:"]);
+
+if (!is_null($options['l'] ?? $options['log'] ?? null)) {
+    $man->setMessageLevel($options['l'] ?? $options['log']);
+}
+
+switch ($options['p'] ?? $options['program'] ?? null) {
+    case 'runAll':
+        runAll($man, $options['o'] ?? $options['out'] ?? null);
+        break;
+    case 'socket':
+        socket($man);
+        break;
+    default:
+        echo "Unknown command. Use 'runAll' or 'socket'.\n";
+        break;
+}
