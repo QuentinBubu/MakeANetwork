@@ -39,10 +39,10 @@ class Man
     public static $requiredFiles = ['bus', 'arrets', 'routes', 'parcours', 'buses', 'peoples'];
 
     /**
-     * Dernier état de la simulation, représenté sous forme de chaîne JSON.
-     * @var string
+     * Liste des états, représenté sous forme de chaîne JSON.
+     * @var array
      */
-    private string $lastState = '';
+    private array $exportedStates = [];
 
     /**
      * État actuel de la simulation.
@@ -133,7 +133,7 @@ class Man
             $this->json = $data;
         }
         $this->loadAsObject();
-        $this->lastState = State::exportData();
+        $this->state[Time::getTick()] = State::exportData();
         Message::log('----- FIN -----', Message::INFO);
         $this->state = ManEnum::WAITING_START;
         return $this;
@@ -223,7 +223,7 @@ class Man
         if (Time::getTick() <= $_ENV['UNIVERS_END'] && count(Personnes::$personnes) > 0) {
             Time::run();
             Time::incrementTick();
-            $this->lastState = State::exportData();
+            $this->exportedStates[Time::getTick()] = State::exportData();
             $this->checkUnicitePersonne();
             return ManEnum::RUNNING;
         }
@@ -276,11 +276,16 @@ class Man
 
     /**
      * Retourne l'état de la simulation sous forme JSON.
-     * 
+     *
      * @return string L'état actuel sous forme JSON.
      */
     public function getLastState(): string
     {
-        return $this->lastState;
+        return $this->exportedStates[count($this->exportedStates) - 1];
+    }
+
+    public function getState(int $state): ?string
+    {
+        return $this->exportedStates[$state] ?? null;
     }
 }
