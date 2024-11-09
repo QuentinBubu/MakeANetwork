@@ -239,15 +239,4 @@ class Parcours implements StateInterface
             'previousArret' => $this->previousArret
         ];
     }
-
-    /**
-     * Méthode de restauration non implémentée.
-     * Lance une exception car cette fonctionnalité n'est pas encore implémentée.
-     *
-     * @throws \Exception Toujours levée, car la méthode n'est pas implémentée.
-     */
-    public function restore(array $state): void
-    {
-        throw new \Exception("Not implemented");
-    }
 }

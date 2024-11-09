@@ -135,16 +135,4 @@ class Trajet implements StateInterface
             ),
         ];
     }
-
-    /**
-     * Restaure l'état de l'objet à partir d'un tableau d'état.
-     * Cette méthode n'est pas implémentée pour l'instant.
-     *
-     * @param array $state L'état à restaurer.
-     * @throws \Exception Si la méthode est appelée, une exception est levée.
-     */
-    public function restore(array $state): void
-    {
-        throw new \Exception('Not implemented');
-    }
 }

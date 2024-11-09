@@ -227,7 +227,9 @@ class Man
             $this->checkUnicitePersonne();
             return ManEnum::RUNNING;
         }
+
         $this->state = ManEnum::SUCCEEDED;
+
         return ManEnum::SUCCEEDED;
     }
 

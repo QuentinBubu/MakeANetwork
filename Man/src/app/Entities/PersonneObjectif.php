@@ -59,26 +59,4 @@ class PersonneObjectif implements StateInterface
             'tickDepart' => $this->tickDepart,
         ];
     }
-
-    /**
-     * Restaure l'état de l'objectif à partir d'un tableau donné.
-     *
-     * @param array $state L'état à restaurer.
-     * @throws \Exception Si l'arrêt n'existe pas.
-     */
-    public function restore(array $state): void
-    {
-        // Restaure les propriétés de l'objectif à partir des données d'état.
-        $depuis = Arrets::getArret($state['depuis']);
-        $vers = Arrets::getArret($state['vers']);
-
-        if ($depuis === null || $vers === null) {
-            throw new \Exception("Les arrêts fournis ne sont pas valides.");
-        }
-
-        // Nb : Étant donné que les propriétés sont readonly, une solution alternative peut être nécessaire.
-        $this->depuis = $depuis;
-        $this->vers = $vers;
-        $this->tickDepart = $state['tickDepart'];
-    }
 }

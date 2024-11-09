@@ -372,16 +372,4 @@ class Arret implements TimeInterface, StateInterface
             'vehiculesEnAttente' => array_map(fn($bus) => spl_object_id($bus), $this->vehiculesEnAttente),
         ];
     }
-
-    /**
-     * Restaurer l'état de l'arrêt (non implémenté)
-     * 
-     * @param array $state L'état de restauration
-     * 
-     * @throws \Exception Si la méthode n'est pas implémentée
-     */
-    public function restore(array $state): void
-    {
-        throw new \Exception("Not implemented");
-    }
 }

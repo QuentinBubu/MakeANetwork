@@ -159,15 +159,4 @@ class Route implements StateInterface
     {
         return in_array($arret, $this->arrets);
     }
-
-    /**
-     * Restaure l'état de l'objet à partir de données externes.
-     * 
-     * @param array $state L'état à restaurer.
-     * @throws \Exception Méthode non implémentée.
-     */
-    public function restore(array $state): void
-    {
-        throw new \Exception('Not implemented');
-    }
 }

@@ -227,14 +227,4 @@ class Personne implements StateInterface
             // 'trajetOptimise' => $this->trajetOptimise, // Ne pas exporter pour l'instant.
         ];
     }
-
-    /**
-     * Méthode de restauration de l'état, non implémentée.
-     *
-     * @throws \Exception Lance une exception car la méthode n'est pas implémentée.
-     */
-    public function restore(array $state): void
-    {
-        throw new \Exception("Not implemented");
-    }
 }

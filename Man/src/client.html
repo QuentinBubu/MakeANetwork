@@ -31,7 +31,7 @@
     <!-- Section des contrôles -->
     <div class="flex items-center justify-center mb-4 gap-2">
       <!-- Bouton Backward -->
-      <button class="p-2 bg-gray-200 rounded hover:bg-gray-300">
+      <button class="p-2 bg-gray-200 rounded hover:bg-gray-300" id="backward">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24"
           stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
@@ -46,7 +46,7 @@
       </div>
 
       <!-- Bouton Forward -->
-      <button class="p-2 bg-gray-200 rounded hover:bg-gray-300">
+      <button class="p-2 bg-gray-200 rounded hover:bg-gray-300" id="forward">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24"
           stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -185,6 +185,18 @@
     </div>
   </div>
 
+  <!-- Popup Fin de l'univers -->
+  <div id="universeEndModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center max-w-md w-full">
+      <h2 class="text-2xl font-semibold mb-4">Fin de l'univers !</h2>
+      <p id="universeEndMessage" class="text-lg">Univers terminé en <span id="tickCount"></span> ticks.</p>
+      <button id="closeModalBtn"
+        class="mt-4 px-4 py-2 bg-green-400 text-white rounded-full hover:bg-green-500 transition duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
+        Fermer
+      </button>
+    </div>
+  </div>
+
   <script type="module">
     import { setup } from "./client/main.js";
     globalThis.setup = setup;
@@ -317,11 +329,15 @@
       } else if (data.hasOwnProperty("running-state")) {
         const runningState = data["running-state"];
         decodeJSON(runningState);
+        document.getElementById("inputNumber").value = data['tick'];
         document.getElementById("totalNumber").textContent = data['tick'];
       } else if (data.hasOwnProperty("state")) {
         const state = data["state"];
         decodeJSON(state);
+        document.getElementById("inputNumber").value = data['state'];
         document.getElementById("totalNumber").textContent = data['on'];
+      } else if (data.hasOwnProperty("success")) {
+        showUniverseEndModal(data['tick']);
       }
     });
 
@@ -402,9 +418,41 @@
       document.getElementById('popupModal').classList.add('hidden');
     });
 
+    function showUniverseEndModal(tickCount) {
+      document.getElementById('universeEndModal').classList.remove('hidden')
+      document.getElementById('tickCount').textContent = tickCount;
+    }
+  
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      document.getElementById('universeEndModal').classList.add('hidden');
+    });
+
     document.getElementById('viewTickBtn').addEventListener('click', function () {
       socket.send(JSON.stringify({ "get_state": document.getElementById("inputNumber").value }));
       appendMessage('Sent: view-tick');
+    });
+
+    document.getElementById('backward').addEventListener('click', function () {
+      const tick = parseInt(document.getElementById("inputNumber").value) - 1;
+      if (tick >= 0) {
+        socket.send(JSON.stringify({ "get_state": tick }));
+        appendMessage('Sent: view-tick');
+      } else {
+        showPopup('Erreur', 'Vous ne pouvez pas aller en arrière de la première tick.');
+      }
+    });
+
+    document.getElementById('forward').addEventListener('click', function () {
+      const tick = parseInt(document.getElementById("inputNumber").value) + 1;
+      socket.send(JSON.stringify({ "get_state": tick }));
+      appendMessage('Sent: view-tick');
+    });
+
+    document.getElementById('inputNumber').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        document.getElementById('viewTickBtn').click();
+      }
     });
   </script>
   <script type="module" src="./client/main.js"></script>

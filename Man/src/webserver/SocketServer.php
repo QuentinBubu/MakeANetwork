@@ -87,10 +87,21 @@ class SocketServer implements MessageComponentInterface
                 $this->loop->run();
                 $this->broadcast(json_encode(['configuration' => 'done']));
             } elseif (array_key_exists('get_state', $msg)) {
+                $state = $this->man->getState($msg['get_state']);
+
+                if (is_null($state)) {
+                    $this->man->state = ManEnum::RUNNING;
+                    $this->runPeriodiquement();
+                    if ($this->man->state === ManEnum::RUNNING) {
+                        $this->man->state = ManEnum::PAUSED;
+                    }
+                    $state = $this->man->getState($msg['get_state']);
+                }
+
                 $from->send(json_encode([
                     'state' => $msg['get_state'],
                     'on' => $this->man->getTick(),
-                    'data' => $this->man->getState($msg['get_state'])
+                    'data' => $state
                 ]));
             }
 
@@ -146,8 +157,11 @@ class SocketServer implements MessageComponentInterface
         }
 
         if ($this->man->state === ManEnum::SUCCEEDED) {
-            $this->broadcast(json_encode(['state' => 'succeeded']));
-            $this->close();
+            $this->broadcast(json_encode([
+                'univers_end' => 'success',
+                'tick' => $this->man->getTick(),
+                'data' => $this->man->getLastState(),
+            ]));
         }
     }
 

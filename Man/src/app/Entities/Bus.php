@@ -320,13 +320,4 @@ class Bus extends Position implements TimeInterface, StateInterface
             'tick' => $this->tick,
         ];
     }
-
-    /**
-     * Méthode de restauration non implémentée.
-     * @throws \Exception Toujours levée car non implémentée.
-     */
-    public function restore(array $state): void
-    {
-        throw new \Exception('Not implemented');
-    }
 }
