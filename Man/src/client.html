@@ -28,8 +28,8 @@
       </div>
 
       <div class="wrapper">
-        <canvas id="busCanvas"></canvas>
-        <canvas id="entityCanvas"></canvas>
+        <canvas height="100" width="300" style="object-fit:contain;" id="busCanvas"></canvas>
+        <canvas height="100" width="300" style="object-fit:contain;" id="entityCanvas"></canvas>
         </div>
 
       <div
@@ -196,7 +196,11 @@
       </section>
     </div>
 
-    <script>
+    <script type="module">
+      import {setup} from "./client/main.js";
+      globalThis.setup = setup;
+    </script>
+  <script>
       function toggleAccordion(sectionId) {
         const section = document.getElementById(sectionId);
         section.classList.toggle("hidden-content");
@@ -415,6 +419,7 @@
         });
 
         console.log(configData);
+        setup(configData["configuration"]);
         socket.send(JSON.stringify(configData));
       }
 
@@ -513,6 +518,6 @@
         }
       }
     </script>
-
+    <script type="module" src="./client/main.js"></script>
   </body>
 </html>
