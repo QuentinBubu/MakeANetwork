@@ -3,7 +3,7 @@ export default class Arret {
     this.nom = name
     this.x;
     this.y;
-    this.radius = 50;
+    this.radius = 10;
     this.originalColor = "green";
     this.hoverColor = "red";
     this.currentColor = this.originalColor;
@@ -34,15 +34,13 @@ export default class Arret {
   
   checkHover(mouseX,mouseY) {
       this.isHovered = this.ctx.isPointInPath(mouseX, mouseY)
+      if (this.isHovered) {
+        this.currentColor = this.hoverColor
+      }
+  
+      else {
+        this.currentColor = this.originalColor;
+      }
     }
   
-  update() {
-    if (this.isHovered) {
-      this.currentColor = this.hoverColor
-    }
-
-    else {
-      this.currentColor = this.originalColor;
-    }
-  }
 }

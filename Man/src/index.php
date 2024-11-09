@@ -35,10 +35,10 @@ $man->setStates([
         ['class' => Trajets::class, 'method' => 'export', 'name' => 'trajets'],
         ['class' => Time::class, 'method' => 'export', 'name' => 'time'],
     ])
-    ->setMessageLevel(Message::DEBUG_ALL)
-    ->build();
+    ->setMessageLevel(Message::DEBUG_ALL);
+//    ->build();
     
-$man->runAll();
+// $man->runAll();
 // Message::log(State::exportData(), Message::INFO);
 $ss = new SocketServer($man);
 $ss->start(8080);

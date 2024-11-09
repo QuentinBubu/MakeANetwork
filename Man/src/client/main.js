@@ -1,51 +1,45 @@
 import Arret from './Arret.js'
-
+export { setup};
 
 
 /** @type {HTMLCanvasElement} */
 const busCanvas = document.getElementById("busCanvas");
-const ctx = busCanvas.getContext("2d");
-const sizeX = busCanvas.getAttribute("width");
-const sizeY = busCanvas.getAttribute("heigth");
-const oX = Math.round(sizeX/2);
-const oY = Math.round(sizeY/2);
+let ctx = busCanvas.getContext("2d");
+let sizeX = busCanvas.width;
+let sizeY = 100;
 const canvasRect = busCanvas.getBoundingClientRect();
+let ratio = 1;
 
 let mouseX = null;
 let mouseY = null;
 
 
-document.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX - canvasRect.left;
-  mouseY = e.clientY - canvasRect.top;
-  render();
-})
+document.addEventListener("mousemove", placementCursor)
+
+function placementCursor(e){
+  mouseX = (e.clientX - canvasRect.left);
+  mouseY = (e.clientY - canvasRect.top);
+  renderStops();
+}
 
 let arrets = {};
-let arretsSet = []; 
 
-  // Événement déclenché lorsque des messages sont reçus
-  socket.addEventListener('message', ()=>{ socket.addEventListener('message', (event)=>{ setup(event.data); }, {once: true}); }, {once: true});  
 
-  function setup(string) {
-    socket.send('pause');  
-    let json = JSON.parse(string);        
-    console.log(json);
-    setArret(json);
-    console.log(arrets); 
-    setLinks(json); 
-    setCoordinates();         
+  function setup(conf) {
+    ratio = fixRatio(busCanvas);
+    setArret(conf);   
+    setLinks(conf);
+    setCoordinates();
     }
 
   function setArret(json){
-    for (let arret in json[0]["arrets"]){
+    for (let arret in json["arrets"]){
         arrets[arret] = (new Arret(arret,ctx));
-        arretsSet.push(false);
     }
   }
 
   function setLinks(json){
-    let routes=json[4]["routes"]
+    let routes=json["routes"]
       Object.keys(arrets).forEach((arret) => {
           for (let route in routes){
               route = routes[route];
@@ -57,27 +51,102 @@ let arretsSet = [];
             }
           }
         });
+        }      
+
+
+  let currentArretIndex = 0;
+
+
+  function setCoordinates() {
+    const arretArray = Object.values(arrets);
+    setTimeout(() => {
+    addClickListenerForArret(arretArray[currentArretIndex]);
+    }, 500);
   }
+  
+  function addClickListenerForArret(arret) {
+    function handleClick(event) {
+      event.stopPropagation();
+  
+      arret.setX(mouseX/ratio);
+      arret.setY(mouseY/ratio);
+  
+      console.log(`Coordinates set for arret: (${mouseX}, ${mouseY})`);
+  
 
-  async function setCoordinates(){    
-          addEventListener("click",function setter() {      
-            let arretsList = Object.values(arrets);    
-            let index = 0;                           
-            if(index<arretsList.length){
-            }
-            else{
-              render();
-              //socket.addEventListener('message', (event) => { update(event.data) });
-              socket.send('resume');
-            }
-          });
+      document.removeEventListener("click", handleClick, true);
+  
 
+      currentArretIndex++;
+      if (currentArretIndex < Object.values(arrets).length) {
+        addClickListenerForArret(Object.values(arrets)[currentArretIndex]);
+      }
+    }
+  
+    document.addEventListener("click", handleClick, { capture: true, once: true });
+    renderStops()
+    console.log(arret)
   }
+        
 
-function render() {
+
+function renderStops() {    
     Object.values(arrets).forEach((arret) => {
+
+      let links = Object.keys(arret.links);
+
+      links.forEach((link) => {
+
+      ctx.beginPath();
+      ctx.moveTo(arret.x, arret.y);
+      ctx.lineTo(arrets[link].x, arrets[link].y);
+      ctx.stroke();
+      });
+    });
+      Object.values(arrets).forEach((arret) => {
       arret.draw();
       arret.checkHover(mouseX, mouseY);
-      arret.update();
     });
+  }
+
+function fixRatio(Canvas){
+  let dimensions = getObjectFitSize(true,Canvas.clientWidth,Canvas.clientHeight,Canvas.width,Canvas.height);
+  Canvas.width = dimensions.width;
+  Canvas.height = dimensions.height;
+
+  let ctx = Canvas.getContext("2d");
+  console.log(Canvas.clientWidth,Canvas.clientWidth);
+  console.log(sizeX,sizeY);
+  let ratio = Math.min(
+    Canvas.clientWidth / sizeX,
+    Canvas.clientHeight / sizeY
+  );
+  sizeX = Canvas.clientWidth;
+  sizeY = Canvas.clientHeight;
+  ctx.scale(ratio, ratio); //adjust this!
+  console.log(ratio);
+  return ratio;
+}
+
+  function getObjectFitSize(contains /* true = contain, false = cover */,containerWidth,containerHeight,width,height) {
+    var doRatio = width / height;
+    var cRatio = containerWidth / containerHeight;
+    var targetWidth = 0;
+    var targetHeight = 0;
+    var test = contains ? doRatio > cRatio : doRatio < cRatio;
+  
+    if (test) {
+      targetWidth = containerWidth;
+      targetHeight = targetWidth / doRatio;
+    } else {
+      targetHeight = containerHeight;
+      targetWidth = targetHeight * doRatio;
+    }
+  
+    return {
+      width: targetWidth,
+      height: targetHeight,
+      x: (containerWidth - targetWidth) / 2,
+      y: (containerHeight - targetHeight) / 2
+    };
   }
