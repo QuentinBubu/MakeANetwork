@@ -198,8 +198,9 @@
   </div>
 
   <script type="module">
-    import { setup } from "./client/main.js";
+    import { setup,increment } from "./client/main.js";
     globalThis.setup = setup;
+    globalThis.increment = increment;
   </script>
   <script>
     // Envoi de la configuration
@@ -294,7 +295,8 @@
       });
 
       socket.send(JSON.stringify(configData));
-      // setup(configData["configuration"]);
+      //setup(configData["configuration"]);
+      //increment();
     }
 
     function decodeJSON(data) {
