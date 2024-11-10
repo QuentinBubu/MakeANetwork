@@ -1,12 +1,10 @@
-import Arret from './Arret.js'
-import Bus from './Bus.js'
-export { setup, increment};
+
 
 
 /** @type {HTMLCanvasElement} */
-const arretsCanvas = document.getElementById("busCanvas");
+const arretsCanvas = document.getElementById("arretCanvas");
 let arretCtx = arretsCanvas.getContext("2d");
-const BusCanvas = document.getElementById("busCanvas");
+const BusCanvas = document.getElementById("entityCanvas");
 let BusCtx = arretsCanvas.getContext("2d");
 let sizeX = arretsCanvas.width;
 let sizeY = 100;
@@ -30,12 +28,12 @@ let buses = [];
 
   function setup(conf) {
     ratio = fixRatio(arretsCanvas);
-    fixRatio(arretsCanvas);
+    //fixRatio(BusCanvas);
     setArret(conf);   
     setLinks(conf);
     console.log(conf);
-    //setBuses(conf.bus, conf.busses, conf.parcours);
-    setCoordinates();        
+    setBuses(conf.bus, conf.buses, conf.parcours);
+    setCoordinates();
     }
 
   function setArret(json){
@@ -61,7 +59,7 @@ let buses = [];
 
 function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
   Object.values(bussesJSON).forEach((bus) => {
-    buses.push(new Bus(busTypeJSON[bus["type"]],bus.parcours,BusCtx));
+    buses.push(new Bus(busTypeJSON[bus["type"]],parcoursJSON[bus.parcours],arrets,BusCtx));
   });
 }
 
@@ -94,9 +92,8 @@ function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
   
     document.addEventListener("click", handleClick, { capture: true, once: true });
     renderStops();
-    buses.forEach((bus) => {
-      bus.setParcoursDistances(arrets);
-    })
+    buses.forEach((bus)=>{bus.setPosition();})
+    renderBuses();
   }
         
 
@@ -117,6 +114,13 @@ function renderStops() {
       Object.values(arrets).forEach((arret) => {
       arret.draw();
       arret.checkHover(mouseX, mouseY);
+    });
+    renderBuses();
+  }
+
+  function renderBuses(){
+    buses.forEach((bus)=>{
+      bus.render();
     });
   }
 

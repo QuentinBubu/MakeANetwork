@@ -1,4 +1,4 @@
-export default class Arret {
+class Arret {
   constructor(name, ctx) {
     this.nom = name
     this.x;
