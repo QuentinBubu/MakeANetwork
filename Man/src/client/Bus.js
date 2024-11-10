@@ -56,7 +56,6 @@ increment(){
         this.distanceProchaineArret=this.parcours[this.arretCourrant][1];        
     }
     this.setPosition();
-    this.render();
 }
 
 }

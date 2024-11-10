@@ -92,8 +92,7 @@ function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
   
     document.addEventListener("click", handleClick, { capture: true, once: true });
     renderStops();
-    buses.forEach((bus)=>{bus.setPosition();})
-    renderBuses();
+    buses.forEach((bus)=>{bus.setPosition();})    
   }
         
 
@@ -114,8 +113,8 @@ function renderStops() {
       Object.values(arrets).forEach((arret) => {
       arret.draw();
       arret.checkHover(mouseX, mouseY);
+      renderBuses();
     });
-    renderBuses();
   }
 
   function renderBuses(){
@@ -164,5 +163,7 @@ function fixRatio(Canvas){
   }
 
   function increment(){
+    BusCtx.clearRect(0, 0, BusCanvas.width, BusCanvas.height);    
     buses.forEach((bus) => {bus.increment()});
+    renderStops();    
   }
