@@ -286,6 +286,11 @@ class Man
         return $this->exportedStates[count($this->exportedStates) - 1];
     }
 
+    public function getAllStates(): array
+    {
+        return $this->exportedStates;
+    }
+
     public function getState(int $state): ?string
     {
         return $this->exportedStates[$state] ?? null;

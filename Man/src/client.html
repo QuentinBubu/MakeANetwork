@@ -21,6 +21,12 @@
       <button id="resumeBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
         Resume
       </button>
+      <button id="exportBtn" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+        Exporter
+      </button>
+      <button id="importBtn" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">
+        Importer
+      </button>
     </div>
 
     <div class="wrapper">
@@ -338,6 +344,11 @@
         document.getElementById("totalNumber").textContent = data['on'];
       } else if (data.hasOwnProperty("success")) {
         showUniverseEndModal(data['tick']);
+      } else if (data.hasOwnProperty("export")) {
+        const a = document.createElement('a');
+        a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(data.export);
+        a.download = 'exportMan.json';
+        a.click();
       }
     });
 
@@ -422,7 +433,7 @@
       document.getElementById('universeEndModal').classList.remove('hidden')
       document.getElementById('tickCount').textContent = tickCount;
     }
-  
+
     document.getElementById('closeModalBtn').addEventListener('click', () => {
       document.getElementById('universeEndModal').classList.add('hidden');
     });
@@ -454,6 +465,15 @@
         document.getElementById('viewTickBtn').click();
       }
     });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      socket.send('export');
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => {
+      showPopup("Importation", "Attention, vous pourrez voir les données sur l'ensemble de la sauvegarde mais pas la continuer");
+    });
+
   </script>
   <script type="module" src="./client/main.js"></script>
 </body>
