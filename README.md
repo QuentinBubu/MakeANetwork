@@ -78,11 +78,16 @@ Un socket est alors ouvert sur le port 8080. On peut désormais s'y connecter av
 
 Il suffit d'ouvrir le fichier `client.html` dans un navigateur pour se connecter au serveur. Il n'y a pas besoin de le lancer via un serveur web, le fichier est auto-suffisant.
 
-5 Calcul complexité outil comparaison/consultation et explication
-TODO
+## Remarques diverses sur le projet
 
-6 Remarques diverses sur votre code que vous voulez donner
-TODO
+C'est un beau projet, qui a demandé et coûté beaucoup de nuits mais qui a été très enrichissant. Le code est fait pour être le plus flexible possible, mais il reste encore beaucoup d'améliorations à faire.
 
-7 Temps de terminaison de l’algorithme
-TODO
+Tout le code est documenté et commenté pour faciliter la compréhension.
+
+Sur chacune des méthodes, leur compléxité est indiquée.
+
+Un diagramme de classe est disponible `diagram.puml` et en svg `diagram.svg`.
+
+## Temps de terminaison
+
+Notre univers se termine à l'unité de temps 14XXX.

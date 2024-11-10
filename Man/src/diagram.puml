@@ -1,368 +1,380 @@
-@startuml
-
-interface App.Interfaces.TimeInterface
-{
-+incrementTick():
-
-}
-interface App.Interfaces.StateInterface
-{
-+export():
-+restore():
-
-}
-interface Stringable
-{
-
-}
-class App.Entities.Arret
-{
-+vehiculesEnApproche:array
-+vehiculesEnAttente:
-+nom:string
-+routes:Route[]
-+fileAttente:SplPriorityQueue
--genericRoutes:string[]
-+getNeighbors():array
-+mapRoutes():array
-+registerRoute():Arret
-+addPersonne():
-+addBusEnApproche():
-+removeBusEnApproche():
-+getBusEnApproche():
-+arriveeBus():
-+departBus():
-+removeBusEnAttente():
-+incrementTick():
-+export():
-+restore():
-
-}
-abstract class App.Entities.Position
-{
-+tick:
-+tickTo():
-+incrementTick():
-
-}
-class App.Entities.Bus
-{
-+capacite:integer
-+vitesseChargement:float
-+vitesseDeplacement:int
-#parcours:Parcours
-#personnes:Personne[]
-#state:
-#timers:array
-+tick:
-+getState():
-+setState():
-+addTimer():
-+getPlaceDisponible():void
-+getParcours():Parcours
-+isFull():
-+incrementTick():
-+demarrerParcours():
-+calculEtEnregistrementProchainPassage():
-+export():
-+restore():
-+tickTo():
-
-}
-class App.Entities.Parcours
-{
-+nom:string
-+trajets:Trajet[]
-+arretsAFaire:Arret[]
-+currentArret:int
-+nextArret:int
-+previousArret:int
-+addTrajet(Trajet:$trajet):self
-+findNextArretObj():
-+findNextArret():
-+arriveArret(Position:$position):void
-+getCurrentArretObj():
-+getPreviousArretObj():
-+getNextArretObj():
-+getArretWithIndex():
-+findNextRoute():
-+getRoutes():
-+export():
-+restore():
-
-}
-class App.Entities.Personne
-{
-+trajetAller:Trajet
-+trajetRetour:Trajet
-+trajetEnCours:
-+lastBus:Bus
-+nom:string
-+arretsVisites:
-+setArretActuel():
-+getTrajetEnCours():
-+finFinal():
-+export():
-+restore():
-
-}
-class App.Entities.Route
-{
-+nom:
-+arrets:Arret[]
-+bus:Bus[]
-+distance:
-+registerArret():
-+calculDistanceAvecBus():
-+getNextArret():
-+getArrets():
-+export():
-+restore():
-
-}
-class App.Entities.Trajet
-{
-+nom:
-+routes:Route[]
-+depart:
-+arrivee:
-+distance:
-+tickArrivee:
-+getRouteFromArret():
-+export():
-+restore():
-
-}
-interface UnitEnum
-{
-+cases():
-
-}
-class App.Enums.BusStateEnum
-{
-+name:
-+cases():
-
-}
-class App.Enums.TrajetEnCoursEnum
-{
-+name:
-+cases():
-
-}
-class Exception
-{
-#message:
--string:
-#code:
-#file:
-#line:
--trace:
--previous:
-+getMessage():
-+getCode():
-+getFile():
-+getLine():
-+getTrace():
-+getPrevious():
-+getTraceAsString():
-
-}
-interface Throwable
-{
-+getMessage():
-+getCode():
-+getFile():
-+getLine():
-+getTrace():
-+getPrevious():
-+getTraceAsString():
-
-}
-class App.Exceptions.ArretsException
-{
-#message:
-#code:
-#file:
-#line:
-+getMessage():
-+getCode():
-+getFile():
-+getLine():
-+getTrace():
-+getPrevious():
-+getTraceAsString():
-
-}
-class App.Exceptions.RouteException
-{
-#message:
-#code:
-#file:
-#line:
-+getMessage():
-+getCode():
-+getFile():
-+getLine():
-+getTrace():
-+getPrevious():
-+getTraceAsString():
-
-}
-class App.Exceptions.RoutesException
-{
-#message:
-#code:
-#file:
-#line:
-+getMessage():
-+getCode():
-+getFile():
-+getLine():
-+getTrace():
-+getPrevious():
-+getTraceAsString():
-
-}
-class App.Factories.BusFactory
-{
-+make():
-
-}
-class App.Loaders.Arrets
-{
-+arrets:
-+load():
-+map():
-+getArret():
-+export():
-
-}
-class App.Loaders.Bus
-{
-+buses:
-+load():
-+export():
-
-}
-class App.Loaders.Parcours
-{
-+parcours:
-+load():
-+getParcours():
-+export():
-
-}
-class App.Loaders.Personnes
-{
-+personnes:
-+load():
-+unregister():
-+export():
-
-}
-class App.Loaders.Routes
-{
-+routes:
-+load():
-+getRoute():
-+getRouteStr():
-+export():
-
-}
-class App.Loaders.Trajets
-{
-+trajets:array [
-+key():
-+addTrajet():
-+addLongTrajet():
-+findTrajetWithArret():
-+findTrajet():
-+calculTrajet():
-+export():
-
-}
-class App.State.State
-{
-+states:
-+registerFunction():
-+exportData():
-
-}
-class App.Timer.Time
-{
--tick:
--registredClass:TimeInterface[]
-+incrementTick():
-+getTick():
-+resetTick():
-+registerClass():
-+run():
-+export():
-
-}
-class App.Timer.Timer
-{
--remainingTicks:
-+getRemainingTicks():
-+incrementTicks():
-+incrementTick():
-
-}
-
-
-
-class App.Entities.Arret implements App.Interfaces.TimeInterface
-class App.Entities.Arret implements App.Interfaces.StateInterface
-class App.Entities.Arret implements Stringable
-
-
-class App.Entities.Bus extends App.Entities.Position
-class App.Entities.Bus implements App.Interfaces.TimeInterface
-class App.Entities.Bus implements App.Interfaces.StateInterface
-class App.Entities.Bus implements Stringable
-
-class App.Entities.Parcours implements App.Interfaces.StateInterface
-class App.Entities.Parcours implements Stringable
-
-class App.Entities.Personne implements App.Interfaces.StateInterface
-
-class App.Entities.Route implements App.Interfaces.StateInterface
-class App.Entities.Route implements Stringable
-
-class App.Entities.Trajet implements App.Interfaces.StateInterface
-
-
-class App.Enums.BusStateEnum implements UnitEnum
-
-class App.Enums.TrajetEnCoursEnum implements UnitEnum
-
-
-
-class App.Exceptions.ArretsException extends Exception
-class App.Exceptions.ArretsException implements Throwable
-class App.Exceptions.ArretsException implements Stringable
-
-class App.Exceptions.RouteException extends Exception
-class App.Exceptions.RouteException implements Throwable
-class App.Exceptions.RouteException implements Stringable
-
-class App.Exceptions.RoutesException extends Exception
-class App.Exceptions.RoutesException implements Throwable
-class App.Exceptions.RoutesException implements Stringable
-
-
-
-
-
-
-
-
-
-
-class App.Timer.Timer implements App.Interfaces.TimeInterface
-class App.Timer.Timer implements Stringable
-
-
-
+@startuml class-diagram
+  class "Man\n<b>Class Man</b>" as Man {
+    -dataDir : string
+    -json : array
+    +requiredFiles : string[]
+    -exportedStates : array
+    +state : ManEnum
+    +__construct(dataDir)
+    +setStates(states)
+    +addState(class, method, name)
+    +setMessageLevel(level)
+    +setMessageOutput(output)
+    +build(data)
+    -loadJson()
+    -loadAsObject()
+    +runAll()
+    +runOnce()
+    -checkUnicitePersonne()
+    +getLastState()
+    +getAllStates()
+    +getState(state)
+    +getTick()
+  }
+  package Entities as Entities {
+    class "Arret\n<b>Représente un arrêt de bus</b>" as Entities_Arret {
+      +vehiculesEnApproche : array
+      +vehiculesEnAttente : array
+      +nom : string
+      +routes : Route[]
+      +fileAttente : SplPriorityQueue
+      -genericRoutes : string[]
+      +__construct(nom, genericRoutes)
+      +getNeighbors()
+      +mapRoutes()
+      -registerRoute(route)
+      +addPersonne(personne)
+      -removePersonne(personne)
+      +addBusEnApproche(bus, tick)
+      -removeBusEnApproche(bus)
+      -removeBusEnAttente(bus)
+      +arriveeBus(bus)
+      +obtenirProchainePersonnePourBus(bus)
+      +estFileVidePourBus(bus)
+      +getRouteTo(arret)
+      +departBus(bus)
+      +incrementTick()
+      -debarquementProgressif(bus)
+      +export()
+    }
+    class "Bus\n<b>Représente un bus.</b>" as Entities_Bus {
+      +capacite : int
+      +vitesseChargement : float
+      +vitesseDeplacement : int
+      +type : string
+      #parcours : Parcours
+      #personnes : Personne[]
+      #personnesDescendu : Personne[]
+      #state : BusStateEnum
+      #timers : array
+      -previousActionTime : int
+      +__construct(capacite, vitesseChargement, vitesseDeplacement, type, parcours)
+      +getPersonnes()
+      +setState(state)
+      +addTimer(arret, timer)
+      +removeTimer(arret)
+      +getParcours()
+      +canTake(personne)
+      +__toString()
+      +addPersonne(personne)
+      +descentePassager(personne)
+      +isFull()
+      +peutDesservir(depart, destination)
+      +incrementTick()
+      +calculEtEnregistrementProchainPassage(arret)
+      +export()
+    }
+    class "Parcours" as Entities_Parcours {
+      +nom : string
+      +trajets : Trajet[]
+      +arretsAFaire : Arret[]
+      +currentArret : int|null
+      +nextArret : int|null
+      +previousArret : int|null
+      +__construct(nom, arretsAFaire, trajets)
+      +addTrajet(trajet)
+      +findNextArretObj(arret)
+      +findNextArret(arret)
+      +findAllNextArretsObj(arret)
+      +arriveArret(bus)
+      +getCurrentArretObj()
+      +getPreviousArretObj()
+      +getNextArretObj()
+      +getArretWithIndex(index)
+      +__toString()
+      +export()
+    }
+    class "Personne" as Entities_Personne {
+      +nom : string
+      +aller : PersonneObjectif
+      +retour : PersonneObjectif
+      +trajetEnCours : TrajetEnCoursEnum
+      +trajetOptimise : array
+      -signalDescente : Arret[]
+      +__construct(aller, retour, nom)
+      +getTrajetEnCours()
+      +finFinal()
+      +calculTrajet(arretFrom, arretTo)
+      +setSignalDescente(arret)
+      +veutDescendre(arret)
+      +descendArret(arret)
+      -removeSignalDescente(arret)
+      +canTake(bus, arret)
+      +export()
+    }
+    class "PersonneObjectif\n<b>Représente un objectif de trajet pour une personne (d'un arrêt à un autre à un moment donné).</b>" as Entities_PersonneObjectif {
+      +depuis : Arret
+      +vers : Arret
+      +tickDepart : int
+      +__construct(depuis, vers, tickDepart)
+      +export()
+    }
+    class "Position\n<b>Représente une position entre deux arrêts dans un parcours.</b>" as Entities_Position {
+      +tick : int
+      +tickTo(parcours, arret, multiplicateur)
+      +tickToNextComming(parcours, multiplicateur)
+      -getDistanceBetweenStops(parcours, from)
+      {abstract} +incrementTick()
+    }
+    class "Route" as Entities_Route {
+      +nom : string
+      +arrets : Arret[]
+      +distance : int
+      +__construct(nom, distance)
+      +registerArret(arret)
+      +getNextArret(arret)
+      +__tostring()
+      +getArrets()
+      +export()
+      +hasArret(arret)
+    }
+    class "Trajet" as Entities_Trajet {
+      +nom : string
+      +routes : Route[]
+      +depart : Arret
+      +arrivee : Arret
+      +distance : int
+      +__construct(nom, route, depart, arrivee, distance)
+      +getRouteFromArret(depart, arretsVisites)
+      +getProchainArret(arretActuel)
+      +export()
+    }
+  }
+  package Enums as Enums {
+    enum "BusStateEnum\n<b>Enumération représentant les différents états d'un bus.</b>" as Enums_BusStateEnum {
+    }
+    enum "ManEnum\n<b>Enumération représentant les différents états du programme.</b>" as Enums_ManEnum {
+    }
+    enum "TrajetEnCoursEnum\n<b>Enumération représentant les deux états d'un trajet en cours.</b>" as Enums_TrajetEnCoursEnum {
+    }
+  }
+  package Exceptions as Exceptions {
+    class "ArretsException" as Exceptions_ArretsException {
+    }
+    class "BusException" as Exceptions_BusException {
+    }
+    class "ManException" as Exceptions_ManException {
+    }
+    class "RouteException" as Exceptions_RouteException {
+    }
+    class "RoutesException" as Exceptions_RoutesException {
+    }
+  }
+  package Factories as Factories {
+    class "BusFactory\n<b>La classe BusFactory est responsable de la création d'objets Bus.</b>" as Factories_BusFactory {
+      {static} +make(bus, config)
+    }
+  }
+  package Interfaces as Interfaces {
+    interface "BusActionsInterface\n<b>Interface qui définit les actions qu'un bus peut effectuer</b>" as Interfaces_BusActionsInterface {
+      +chargerPersonnes(personnes)
+      +dechargerPersonnes()
+    }
+    interface "StateInterface\n<b>Interface pour les objets qui ont un état pouvant être exporté et restauré.</b>" as Interfaces_StateInterface {
+      +export()
+    }
+    interface "TimeInterface\n<b>Cette interface impose la méthode incrementTick(), qui est utilisée pour mettre à jour l'état de l'objet</b>" as Interfaces_TimeInterface {
+      +incrementTick()
+    }
+  }
+  package Loaders as Loaders {
+    class "Arrets\n<b>Classe responsable de la gestion des arrêts de transport.</b>" as Loaders_Arrets {
+      +arrets : Arret[]
+      {static} +load(arrets)
+      {static} +map()
+      {static} +getArret(name)
+      {static} +export()
+    }
+    class "Bus\n<b>Classe responsable de la gestion des bus dans le système.</b>" as Loaders_Bus {
+      +buses : EntitiesBus[]
+      {static} +load(bus, config)
+      {static} +export()
+    }
+    class "Parcours\n<b>Classe qui gère les parcours dans le système.</b>" as Loaders_Parcours {
+      +parcours : EntityParcours[]
+      {static} +load(parcours)
+      {static} +getParcours(nom)
+      {static} +export()
+    }
+    class "PathFinder\n<b>Class PathFinder</b>" as Loaders_PathFinder {
+      {static} +findBestPath(personne, arretFrom, arretTo)
+    }
+    class "Personnes\n<b>La classe Personnes gère un ensemble d'objets Personne.</b>" as Loaders_Personnes {
+      +personnes : Personne[]
+      {static} +load(personnesList)
+      {static} +unregister(personne)
+      {static} +export()
+    }
+    class "Routes\n<b>La classe Routes est responsable de la gestion des routes dans le système.</b>" as Loaders_Routes {
+      +routes : Route[]
+      {static} +load(routes)
+      {static} +getRoute(name)
+      {static} +getRouteStr(arretA, arretB)
+      {static} +export()
+    }
+    class "Trajets\n<b>Classe Trajets</b>" as Loaders_Trajets {
+      +trajets : array
+      {static} +key(a, b)
+      {static} +addTrajet(route)
+      {static} +addLongTrajet(depart, arrivee, routes, distance)
+      {static} +findTrajetWithArret(depart, arrivee)
+      {static} +findTrajet(depart, arrivee)
+      {static} +calculTrajet(arretA, arretB)
+      {static} +export()
+    }
+  }
+  package Log as Log {
+    class "Message" as Log_Message {
+      +logLevel : int
+      +output : string
+      -ignoredMessages : string[]
+      {static} +log(message, logLevel)
+      {static} +setLevel(level)
+      {static} +setOutput(output)
+    }
+  }
+  package State as State {
+    class "State" as State_State {
+      +states : array
+      {static} +registerFunction(class, method, key)
+      {static} +exportData()
+    }
+  }
+  package Timer as Timer {
+    class "Time" as Timer_Time {
+      -tick : int
+      -registredClass : TimeInterface[]
+      {static} +incrementTick()
+      {static} +getTick()
+      {static} +resetTick()
+      {static} +registerClass(class)
+      {static} +run()
+      {static} +export()
+    }
+    class "Timer\n<b>La classe Timer gère un minuteur qui décrémente un compteur de ticks à chaque unité de temps.</b>" as Timer_Timer {
+      -remainingTicks : int
+      +__construct(remainingTicks)
+      +getRemainingTicks()
+      +incrementTicks()
+      +incrementTick()
+      +__toString()
+    }
+  }
+  Entities_Arret "1" ..> "*" Entities_Route
+  Entities_Arret ..> Entities_Arret
+  Entities_Arret ..> Entities_Bus
+  Entities_Arret ..> Entities_Personne
+  Entities_Arret ..> Entities_Route
+  Entities_Arret ..> Enums_BusStateEnum
+  Entities_Arret ..> Loaders_Routes
+  Entities_Arret ..> Log_Message
+  Entities_Arret ..> Timer_Time
+  Entities_Arret ..> Timer_Timer
+  Entities_Bus "1" ..> "*" Entities_Personne
+  Entities_Bus ..> Entities_Arret
+  Entities_Bus ..> Entities_Parcours
+  Entities_Bus ..> Entities_Personne
+  Entities_Bus ..> Enums_BusStateEnum
+  Entities_Bus ..> Exceptions_BusException
+  Entities_Bus ..> Log_Message
+  Entities_Bus ..> Timer_Time
+  Entities_Bus ..> Timer_Timer
+  Entities_Parcours "1" ..> "*" Entities_Arret
+  Entities_Parcours "1" ..> "*" Entities_Trajet
+  Entities_Parcours ..> Entities_Arret
+  Entities_Parcours ..> Entities_Bus
+  Entities_Parcours ..> Entities_Trajet
+  Entities_Parcours ..> Log_Message
+  Entities_Parcours ..> Timer_Time
+  Entities_Personne "1" ..> "*" Entities_Arret
+  Entities_Personne ..> Entities_Arret
+  Entities_Personne ..> Entities_Bus
+  Entities_Personne ..> Entities_PersonneObjectif
+  Entities_Personne ..> Enums_TrajetEnCoursEnum
+  Entities_Personne ..> Loaders_PathFinder
+  Entities_Personne ..> Loaders_Personnes
+  Entities_Personne ..> Log_Message
+  Entities_Personne ..> State_State
+  Entities_Personne ..> Timer_Time
+  Entities_PersonneObjectif ..> Entities_Arret
+  Entities_PersonneObjectif ..> Loaders_Arrets
+  Entities_Position ..> Entities_Arret
+  Entities_Position ..> Entities_Parcours
+  Entities_Position ..> Loaders_Trajets
+  Entities_Position <|-- Entities_Bus
+  Entities_Route "1" ..> "*" Entities_Arret
+  Entities_Route ..> Entities_Arret
+  Entities_Route ..> Exceptions_RouteException
+  Entities_Route ..> Loaders_Trajets
+  Entities_Route ..> Log_Message
+  Entities_Trajet "1" ..> "*" Entities_Route
+  Entities_Trajet ..> Entities_Arret
+  Entities_Trajet ..> Entities_Route
+  Factories_BusFactory ..> Entities_Bus
+  Factories_BusFactory ..> Loaders_Parcours
+  Factories_BusFactory ..> Log_Message
+  Interfaces_BusActionsInterface "1" ..> "*" Entities_Personne
+  Interfaces_StateInterface <|-- Entities_Arret
+  Interfaces_StateInterface <|-- Entities_Bus
+  Interfaces_StateInterface <|-- Entities_Parcours
+  Interfaces_StateInterface <|-- Entities_Personne
+  Interfaces_StateInterface <|-- Entities_PersonneObjectif
+  Interfaces_StateInterface <|-- Entities_Route
+  Interfaces_StateInterface <|-- Entities_Trajet
+  Interfaces_TimeInterface <|-- Entities_Arret
+  Interfaces_TimeInterface <|-- Entities_Bus
+  Interfaces_TimeInterface <|-- Entities_Position
+  Interfaces_TimeInterface <|-- Timer_Timer
+  Loaders_Arrets "1" ..> "*" Entities_Arret
+  Loaders_Arrets ..> Entities_Arret
+  Loaders_Arrets ..> Exceptions_ArretsException
+  Loaders_Arrets ..> Log_Message
+  Loaders_Bus ..> Factories_BusFactory
+  Loaders_Parcours ..> Entities_Parcours
+  Loaders_Parcours ..> Loaders_Arrets
+  Loaders_Parcours ..> Loaders_Trajets
+  Loaders_Parcours ..> Log_Message
+  Loaders_PathFinder ..> Entities_Arret
+  Loaders_PathFinder ..> Entities_Personne
+  Loaders_PathFinder ..> Loaders_Arrets
+  Loaders_PathFinder ..> Loaders_Bus
+  Loaders_PathFinder ..> Log_Message
+  Loaders_Personnes "1" ..> "*" Entities_Personne
+  Loaders_Personnes ..> Entities_Personne
+  Loaders_Personnes ..> Entities_PersonneObjectif
+  Loaders_Personnes ..> Log_Message
+  Loaders_Routes "1" ..> "*" Entities_Route
+  Loaders_Routes ..> Entities_Route
+  Loaders_Routes ..> Exceptions_RoutesException
+  Loaders_Routes ..> Loaders_Arrets
+  Loaders_Routes ..> Log_Message
+  Loaders_Trajets ..> Entities_Arret
+  Loaders_Trajets ..> Entities_Route
+  Loaders_Trajets ..> Entities_Trajet
+  Loaders_Trajets ..> Exceptions_ArretsException
+  Loaders_Trajets ..> Loaders_Arrets
+  Loaders_Trajets ..> Log_Message
+  Man ..> Enums_ManEnum
+  Man ..> Exceptions_ManException
+  Man ..> Loaders_Arrets
+  Man ..> Loaders_Bus
+  Man ..> Loaders_Parcours
+  Man ..> Loaders_Personnes
+  Man ..> Loaders_Routes
+  Man ..> Log_Message
+  Man ..> State_State
+  Man ..> Timer_Time
+  Timer_Time "1" ..> "*" Interfaces_TimeInterface
+  Timer_Time ..> Interfaces_TimeInterface
+  Timer_Timer ..> Timer_Time
 @enduml
