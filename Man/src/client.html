@@ -19,7 +19,7 @@
         Pause
       </button>
       <button id="resumeBtn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-        Resume
+        Play
       </button>
       <button id="exportBtn" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
         Exporter
@@ -68,9 +68,15 @@
       </button>
     </div>
 
-    <!-- Cadrant à messages -->
-    <div id="messages" class="mb-6 bg-white border border-gray-300 rounded shadow-md p-4 max-h-72 overflow-y-auto">
+    <div class="mb-4">
+      <button id="toggleDebugBtn" class="px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm shadow">
+        Afficher les informations de débogage
+      </button>
+      <div id="messages" class="hidden bg-gray-50 border border-gray-300 rounded shadow-md p-4 max-h-72 overflow-y-auto mt-2 transition-all duration-300 ease-in-out">
+        <h2 class="text-base font-medium mb-2 text-gray-800">Messages de Debug</h2>
+      </div>
     </div>
+
 
 
     <section id="config">
@@ -490,6 +496,11 @@
         };
       }
     });
+
+    document.getElementById('toggleDebugBtn').addEventListener('click', () => {
+      document.getElementById('messages').classList.toggle('hidden');
+    });
+
 
   </script>
   <script type="module" src="./client/main.js"></script>
