@@ -488,12 +488,12 @@
         showPopup("Importation", "Attention, vous pourrez voir les données sur l'ensemble de la sauvegarde mais pas la continuer");
         const file = event.target.files[0];
         const reader = new FileReader();
-        reader.onload = function (e) {
-          const data = JSON.parse(e.target.result);
+        console.log("Là")
+        reader.addEventListener('load', (event) => {
+          const data = JSON.parse(event.target.result);
           decodeJSON(data);
-          // Remplir le formulaire + afficher les données
           populateForm(data);
-        };
+        });
       }
     });
 
