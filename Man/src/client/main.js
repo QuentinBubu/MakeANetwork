@@ -74,6 +74,7 @@ function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
   }
   
   function addClickListenerForArret(arret) {
+    showPopup("Arrêt " + arret.nom, "placer l'arrêt " + arret.nom + " en cliquant sur le canvas.");
     function handleClick(event) {
       event.stopPropagation();
   
@@ -81,7 +82,7 @@ function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
       arret.setY(mouseY/ratio);
   
 
-      document.removeEventListener("click", handleClick, true);
+      arretsCanvas.parentNode.removeEventListener("click", handleClick, true);
   
 
       currentArretIndex++;
@@ -90,7 +91,7 @@ function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
       }
     }
   
-    document.addEventListener("click", handleClick, { capture: true, once: true });
+    arretsCanvas.parentNode.addEventListener("click", handleClick, { capture: true, once: true });
     renderStops();
     buses.forEach((bus)=>{bus.setPosition();})    
   }
@@ -140,11 +141,11 @@ function fixRatio(Canvas){
 }
 
   function getObjectFitSize(contains /* true = contain, false = cover */,containerWidth,containerHeight,width,height) {
-    var doRatio = width / height;
-    var cRatio = containerWidth / containerHeight;
-    var targetWidth = 0;
-    var targetHeight = 0;
-    var test = contains ? doRatio > cRatio : doRatio < cRatio;
+    let doRatio = width / height;
+    let cRatio = containerWidth / containerHeight;
+    let targetWidth = 0;
+    let targetHeight = 0;
+    let test = contains ? doRatio > cRatio : doRatio < cRatio;
   
     if (test) {
       targetWidth = containerWidth;
