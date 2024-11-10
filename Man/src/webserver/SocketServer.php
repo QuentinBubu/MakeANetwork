@@ -115,6 +115,9 @@ class SocketServer implements MessageComponentInterface
             case 'resume':
                 $this->man->state = ManEnum::RUNNING;
                 break;
+            case 'export':
+                $from->send(json_encode(['export' => $this->man->getAllStates()]));
+                break;
             default:
                 echo "Unknown command: $msg\n";
                 break;
