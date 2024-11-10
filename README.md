@@ -42,6 +42,7 @@ Nous avons également implémenté un système de logs qui permet de suivre l'é
 
 - L'interface graphique n'est pas encore fonctionnelle
 - L'importation des fichiers d'état ne fonctionne pas encore
+- Les tests unitaires ne sont pas encore vraiment bien implémentés
 
 ## Liste des fonctionnalités non implémentées
 
