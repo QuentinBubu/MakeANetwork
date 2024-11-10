@@ -1,20 +1,81 @@
-Grail Liam
+# Make A Network
 
-Buffard Quentin
+## Auteurs
 
+- Grail Liam
+- Buffard Quentin
 
+## Liste des fonctionnalités implémentées fonctionnelles
 
-1 Liste fonctionnalités implémentées et qui fonctionne
-TODO
+Nous sommes partis sur le fait qu'il faut que le projet soit flexible et modulable. Nous avons donc implémenté un système de configuration qui permet de modifier les paramètres du projet sans avoir à modifier le code.
 
-2 Liste fonctionnalités implémentées et qui ne fonctionne pas / mal
-TODO
+Actuellement, nous pouvons donc modifier les paramètres suivants :
+- Le nombre de personnes (avec l'ajout / suppression de nouvelles personnes avec de nouveaux trajets) (Olvl1_1 et Olvl2_1)
+- Le nombre de bus (avec l'ajout / suppression de nouveaux types de bus avec de nouveaux parcours) (Olvl1_2 et Olvl2_2)
+- Le nombre d'arrêts (avec l'ajout / suppression de nouveaux arrêts)
+- Les routes entre les arrêts (avec l'ajout / suppression de nouvelles routes) (Olvl7)
+- Les parcours des bus (avec l'ajout / suppression de nouveaux parcours avec des arrêts spécifiques)
 
-3 Liste fonctionnalités non implémentées 
-TODO
+Tout est donc modifiable dans le dossier `data` si l'on exécute le programme en mode ligne de commande ou via l'interface graphique en mode Web.
 
-4 Explication lancement du programme
-TODO
+Au niveau algorithmique, nous avons implémenté :
+- La gestion du temps (R1)
+- La terminaison de l'algorithme (R2)
+- Le déplacement des bus (R3)
+- Le remplissage et vidage des bus à chaque unité de temps (R4)
+- Le tri des personnes dans l'ordre de montée / descente d'un bus par unité de temps d'arrivée et par ordre aphanumérique (R5)
+- Les personnes choisissent leur trajet pour optimiser leur temps de trajet suivant les files d'attentes et positions des bus (R6)
+- La vision graphique (R7)
+- La possibilité de retour arrière dans le temps sur la vision graphique (R8)
+
+De plus, nous pouvons avec l'inteface graphique, importer et exporter des fichiers d'état de la simulation pour facilement pouvoir reprendre les visuels.
+
+Nous pouvons également utiliser les boutons `forward` et `backward` pour avancer ou reculer dans le temps de la simulation avec des protections (message d'erreur si l'on veut aller en dessous de 0, avancement automatique si l'état suivant n'est pas encore calculé).
+
+Cependant, il est important de noter que le déplacement dans le temps nécessite de mettre la simulation en pause.
+
+Il est possible de lancer l'application depuis plusieurs clients sur un même serveur, ils se synchronisent automatiquement.
+
+Nous avons également implémenté un système de logs qui permet de suivre l'évolution de la simulation en temps réel. Il est possible de spécifier un fichier de sortie pour les logs, par défaut ils sont sur la sortie standard. Il est possible de spécifier le niveau de verbose pour les logs (de 0 à 3).
+
+## Liste fonctionnalités fonctionnant mal ou pas
+
+- L'interface graphique n'est pas encore fonctionnelle
+- L'importation des fichiers d'état ne fonctionne pas encore
+
+## Liste des fonctionnalités non implémentées
+
+L'on pourrait ajouter de nombreuses fonctionnalités, telles que :
+- La possibilité de modifier les paramètres en temps réel
+- La vérification de la validité des données
+- Avoir une simulation par client
+- Choix du niveau de verbose par la ligne de commande
+
+## Lancement du programme
+
+Il existe deux façons de lancer le programme, en mode ligne de commande ou en mode interface graphique.
+
+### Ligne de commande
+
+Pour lancer le programme en mode ligne de commande, il faut taper :
+
+```bash
+php man -p runAll [-o | --output <Fichier de sortie>]
+```
+
+L'option `-o` ou `--output` permet de spécifier un fichier de sortie pour les logs. Par défaut, ils sont sur la sortie standard.
+
+### Interface graphique
+
+Pour lancer le programme en mode interface graphique, il faut **d'abord** lancer le serveur :
+
+```bash
+php man -p socket
+```
+
+Un socket est alors ouvert sur le port 8080. On peut désormais s'y connecter avec le client.
+
+Il suffit d'ouvrir le fichier `client.html` dans un navigateur pour se connecter au serveur. Il n'y a pas besoin de le lancer via un serveur web, le fichier est auto-suffisant.
 
 5 Calcul complexité outil comparaison/consultation et explication
 TODO
@@ -24,19 +85,3 @@ TODO
 
 7 Temps de terminaison de l’algorithme
 TODO
-
-
-Liste non exhaustive pour projet : 
-- R1 : Gestion du temps
-- R2 : Terminaison de l’algorithme
-- R3 : Déplacement Bus
-- R4 : Les bus se vident et se remplissent
-- R5 : Tri ordre de monté/descente d’un bus
-- R6 : Les personnes choisissent leur trajet pour optimiser leur temps de trajet
-- R7 : Vision graphique présente
-- R8 : possibilité de retour arrière dans le temps sur vision graphique
-- Olvl1_1 : Votre algo fonctionne si on modifie le nombre de personnes
-- Olvl1_2 :  Votre algo fonctionne si on modifie le nombre de bus
-- Olvl2_1 : Votre algo fonctionne si on ajoute en paramètre d’entrée une nouvelle type de personne (avec son propre trajet/nombre ..)
-- Olvl2_2 : Votre algo fonctionne si on rajoute en paramètre d’entrée un nouveau type de bus (avec son propre trajet/nombre ..)
-- Olvl7 : Votre algo fonctionne si on rajoute en paramètre d’entrée un nouveau chemin (avec sa propre longueur)
