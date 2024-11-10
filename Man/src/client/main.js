@@ -1,18 +1,20 @@
 import Arret from './Arret.js'
-export { setup};
+import Bus from './Bus.js'
+export { setup, increment};
 
 
 /** @type {HTMLCanvasElement} */
-const busCanvas = document.getElementById("busCanvas");
-let ctx = busCanvas.getContext("2d");
-let sizeX = busCanvas.width;
+const arretsCanvas = document.getElementById("busCanvas");
+let arretCtx = arretsCanvas.getContext("2d");
+const BusCanvas = document.getElementById("busCanvas");
+let BusCtx = arretsCanvas.getContext("2d");
+let sizeX = arretsCanvas.width;
 let sizeY = 100;
-const canvasRect = busCanvas.getBoundingClientRect();
+const canvasRect = arretsCanvas.getBoundingClientRect();
 let ratio = 1;
-
 let mouseX = null;
 let mouseY = null;
-
+let currentArretIndex = 0;
 
 document.addEventListener("mousemove", placementCursor)
 
@@ -23,18 +25,22 @@ function placementCursor(e){
 }
 
 let arrets = {};
+let buses = [];
 
 
   function setup(conf) {
-    ratio = fixRatio(busCanvas);
+    ratio = fixRatio(arretsCanvas);
+    fixRatio(arretsCanvas);
     setArret(conf);   
     setLinks(conf);
-    setCoordinates();
+    console.log(conf);
+    //setBuses(conf.bus, conf.busses, conf.parcours);
+    setCoordinates();        
     }
 
   function setArret(json){
     for (let arret in json["arrets"]){
-        arrets[arret] = (new Arret(arret,ctx));
+        arrets[arret] = (new Arret(arret,arretCtx));
     }
   }
 
@@ -53,8 +59,13 @@ let arrets = {};
         });
         }      
 
+function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
+  Object.values(bussesJSON).forEach((bus) => {
+    buses.push(new Bus(busTypeJSON[bus["type"]],bus.parcours,BusCtx));
+  });
+}
 
-  let currentArretIndex = 0;
+
 
 
   function setCoordinates() {
@@ -82,7 +93,10 @@ let arrets = {};
     }
   
     document.addEventListener("click", handleClick, { capture: true, once: true });
-    renderStops()
+    renderStops();
+    buses.forEach((bus) => {
+      bus.setParcoursDistances(arrets);
+    })
   }
         
 
@@ -94,10 +108,10 @@ function renderStops() {
 
       links.forEach((link) => {
 
-      ctx.beginPath();
-      ctx.moveTo(arret.x, arret.y);
-      ctx.lineTo(arrets[link].x, arrets[link].y);
-      ctx.stroke();
+      arretCtx.beginPath();
+      arretCtx.moveTo(arret.x, arret.y);
+      arretCtx.lineTo(arrets[link].x, arrets[link].y);
+      arretCtx.stroke();
       });
     });
       Object.values(arrets).forEach((arret) => {
@@ -143,4 +157,8 @@ function fixRatio(Canvas){
       x: (containerWidth - targetWidth) / 2,
       y: (containerHeight - targetHeight) / 2
     };
+  }
+
+  function increment(){
+    buses.forEach((bus) => {bus.increment()});
   }
