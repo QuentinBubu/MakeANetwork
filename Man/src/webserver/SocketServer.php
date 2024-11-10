@@ -165,17 +165,23 @@ class SocketServer implements MessageComponentInterface
                 'tick' => $this->man->getTick(),
                 'data' => $this->man->getLastState(),
             ]));
+            $this->close(loop: true, client: false);
         }
     }
 
-    public function close(): void
+    public function close(bool $loop = false, bool $client = false): void
     {
-        foreach (Loop::get() as $timer) {
-            Loop::get()->cancelTimer($timer);
+        if ($loop) {
+            $this->loop->stop();
+            foreach (Loop::get() as $timer) {
+                Loop::get()->cancelTimer($timer);
+            }
         }
 
-        foreach ($this->clients as $client) {
-            $client->close();
+        if ($client) {
+            foreach ($this->clients as $client) {
+                $client->close();
+            }
         }
     }
 }

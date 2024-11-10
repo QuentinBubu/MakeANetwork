@@ -192,7 +192,7 @@
   </div>
 
   <!-- Popup Fin de l'univers -->
-  <div id="universeEndModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden">
+  <div id="universeEndModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden z-10">
     <div class="bg-white p-6 rounded-lg shadow-lg text-center max-w-md w-full">
       <h2 class="text-2xl font-semibold mb-4">Fin de l'univers !</h2>
       <p id="universeEndMessage" class="text-lg">Univers terminé en <span id="tickCount"></span> ticks.</p>
@@ -351,6 +351,8 @@
         a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(data.export);
         a.download = 'exportMan.json';
         a.click();
+      } else if (data.hasOwnProperty("univers_end")) {
+        showUniverseEndModal(data['tick']);
       }
     });
 
