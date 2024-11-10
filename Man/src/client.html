@@ -31,7 +31,7 @@
     </div>
 
     <div class="wrapper">
-      <canvas height="100" width="300" style="object-fit:contain;" id="busCanvas"></canvas>
+      <canvas height="100" width="300" style="object-fit:contain;" id="arretCanvas"></canvas>
       <canvas height="100" width="300" style="object-fit:contain;" id="entityCanvas"></canvas>
     </div>
 
@@ -211,11 +211,9 @@
     </div>
   </div>
 
-  <script type="module">
-    import { setup, increment } from "./client/main.js";
-    globalThis.setup = setup;
-    globalThis.increment = increment;
-  </script>
+  <script src="./client/Arret.js"></script>
+  <script src="./client/Bus.js"></script>
+  <script src="./client/main.js"></script>
   <script>
     // Envoi de la configuration
     function submitConfig() {
@@ -309,7 +307,7 @@
       });
 
       socket.send(JSON.stringify(configData));
-      //setup(configData["configuration"]);
+      setup(configData["configuration"]);
       //increment();
     }
 
@@ -346,14 +344,17 @@
         const runningState = data["running-state"];
         decodeJSON(runningState);
         document.getElementById("inputNumber").value = data['tick'];
-        document.getElementById("totalNumber").textContent = data['tick'];
+        document.getElementById("totalNumber").textContent = data['tick'];    
+        increment();    
       } else if (data.hasOwnProperty("state")) {
         const state = data["state"];
         decodeJSON(state);
         document.getElementById("inputNumber").value = data['state'];
         document.getElementById("totalNumber").textContent = data['on'];
+        increment();
       } else if (data.hasOwnProperty("success")) {
         showUniverseEndModal(data['tick']);
+        increment();
       } else if (data.hasOwnProperty("export")) {
         const a = document.createElement('a');
         a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(data.export);
