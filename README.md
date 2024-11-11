@@ -90,4 +90,4 @@ Un diagramme de classe est disponible `diagram.puml` et en svg `diagram.svg`.
 
 ## Temps de terminaison
 
-Notre univers se termine à l'unité de temps 14XXX.
+Notre univers se termine à l'unité de temps 14198.
