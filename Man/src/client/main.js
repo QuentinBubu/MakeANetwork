@@ -34,6 +34,12 @@ let buses = [];
     console.log(conf);
     setBuses(conf.bus, conf.buses, conf.parcours);
     setCoordinates();
+    arretsCanvas.parentNode.addEventListener("click", () => {
+      Object.values(arrets).forEach((arret) => {
+        console.log(arret);
+        if(arret.currentColor == arret.hoverColor){ arret.infoPopUp(); }
+      });
+    });
     }
 
   function setArret(json){

@@ -9,7 +9,10 @@ class Arret {
     this.currentColor = this.originalColor;
     this.isHovered = false;
     this.links = [];
-    this.ctx = ctx
+    this.ctx = ctx;
+    this.vehiculesEnApproche;
+    this.vehiculesEnAttente;
+    this.fileAttente;
   }
 
   setX(x){
@@ -41,6 +44,27 @@ class Arret {
       else {
         this.currentColor = this.originalColor;
       }
+    }
+
+    infoPopUp(){
+      if(this.vehiculesEnApproche!=undefined){
+      let popUpBody = " -vehicules en approche : ";
+      Object.keys(this.vehiculesEnApproche).forEach((vehicules) => {
+        popUpBody = popUpBody + "bus n°" + vehicules + " dans "  + this.vehiculesEnApproche[vehicules] + " ticks, "
+      });
+
+      popUpBody = popUpBody + "; -vehicules en attente : ";
+      Object.keys(this.vehiculesEnAttente).forEach((vehicules) => {
+        popUpBody = popUpBody + "bus n°" + vehicules + ", "
+      });
+      
+      popUpBody = popUpBody + "; -file d'attente : ";
+      this.fileAttente.forEach((personne) => {
+        popUpBody = popUpBody + personne[0] + ", "
+      });
+
+      showPopup("Arrêt " + this.nom, popUpBody + ";");
+    }
     }
   
 }

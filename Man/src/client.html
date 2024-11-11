@@ -344,7 +344,15 @@
         decodeJSON(runningState);
         document.getElementById("inputNumber").value = data['tick'];
         document.getElementById("totalNumber").textContent = data['tick'];    
-        busesJSON = Object.values(JSON.parse(runningState)[1].bus);
+        let popUpDataJSON = JSON.parse(runningState);
+
+        let arretJSON = Object.values(popUpDataJSON[0].arrets);
+        for(let index = 0; index<arretJSON.length; index++) {
+          Object.values(arrets)[index].vehiculesEnApproche = arretJSON[index]["vehiculesEnApproche"];
+          Object.values(arrets)[index].vehiculesEnAttente = arretJSON[index]["vehiculesEnAttente"];
+          Object.values(arrets)[index].fileAttente = Object.values(arretJSON[index]["fileAttente"]);
+        }
+        let busesJSON = Object.values(popUpDataJSON[1].bus);
         for(let index = 0; index<busesJSON.length; index++) {
             buses[index].state = busesJSON[index]["state"];
         }
