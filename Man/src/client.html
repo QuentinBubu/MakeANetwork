@@ -446,7 +446,7 @@
     function showPopup(h2Message, message) {
       document.getElementById('popupModal').classList.remove('hidden');
       document.getElementById('popup-h2').textContent = h2Message;
-      document.getElementById('popup-message').textContent = message;
+      document.getElementById('popup-message').innerHTML = message;
     }
 
     document.getElementById('closePopup').addEventListener('click', function () {

@@ -15,56 +15,57 @@ class Arret {
     this.fileAttente;
   }
 
-  setX(x){
+  setX(x) {
     this.x = x;
   }
 
-  setY(y){
+  setY(y) {
     this.y = y;
   }
 
-  addLink(arret,distance){
+  addLink(arret, distance) {
     this.links[arret] = distance;
   }
 
   draw() {
     this.ctx.beginPath();
-    this.ctx.arc(this.x,this.y, this.radius, 0, 2 * Math.PI, false);
+    this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
     this.ctx.fillStyle = this.currentColor;
     this.ctx.fill();
     this.ctx.stroke();
   }
-  
-  checkHover(mouseX,mouseY) {
-      this.isHovered = this.ctx.isPointInPath(mouseX, mouseY)
-      if (this.isHovered) {
-        this.currentColor = this.hoverColor
-      }
-  
-      else {
-        this.currentColor = this.originalColor;
-      }
+
+  checkHover(mouseX, mouseY) {
+    this.isHovered = this.ctx.isPointInPath(mouseX, mouseY)
+    if (this.isHovered) {
+      this.currentColor = this.hoverColor
     }
 
-    infoPopUp(){
-      if(this.vehiculesEnApproche!=undefined){
-      let popUpBody = " -vehicules en approche : ";
-      Object.keys(this.vehiculesEnApproche).forEach((vehicules) => {
-        popUpBody = popUpBody + "bus n°" + vehicules + " dans "  + this.vehiculesEnApproche[vehicules] + " ticks, "
-      });
+    else {
+      this.currentColor = this.originalColor;
+    }
+  }
 
-      popUpBody = popUpBody + "; -vehicules en attente : ";
-      Object.keys(this.vehiculesEnAttente).forEach((vehicules) => {
-        popUpBody = popUpBody + "bus n°" + vehicules + ", "
-      });
-      
-      popUpBody = popUpBody + "; -file d'attente : ";
-      this.fileAttente.forEach((personne) => {
-        popUpBody = popUpBody + personne[0] + ", "
-      });
+  infoPopUp() {
+    if (this.vehiculesEnApproche != undefined) {
+      let popUpBody = "- Véhicules en approche : ";
+      let vehiculesEnApproche = Object.keys(this.vehiculesEnApproche)
+        .map((vehicules) => `Bus n°${vehicules} dans ${this.vehiculesEnApproche[vehicules]} ticks`)
+        .join("<br>");
+      popUpBody += vehiculesEnApproche + "<hr>- Véhicules en attente : ";
+
+      let vehiculesEnAttente = Object.keys(this.vehiculesEnAttente)
+        .map((vehicules) => `Bus n°${vehicules}`)
+        .join("<br>");
+      popUpBody += vehiculesEnAttente + "<hr>- File d'attente : ";
+
+      let fileAttente = this.fileAttente
+        .map((personne) => personne[0])
+        .join("<br>");
+      popUpBody += fileAttente;
 
       showPopup("Arrêt " + this.nom, popUpBody + ";");
     }
-    }
-  
+  }
+
 }

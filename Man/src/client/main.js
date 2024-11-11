@@ -80,7 +80,7 @@ function setBuses(busTypeJSON, bussesJSON, parcoursJSON){
   }
   
   function addClickListenerForArret(arret) {
-    showPopup("Arrêt " + arret.nom, "placer l'arrêt " + arret.nom + " en cliquant sur le canvas.");
+    showPopup("Arrêt " + arret.nom, "Placez l'arrêt " + arret.nom + " en cliquant sur le canvas.");
     function handleClick(event) {
       event.stopPropagation();
   
