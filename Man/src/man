@@ -20,6 +20,9 @@ if (version_compare(phpversion(), '8.3', '<')) {
     die('Merci de passer à PHP 8.3 ou plus récent');
 }
 
+ini_set("memory_limit", "-1");
+set_time_limit(0);
+
 $man = new Man(__DIR__ . '/data');
 $man->setStates([
     ['class' => Arrets::class, 'method' => 'export', 'name' => 'arrets'],
