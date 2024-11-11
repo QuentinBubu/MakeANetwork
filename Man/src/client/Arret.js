@@ -61,7 +61,7 @@ class Arret {
 
       let fileAttente = this.fileAttente
         .map((personne) => personne[0])
-        .join("<br>");
+        .join(", ");
       popUpBody += fileAttente;
 
       showPopup("Arrêt " + this.nom, popUpBody + ";");
