@@ -308,7 +308,6 @@
 
       socket.send(JSON.stringify(configData));
       setup(configData["configuration"]);
-      //increment();
     }
 
     function decodeJSON(data) {
@@ -345,16 +344,20 @@
         decodeJSON(runningState);
         document.getElementById("inputNumber").value = data['tick'];
         document.getElementById("totalNumber").textContent = data['tick'];    
-        increment();    
+        busesJSON = Object.values(JSON.parse(runningState)[1].bus);
+        for(let index = 0; index<busesJSON.length; index++) {
+            buses[index].state = busesJSON[index]["state"];
+        }
+        increment();
       } else if (data.hasOwnProperty("state")) {
         const state = data["state"];
         decodeJSON(state);
         document.getElementById("inputNumber").value = data['state'];
         document.getElementById("totalNumber").textContent = data['on'];
-        increment();
+
       } else if (data.hasOwnProperty("success")) {
         showUniverseEndModal(data['tick']);
-        increment();
+
       } else if (data.hasOwnProperty("export")) {
         const a = document.createElement('a');
         a.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(data.export);
