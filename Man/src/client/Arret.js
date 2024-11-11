@@ -48,16 +48,16 @@ class Arret {
 
   infoPopUp() {
     if (this.vehiculesEnApproche != undefined) {
-      let popUpBody = "- Véhicules en approche : ";
+      let popUpBody = "- Véhicules en approche : <br>";
       let vehiculesEnApproche = Object.keys(this.vehiculesEnApproche)
         .map((vehicules) => `Bus n°${vehicules} dans ${this.vehiculesEnApproche[vehicules]} ticks`)
         .join("<br>");
-      popUpBody += vehiculesEnApproche + "<hr>- Véhicules en attente : ";
+      popUpBody += vehiculesEnApproche + "<hr>- Véhicules en attente : <br>";
 
       let vehiculesEnAttente = Object.keys(this.vehiculesEnAttente)
         .map((vehicules) => `Bus n°${vehicules}`)
         .join("<br>");
-      popUpBody += vehiculesEnAttente + "<hr>- File d'attente : ";
+      popUpBody += vehiculesEnAttente + "<hr>- File d'attente : <br>";
 
       let fileAttente = this.fileAttente
         .map((personne) => personne[0])
