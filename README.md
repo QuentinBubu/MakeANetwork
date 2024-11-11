@@ -40,7 +40,9 @@ Nous avons également implémenté un système de logs qui permet de suivre l'é
 
 ## Liste fonctionnalités fonctionnant mal ou pas
 
-- L'interface graphique n'est pas encore fonctionnelle
+- L'interface graphique ne supporte pas toutes les fonctionnalités offertes par le serveur et ne démare pas toujours comme il le faut
+- Les fonctinalités de hover et click du canvas de l'interface ne fonctionnent correctement que si l'utilisateur est tout en haut de la page 
+- les popups informatives des états des arrets sont rudimentaires
 - L'importation des fichiers d'état ne fonctionne pas encore
 - Les tests unitaires ne sont pas encore vraiment bien implémentés
 
